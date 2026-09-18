@@ -1,0 +1,223 @@
+"use client";
+
+import {useAccount} from "wagmi";
+import {BRAND, QUARTERS} from "@/lib/brand";
+import {ADDRESSES, EDITION_ID} from "@/lib/config";
+import {distributorAbi} from "@/lib/abis";
+import {formatAssetAmount, formatShare} from "@/lib/format";
+import {
+  useOwnedCards,
+  useQuarterStandings,
+  useRewardAssets,
+  type QuarterStanding,
+  type RewardAssetInfo,
+} from "@/lib/reads";
+import {PageHeader} from "./Section";
+import {ReadGate} from "./ReadGate";
+import {TxButton} from "./TxButton";
+import {NonAffiliation} from "./Disclaimer";
+
+export function GroundRent() {
+  const {isConnected} = useAccount();
+  const standings = useQuarterStandings();
+  const assets = useRewardAssets();
+  const owned = useOwnedCards();
+
+  return (
+    <>
+      <PageHeader
+        heading={`Collect ${BRAND.rewardsPageTerm.toLowerCase()}.`}
+        sub={`${BRAND.scoreTerm} is your score inside a ${BRAND.groupTerm.toLowerCase()}. More weight means a larger share of what was actually deposited — not a rate.`}
+      />
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        {!isConnected ? (
+          <div className="panel p-8 text-center text-sm text-ink-300">
+            Connect a wallet to open your scoreboard.
+          </div>
+        ) : (
+          <ReadGate
+            state={standings}
+            loadingLabel="Reading your standing in each quarter…"
+            failureLabel="Your scoreboard could not be read. Onchain reads did not succeed."
+          >
+            {(rows) => (
+              <div className="space-y-4">
+                {rows.map((row) => (
+                  <QuarterRow
+                    key={row.quarter}
+                    row={row}
+                    asset={assets.status === "ready" ? assets.data[row.quarter] : undefined}
+                    cardsHeld={
+                      owned.status === "ready"
+                        ? owned.data.filter((c) => c.quarter === row.quarter).length
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </ReadGate>
+        )}
+
+        <div className="panel mt-8 border-brass-500/30 p-5">
+          <h2 className="text-sm font-medium text-ink-100">Before you sell</h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink-300">
+            Credited amounts stay with this wallet and do not transfer with a card. Pending
+            amounts settle to you when a card is sold.
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-ink-500">
+            A marketplace will not explain this to either party. The buyer begins accruing from
+            the moment of the sale and shares only in deposits that arrive afterwards.
+          </p>
+        </div>
+
+        <NonAffiliation className="mt-6 max-w-3xl" />
+      </div>
+    </>
+  );
+}
+
+function QuarterRow({
+  row,
+  asset,
+  cardsHeld,
+}: {
+  row: QuarterStanding;
+  asset: RewardAssetInfo | undefined;
+  cardsHeld: number | undefined;
+}) {
+  const quarter = QUARTERS[row.quarter];
+  const nothingDeposited = row.totalDeposited === 0n;
+  const hasClaimable = row.pendingOnCards > 0n || row.creditedToWallet > 0n;
+
+  return (
+    <section className="panel p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="rule-label flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 rounded-full"
+              style={{backgroundColor: `var(${quarter?.colorVar ?? "--quarter-1"})`}}
+            />
+            {quarter?.label}
+          </p>
+          <p className="mt-1 text-sm text-ink-400">
+            {cardsHeld === undefined
+              ? "—"
+              : `${cardsHeld} card${cardsHeld === 1 ? "" : "s"} held`}
+            {" · "}
+            <span className="font-mono">
+              {row.walletWeight.toString()} / {row.quarterWeight.toString()}
+            </span>{" "}
+            {BRAND.scoreTerm.toLowerCase()}
+            {row.quarterWeight > 0n && (
+              <>
+                {" · "}
+                <span className="text-ink-300">
+                  {formatShare(row.walletWeight, row.quarterWeight)} of this{" "}
+                  {BRAND.groupTerm.toLowerCase()}
+                </span>
+              </>
+            )}
+          </p>
+        </div>
+
+        {asset && (
+          <span className="rounded-full border border-ink-800 px-3 py-1 font-mono text-xs text-ink-400">
+            {asset.symbol}
+          </span>
+        )}
+      </div>
+
+      {row.incomplete && (
+        <p className="mt-3 text-xs text-ink-400" role="alert">
+          Some figures in this row did not read back, so this row is not complete.
+        </p>
+      )}
+
+      {!asset ? (
+        <p className="mt-4 text-sm text-ink-500">
+          No reward asset is configured for this {BRAND.groupTerm.toLowerCase()} in this
+          deployment.
+        </p>
+      ) : nothingDeposited ? (
+        <p className="mt-4 text-sm text-ink-400">
+          No rewards have been deposited to this {BRAND.groupTerm.toLowerCase()} yet.
+        </p>
+      ) : (
+        <>
+          <dl className="mt-4 grid gap-px overflow-hidden rounded-md border border-ink-800 bg-ink-800 sm:grid-cols-3">
+            <Figure
+              label="Pending on cards"
+              value={formatAssetAmount(row.pendingOnCards, asset.decimals)}
+              symbol={asset.symbol}
+              note="Accruing on the cards themselves. Settles to you if you sell."
+            />
+            <Figure
+              label="Credited to wallet"
+              value={formatAssetAmount(row.creditedToWallet, asset.decimals)}
+              symbol={asset.symbol}
+              note="Already yours. Stays with this wallet, whatever happens to the cards."
+            />
+            <Figure
+              label="Claimed to date"
+              value={formatAssetAmount(row.totalClaimed, asset.decimals)}
+              symbol={asset.symbol}
+              note={`Paid out of this ${BRAND.groupTerm.toLowerCase()} to all holders.`}
+            />
+          </dl>
+
+          <p className="mt-3 font-mono text-xs text-ink-500">
+            Deposited to this {BRAND.groupTerm.toLowerCase()}:{" "}
+            {formatAssetAmount(row.totalDeposited, asset.decimals)} {asset.symbol}
+            {row.reserve > 0n && (
+              <>
+                {" · "}held in reserve: {formatAssetAmount(row.reserve, asset.decimals)}
+              </>
+            )}
+          </p>
+
+          <div className="mt-4">
+            <TxButton
+              address={ADDRESSES.distributor}
+              abi={distributorAbi}
+              functionName="claimQuarter"
+              // A scan bound of 0 means "all of this wallet's cards". The contract
+              // reports how far it got, so a bounded run can be resumed.
+              args={[EDITION_ID, row.quarter, 0n, 0n]}
+              label={`Claim ${quarter?.short ?? ""}`}
+              pendingLabel="Claiming…"
+              disabledReason={
+                hasClaimable ? undefined : `Nothing to claim in this ${BRAND.groupTerm.toLowerCase()} yet.`
+              }
+            />
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+function Figure({
+  label,
+  value,
+  symbol,
+  note,
+}: {
+  label: string;
+  value: string;
+  symbol: string;
+  note: string;
+}) {
+  return (
+    <div className="bg-ink-950 p-4">
+      <dt className="rule-label">{label}</dt>
+      <dd className="mt-1.5 font-mono text-lg text-ink-100">
+        {value} <span className="text-sm text-ink-500">{symbol}</span>
+      </dd>
+      <p className="mt-2 text-xs leading-relaxed text-ink-500">{note}</p>
+    </div>
+  );
+}

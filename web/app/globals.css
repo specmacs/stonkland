@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --quarter-1: #4a8fd4;
+  --quarter-2: #d98b3a;
+  --quarter-3: #5fa86b;
+  --quarter-4: #a774c4;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #080a0c;
+  color: #d8e0e8;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A visible focus ring everywhere, not just where a component remembered one. */
+:focus-visible {
+  outline: 2px solid #dbb864;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@layer components {
+  .rule-label {
+    @apply text-[11px] uppercase tracking-[0.18em] text-ink-500;
+  }
+
+  .panel {
+    @apply rounded-lg border border-ink-800 bg-ink-900/60;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm
+           font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .btn-primary {
+    @apply btn bg-brass-500 text-ink-950 hover:bg-brass-400 disabled:hover:bg-brass-500;
+  }
+
+  .btn-secondary {
+    @apply btn border border-ink-700 text-ink-200 hover:border-ink-600 hover:text-ink-100;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
