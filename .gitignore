@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.local
+.DS_Store
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/lib/
+
+# Next.js
+web/.next/
+web/out/
+web/next-env.d.ts
