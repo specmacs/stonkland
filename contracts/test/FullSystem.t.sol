@@ -5,6 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {SystemDeployer, DeployConfig, Deployment} from "../script/SystemDeployer.sol";
+import {DeploymentChecks} from "../script/DeploymentChecks.sol";
 import {RevenueVault} from "../src/RevenueVault.sol";
 import {UniswapV3Adapter} from "../src/adapters/UniswapV3Adapter.sol";
 import {OracleGuard} from "../src/libraries/OracleGuard.sol";
@@ -41,7 +42,7 @@ contract FullSystemTest is Test {
             assetAddrs[q] = address(assets[q]);
         }
 
-        d = new SystemDeployer().deploy(
+        d = SystemDeployer.deploy(
             DeployConfig({
                 tokenName: "Landlord",
                 tokenSymbol: "LORD",
@@ -58,7 +59,8 @@ contract FullSystemTest is Test {
                 rewardAssets: assetAddrs,
                 imageBaseURI: "https://example.invalid/art/level-",
                 externalBaseURI: "https://example.invalid/card/"
-            })
+            }),
+            address(this)
         );
 
         // Routes, wired after deployment because an adapter is the one swappable piece.
@@ -90,8 +92,15 @@ contract FullSystemTest is Test {
         vm.stopPrank();
     }
 
+    function test_deploymentPassesItsOwnPublishedChecks() public {
+        DeployConfig memory c = _config();
+        Deployment memory fresh = SystemDeployer.deploy(c, address(this));
+        // The same check the runbook runs before pointing the frontend at a deployment.
+        new DeploymentChecks().check(c, fresh);
+    }
+
     function test_deploymentHandsOverEveryKeyAndLaunchesPaused() public {
-        Deployment memory fresh = new SystemDeployer().deploy(_config());
+        Deployment memory fresh = SystemDeployer.deploy(_config(), address(this));
 
         assertEq(fresh.nft.owner(), owner);
         assertEq(fresh.registry.owner(), owner);

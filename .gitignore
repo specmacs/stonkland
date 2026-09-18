@@ -13,3 +13,4 @@ contracts/lib/
 web/.next/
 web/out/
 web/next-env.d.ts
+deployments/local.env

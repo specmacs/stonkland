@@ -53,6 +53,11 @@ struct Deployment {
 
 /// @notice Deploys the founding edition in reviewed order and hands every key over.
 ///
+/// @dev A library rather than a contract on purpose. Embedding fourteen contracts'
+///      bytecode in a deployer would put it well past the 24kB contract size limit, and
+///      inlining it into the caller keeps the deployment sequence in one place that both
+///      the script and the tests run, instead of a script and a test that drift apart.
+///
 /// @dev The deployer holds each owner role only long enough to complete the one-time
 ///      links, then transfers it on. Nothing is left owned by this contract, which the
 ///      manifest check at the end of the runbook verifies.
@@ -63,13 +68,21 @@ struct Deployment {
 ///      address as an immutable and will accept deposits from nothing else; the vault
 ///      learns the distributor's address afterwards, through a link it can only complete
 ///      once.
-contract SystemDeployer {
-    uint256 public constant FOUNDING_EDITION = 1;
-    uint8 public constant QUARTERS = 4;
+library SystemDeployer {
+    uint256 internal constant FOUNDING_EDITION = 1;
+    uint8 internal constant QUARTERS = 4;
 
     error AssetMissing(uint8 quarter);
+    error DeployerMismatch(address expected, address actual);
 
-    function deploy(DeployConfig memory c) public returns (Deployment memory d) {
+    /// @param deployer the account that holds every owner role for the length of this
+    ///        sequence and must be the caller: the broadcasting key in a script, the test
+    ///        contract in a test. Getting it wrong fails on the first link rather than
+    ///        leaving a half-owned system behind.
+    function deploy(DeployConfig memory c, address deployer) internal returns (Deployment memory d) {
+        if (deployer != address(0) && msg.sender != deployer && address(this) != deployer) {
+            revert DeployerMismatch(deployer, msg.sender);
+        }
         for (uint8 q; q < QUARTERS; ++q) {
             if (c.rewardAssets[q] == address(0)) revert AssetMissing(q);
         }
@@ -79,9 +92,9 @@ contract SystemDeployer {
 
         // 2. Revenue custody, then accounting. The distributor's depositor is immutable,
         //    so the vault has to exist first.
-        d.revenueVault = new RevenueVault(c.weth, address(this));
-        d.distributor = new Distributor(address(d.revenueVault), address(this));
-        d.registry = new EditionRegistry(address(d.distributor), address(this));
+        d.revenueVault = new RevenueVault(c.weth, deployer);
+        d.distributor = new Distributor(address(d.revenueVault), deployer);
+        d.registry = new EditionRegistry(address(d.distributor), deployer);
 
         d.distributor.setRegistry(address(d.registry));
         d.revenueVault.linkDistributor(address(d.distributor));
@@ -102,21 +115,21 @@ contract SystemDeployer {
             c.treasurySink,
             c.buybackRecipient,
             c.buybackBps,
-            address(this)
+            deployer
         );
         d.streamVault = new StreamVault(c.weth, address(d.revenueVault));
         d.feeRouter = new FeeRouter(c.weth, address(d.buyback), address(d.streamVault), c.feeSource);
 
         // 5. The collection and everything that may write to it.
-        d.nft = new PropertyNFT(c.nftName, c.nftSymbol, c.weightMultiplierBps, address(this));
+        d.nft = new PropertyNFT(c.nftName, c.nftSymbol, c.weightMultiplierBps, deployer);
         d.hook = new TransferHook(address(d.nft), address(d.distributor), FOUNDING_EDITION);
-        d.minter = new Minter(address(d.token), address(d.nft), address(this));
+        d.minter = new Minter(address(d.token), address(d.nft), deployer);
         d.manager = new ProgressionManager(
-            address(d.token), address(d.nft), address(d.distributor), FOUNDING_EDITION, address(this)
+            address(d.token), address(d.nft), address(d.distributor), FOUNDING_EDITION, deployer
         );
         d.royaltyRouter = new RoyaltyRouter(c.weth, address(d.revenueVault));
         d.renderer =
-            new MetadataRenderer(c.nftName, c.imageBaseURI, c.externalBaseURI, address(this));
+            new MetadataRenderer(c.nftName, c.imageBaseURI, c.externalBaseURI, deployer);
 
         // 6. One-time links. Each of these reverts if attempted a second time.
         d.nft.linkSettlementHook(address(d.hook));
