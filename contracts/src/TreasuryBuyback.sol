@@ -44,9 +44,31 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
     /// @notice Share of incoming treasury revenue spent on buybacks.
     uint16 public buybackBps;
 
+    /// @notice The only address allowed to trigger a buyback. Zero means anyone may.
+    /// @dev    The token's pool has no price history to check a fill against, so the
+    ///         caller's `minOut` is the whole of the price protection and somebody has to
+    ///         have looked at the pool to set it. Naming a keeper means that somebody is
+    ///         known, and takes away an attacker's ability to choose the moment.
+    ///
+    ///         Clearing it hands the trigger to everyone and leaves the cap and the
+    ///         cooldown to bound what a badly-timed call can cost. That is the weaker
+    ///         protection and the one that needs nobody to keep a script running.
+    address public keeper;
+
+    /// @notice Most that may be spent in one call. Zero means no ceiling.
+    uint256 public maxSpendPerCall;
+
+    /// @notice Seconds that must pass between buybacks.
+    uint256 public cooldown;
+
+    /// @notice When the last buyback ran.
+    uint256 public lastExecutedAt;
+
     IAcquisitionAdapter public adapter;
 
     event BuybackBpsSet(uint16 previous, uint16 current);
+    event KeeperSet(address indexed previous, address indexed current);
+    event LimitsSet(uint256 maxSpendPerCall, uint256 cooldown);
     event AdapterSet(address indexed adapter);
     event BuybackSkippedNoRoute(uint256 forwarded);
     event BoughtBack(uint256 spent, uint256 received, address indexed recipient);
@@ -58,6 +80,8 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
     error RecipientContradictsBurn();
     error AdapterAssetMismatch(address expected, address actual);
     error NothingToDo();
+    error NotKeeper(address caller);
+    error CooldownNotElapsed(uint256 readyAt);
 
     /// @param burnsBought_ true to destroy bought tokens, false to send them to
     ///        `buybackRecipient_`. When true, `buybackRecipient_` must be the zero
@@ -84,6 +108,28 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
 
     receive() external payable {}
 
+    /// @notice Name the only address allowed to trigger a buyback, or zero for anyone.
+    function setKeeper(address keeper_) external onlyOwner {
+        emit KeeperSet(keeper, keeper_);
+        keeper = keeper_;
+    }
+
+    /// @notice Bound what a single badly-timed buyback can cost, and how often one runs.
+    /// @param  maxSpendPerCall_ ceiling on one call's spend, or zero for none
+    /// @param  cooldown_ seconds between buybacks, or zero for none
+    function setLimits(uint256 maxSpendPerCall_, uint256 cooldown_) external onlyOwner {
+        maxSpendPerCall = maxSpendPerCall_;
+        cooldown = cooldown_;
+        emit LimitsSet(maxSpendPerCall_, cooldown_);
+    }
+
+    /// @notice Whether `caller` could trigger a buyback right now.
+    function canExecute(address caller) external view returns (bool) {
+        address k = keeper;
+        if (k != address(0) && caller != k) return false;
+        return block.timestamp >= lastExecutedAt + cooldown;
+    }
+
     function setBuybackBps(uint16 bps) external onlyOwner {
         if (bps > BPS_DENOMINATOR) revert BpsOutOfRange(bps);
         emit BuybackBpsSet(buybackBps, bps);
@@ -104,11 +150,20 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
     }
 
     /// @notice Spend the configured share on the token and forward the rest. Open to anyone.
+    /// @param minOut the least this call will accept for what it spends. With no price
+    ///        history behind the pool, this is the whole of the price protection.
     function execute(uint256 minOut, uint256 deadline)
         external
         nonReentrant
         returns (uint256 spent, uint256 bought)
     {
+        address k = keeper;
+        if (k != address(0) && msg.sender != k) revert NotKeeper(msg.sender);
+
+        uint256 readyAt = lastExecutedAt + cooldown;
+        if (block.timestamp < readyAt) revert CooldownNotElapsed(readyAt);
+        lastExecutedAt = block.timestamp;
+
         uint256 native = address(this).balance;
         if (native != 0) weth.deposit{value: native}();
 
@@ -122,6 +177,11 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
         // pool later, so there is nothing to buy against until it does. Treasury revenue
         // still moves, it just all goes to the sink until a route is wired.
         spent = address(a) == address(0) ? 0 : (balance * buybackBps) / BPS_DENOMINATOR;
+
+        // The ceiling applies to the trade, not to the sweep: whatever is not spent on
+        // the buyback still goes on to the sink in the same call.
+        uint256 ceiling = maxSpendPerCall;
+        if (ceiling != 0 && spent > ceiling) spent = ceiling;
 
         if (spent != 0) {
             IERC20(address(weth)).safeTransfer(address(a), spent);

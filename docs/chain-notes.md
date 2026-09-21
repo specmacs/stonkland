@@ -125,9 +125,27 @@ Two consequences worth holding on to:
 - The four **reward-asset routes are unaffected**. Those pools are Uniswap V3, verified,
   and the V3 swap router trades them.
 - The **buyback route is affected**. It buys TOWN, which lives in a V4 pool, so the V3
-  adapters cannot reach it. It also cannot exist at all before graduation, because until
-  then there is no pool. The buyback therefore forwards everything to the treasury sink
-  until a V4 adapter is wired, rather than reverting and stalling treasury revenue.
+  adapters cannot reach it. `UniswapV4Adapter` handles that, talking to the singleton
+  directly: there is no usable V4 router here, since the deployed universal router points
+  its `poolManager()` at an address with no code on this chain. Until a pool exists the
+  buyback forwards everything to the treasury sink rather than reverting.
+
+### Guarding a buyback with no price history
+
+V4 core keeps no observations and the venue's hook exposes none, so the thirty-minute
+average that guards the reward-asset routes has no equivalent for TOWN. Two controls stand
+in for it, both on `TreasuryBuyback`:
+
+- **A keeper.** Name one address and only it may trigger a buyback, passing a `minOut` it
+  worked out by looking at the pool first. This takes away an attacker's ability to choose
+  the moment, which is what a buyback sandwich depends on. Clear the keeper and the
+  trigger is open to anyone again.
+- **A ceiling and a cooldown.** Most that may be spent in one call, and the least time
+  between calls. These apply to everybody, keeper included, and they are what bounds the
+  cost of a single badly-timed call when no keeper is named.
+
+Start with a keeper while the pool is thin. Standing it down later is one transaction and
+adds no new trust.
 
 ### Fees, and why the loop stays permissionless
 
@@ -178,8 +196,10 @@ curve under that name — so nothing here is built against it.
 
 1. **The creator tax rate**, fixed at launch and unchangeable. See above; it is the
    largest lever on holder revenue.
-2. **The V4 buyback adapter**, which can only be built once the launch has graduated and
-   a pool exists. Wired afterwards with `TreasuryBuyback.setAdapter`, touching nothing
-   else.
+2. **TOWN's PoolKey**, once the launch graduates. The shape is already known from live
+   pools on this venue: `currency0` is the zero address (native ETH), `currency1` is the
+   token, `fee` is 0, `tickSpacing` is 60, and `hooks` is the hook the graduation names.
+   Read it off the singleton's `Initialize` event and pass it to `UniswapV4Adapter`, then
+   `TreasuryBuyback.setAdapter`. Nothing else is touched.
 3. **The ticker.** `TOWN` already trades on this chain and on seven other tokens
    elsewhere. Noted and accepted; a discoverability matter, not a technical one.

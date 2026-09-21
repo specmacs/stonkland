@@ -295,6 +295,57 @@ contract FullSystemTest is Test {
         assertEq(d.token.balanceOf(address(d.buyback)), 0);
     }
 
+    function test_aKeeperCanBeNamedAndLaterStoodDown() public {
+        address keeper = makeAddr("keeper");
+        address stranger = makeAddr("stranger");
+
+        vm.startPrank(owner);
+        d.buyback.setKeeper(keeper);
+        d.buyback.setLimits(1 ether, 1 hours);
+        vm.stopPrank();
+
+        assertTrue(d.buyback.canExecute(keeper));
+        assertFalse(d.buyback.canExecute(stranger));
+
+        vm.deal(address(d.buyback), 5 ether);
+        vm.prank(stranger);
+        vm.expectRevert(abi.encodeWithSelector(TreasuryBuyback.NotKeeper.selector, stranger));
+        d.buyback.execute(0, block.timestamp + 60);
+
+        vm.prank(keeper);
+        d.buyback.execute(0, block.timestamp + 60);
+
+        // Clearing the keeper hands the trigger to everyone, with the cooldown and the
+        // ceiling left to bound what a badly-timed call can cost.
+        vm.prank(owner);
+        d.buyback.setKeeper(address(0));
+
+        // The cooldown from the keeper's call still applies to everybody, which is the
+        // point of it: standing the keeper down loosens who may call, not how often.
+        assertFalse(d.buyback.canExecute(stranger), "cooldown still running");
+        vm.warp(block.timestamp + 1 hours);
+        assertTrue(d.buyback.canExecute(stranger), "open to anyone once stood down");
+    }
+
+    function test_theCooldownHoldsBackARepeatCall() public {
+        vm.prank(owner);
+        d.buyback.setLimits(0, 1 hours);
+
+        vm.deal(address(d.buyback), 2 ether);
+        d.buyback.execute(0, block.timestamp + 60);
+
+        vm.deal(address(d.buyback), 2 ether);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TreasuryBuyback.CooldownNotElapsed.selector, block.timestamp + 1 hours
+            )
+        );
+        d.buyback.execute(0, block.timestamp + 60);
+
+        vm.warp(block.timestamp + 1 hours);
+        d.buyback.execute(0, block.timestamp + 60);
+    }
+
     function test_aDeploymentCannotClaimToBurnWhileNamingARecipient() public {
         vm.expectRevert(TreasuryBuyback.RecipientContradictsBurn.selector);
         new TreasuryBuyback(address(weth), address(d.token), treasurySink, true, treasurySink, 2_000, owner);
