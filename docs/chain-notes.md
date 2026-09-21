@@ -103,20 +103,45 @@ together with its pool in a single transaction and locks the liquidity permanent
 | V2 factory | `0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e` |
 | V2 meme hook | `0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044` |
 | V2 launch locker | `0x267444D099b10fB5Ed7c3Cc7B7c767AdcA574952` |
+| Uniswap V4 pool manager | `0x8366a39CC670B4001A1121B8F6A443A643e40951` |
 | V1 factory | `0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB` |
 | V1 locker | `0x736D76699C26D0d966744cAe304C000d471f7F35` |
 | V1 position manager | `0x73991a25C818Bf1f1128dEAaB1492D45638DE0D3` |
 
+The V4 pool manager and the fee escrow were read off the V2 factory and the hook rather
+than copied from documentation, and they agree with each other.
+
 The swap router is a genuine Uniswap V3 `SwapRouter`: `factory()` and `WETH9()` both
 resolve to the addresses in the table above. The adapters trade through it.
 
+### The V2 launch shape
+
+The launch runs a bonding curve priced in **native ETH**, and graduates into a Uniswap
+**V4** pool once the curve is bought out. The graduated pool's own fee is zero; the Pons
+hook charges the swap fee instead. Liquidity is locked permanently.
+
+Two consequences worth holding on to:
+
+- The four **reward-asset routes are unaffected**. Those pools are Uniswap V3, verified,
+  and the V3 swap router trades them.
+- The **buyback route is affected**. It buys TOWN, which lives in a V4 pool, so the V3
+  adapters cannot reach it. It also cannot exist at all before graduation, because until
+  then there is no pool. The buyback therefore forwards everything to the treasury sink
+  until a V4 adapter is wired, rather than reverting and stalling treasury revenue.
+
 ### Fees, and why the loop stays permissionless
 
-Pons charges **1%** on trades for a V1 launch, split 70% to the launch creator and 30% to
-Pons. So this protocol receives **0.7% of trade value**, not the 1% headline and certainly
-not the 3% the original build handoff assumed. That is roughly a quarter of the revenue
-the handoff's economics were sketched against. It changes nothing mechanically, and it
-changes the size of everything.
+Pons charges a base fee on trades and keeps a share of it; the rest goes to the launch
+creator, which here is this protocol. On a V1 launch that was documented as 1% split
+70/30, so **0.7% of trade value** reached the creator. The original build handoff assumed
+3%. That is roughly a quarter of the revenue its economics were sketched against — the
+mechanism is unaffected and the size of everything is not.
+
+A V2 launch adds an **optional creator tax**, set at launch and unchangeable afterwards,
+capped at 10% (read live: `maxCreatorTaxBps()` on the factory returns `1000`). It goes
+entirely to the creator, so it lands in the fee router alongside the base fee's creator
+share. Given how little the base fee alone yields, this is the largest single lever on
+how much ever reaches a card.
 
 Fees do not arrive by themselves. They accrue in a pull-based escrow, and the escrow's
 `claim()` and `claimToken(address)` pay `msg.sender`. Verified against the deployed
@@ -131,14 +156,18 @@ reward.
 deployed `FeeRouter` as its fee recipient. Until that is done, trading fees accrue to
 whatever address was named instead and never reach card holders.
 
+A live V2 launch was inspected to confirm the shape: its token exposes `curve()`, the
+curve exposes `feeEscrow()` pointing at the same escrow, `graduated()` reads false while
+it is still on the curve, and `creatorTaxBps()` reads zero for a launch that set no tax.
+Note that `sweepFees()`, which the documentation mentions, is not present on the deployed
+curve under that name — so nothing here is built against it.
+
 ## Still open
 
-1. **V1 or V2.** V1 is a direct Uniswap V3 pool against WETH at a documented 1%/70%. V2
-   runs a bonding curve that graduates into a locked Uniswap V4 pool, charges a base fee
-   plus an optional creator tax, and allows a wider choice of pairing asset. The escrow
-   address above is V2's. The numbers in this document are V1's.
-2. **Whether a creator tax is set on a V2 launch, and at what rate.** Fixed at launch,
-   unchangeable afterwards.
+1. **The creator tax rate**, fixed at launch and unchangeable. See above; it is the
+   largest lever on holder revenue.
+2. **The V4 buyback adapter**, which can only be built once the launch has graduated and
+   a pool exists. Wired afterwards with `TreasuryBuyback.setAdapter`, touching nothing
+   else.
 3. **The ticker.** `TOWN` already trades on this chain and on seven other tokens
-   elsewhere. Noted and accepted; it is a discoverability and impersonation matter, not a
-   technical one.
+   elsewhere. Noted and accepted; a discoverability matter, not a technical one.

@@ -48,6 +48,7 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
 
     event BuybackBpsSet(uint16 previous, uint16 current);
     event AdapterSet(address indexed adapter);
+    event BuybackSkippedNoRoute(uint256 forwarded);
     event BoughtBack(uint256 spent, uint256 received, address indexed recipient);
     event Burned(uint256 amount);
     event SweptToSink(uint256 amount);
@@ -55,7 +56,6 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
     error ZeroAddress();
     error BpsOutOfRange(uint16 bps);
     error RecipientContradictsBurn();
-    error AdapterNotSet();
     error AdapterAssetMismatch(address expected, address actual);
     error NothingToDo();
 
@@ -115,11 +115,15 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
         uint256 balance = weth.balanceOf(address(this));
         if (balance == 0) revert NothingToDo();
 
-        spent = (balance * buybackBps) / BPS_DENOMINATOR;
+        IAcquisitionAdapter a = adapter;
+
+        // No route, no buyback. This is the ordinary state before the token's pool
+        // exists: a launch trades on a bonding curve first and only graduates into a
+        // pool later, so there is nothing to buy against until it does. Treasury revenue
+        // still moves, it just all goes to the sink until a route is wired.
+        spent = address(a) == address(0) ? 0 : (balance * buybackBps) / BPS_DENOMINATOR;
 
         if (spent != 0) {
-            IAcquisitionAdapter a = adapter;
-            if (address(a) == address(0)) revert AdapterNotSet();
             IERC20(address(weth)).safeTransfer(address(a), spent);
 
             // When burning, the tokens come here first so the amount destroyed is the
@@ -136,6 +140,7 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
 
         uint256 remainder = weth.balanceOf(address(this));
         if (remainder != 0) {
+            if (address(a) == address(0)) emit BuybackSkippedNoRoute(remainder);
             IERC20(address(weth)).safeTransfer(sink, remainder);
             emit SweptToSink(remainder);
         }

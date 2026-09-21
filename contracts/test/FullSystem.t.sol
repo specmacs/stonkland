@@ -279,6 +279,22 @@ contract FullSystemTest is Test {
         assertEq(weth.balanceOf(treasurySink), 8 ether, "the remainder goes on to the sink");
     }
 
+    /// @dev A launch trades on a bonding curve before it graduates into a pool, so there
+    ///      is nothing to buy the token against until it does. Treasury revenue has to
+    ///      keep moving in the meantime.
+    function test_withNoRouteTheBuybackForwardsEverythingInsteadOfReverting() public {
+        assertEq(address(d.buyback.adapter()), address(0), "no route wired yet");
+
+        vm.deal(address(d.buyback), 10 ether);
+        vm.prank(makeAddr("anyone"));
+        (uint256 spent, uint256 bought) = d.buyback.execute(0, block.timestamp + 60);
+
+        assertEq(spent, 0);
+        assertEq(bought, 0);
+        assertEq(weth.balanceOf(treasurySink), 10 ether, "all of it went on to the sink");
+        assertEq(d.token.balanceOf(address(d.buyback)), 0);
+    }
+
     function test_aDeploymentCannotClaimToBurnWhileNamingARecipient() public {
         vm.expectRevert(TreasuryBuyback.RecipientContradictsBurn.selector);
         new TreasuryBuyback(address(weth), address(d.token), treasurySink, true, treasurySink, 2_000, owner);
