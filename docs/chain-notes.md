@@ -131,21 +131,26 @@ Two consequences worth holding on to:
 
 ### Fees, and why the loop stays permissionless
 
-Pons charges a base fee on trades and keeps a share of it; the rest goes to the launch
-creator, which here is this protocol. On a V1 launch that was documented as 1% split
-70/30, so **0.7% of trade value** reached the creator. The original build handoff assumed
-3%. That is roughly a quarter of the revenue its economics were sketched against — the
-mechanism is unaffected and the size of everything is not.
+The protocol's trading revenue is the **3% creator tax** this launch sets. It goes to the
+launch creator in full, and the launch creator is the fee router.
+
+The venue charges a fee of its own and keeps a share of it, passing the rest to the
+creator. That is upside, not budget: the venue sets those terms, can change them, and
+does not publish the division. Size the project on the 3%.
 
 A V2 launch adds an **optional creator tax**, set at launch and unchangeable afterwards,
 capped at 10% (`maxCreatorTaxBps()` on the factory returns `1000`). It goes to the creator
 in full.
 
-**This launch sets it to 3%.** With the venue's own 1% on top — `feeBps()` reads `100` on
-a live V2 curve — a trade costs **4%** in total. The 3% reaches the fee router in full and
-is therefore the figure holders can count on; a share of the venue's 1% arrives on top as
-the creator's cut, but the venue does not publish how it divides that, so nothing is built
-or claimed on it.
+**This launch sets it to 3%**, which reaches the fee router in full and is the only fee
+figure that appears anywhere a reader sees. It is ours, we set it, and it cannot change.
+
+The venue's own fee is deliberately absent from every user-facing surface. A live V2
+curve reads `feeBps() == 100`, but that is one other launch's curve at one moment, not a
+commitment about ours, and the venue can change its terms whenever it likes. An inference
+of that shape does not belong in a rulebook, and a total trade cost derived from it would
+be a claim nobody can stand behind. A share of the venue's fee may well reach the protocol
+as the creator's cut; nothing is built on it and nothing promises it.
 
 The creator tax only reaches the protocol if **the fee router is the launch's creator
 address**. Get that wrong at launch and the revenue goes somewhere else, permanently.

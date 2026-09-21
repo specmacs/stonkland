@@ -41,23 +41,14 @@ export const EDITION = {
   /** Tokens destroyed per mint, in whole tokens. */
   mintBurn: 100_000,
   /**
-   * The venue's own trading fee, as a percentage of trade value.
-   *
-   * Charged by the launch venue in the asset the pair is priced in, never in the token
-   * itself, which has no transfer tax and no function that could add one. Read from a
-   * live launch on the venue: `feeBps()` returns 100.
-   *
-   * The venue keeps part of this and passes the rest to the launch creator, which is
-   * this protocol. The exact division is the venue's and is not published, so nothing
-   * here counts on it.
-   */
-  venueBaseFeePercent: 1,
-  /**
-   * The tax this protocol sets on its own launch, as a percentage of trade value.
+   * The tax this launch sets, as a percentage of trade value.
    *
    * Goes to the launch creator in full, which is this protocol's fee router, so all of
-   * it reaches the split below. Fixed at launch and unchangeable afterwards. The venue
-   * caps it at 10%: `maxCreatorTaxBps()` returns 1000.
+   * it reaches the split. Fixed when the token is created and unchangeable afterwards.
+   *
+   * The venue charges a fee of its own on top. That one is the venue's: they set it,
+   * they can change it, and it is not this protocol's to quote. Nothing here counts on
+   * any part of it, and no number for it appears in anything a reader sees.
    */
   creatorTaxPercent: 3,
   feeSplitTreasuryBps: 3_333,
@@ -103,19 +94,15 @@ export const LEVELS: readonly LevelInfo[] = [
 
 export const MAX_LEVEL = 5;
 
-/** What a trade costs in total: the venue's fee plus this protocol's tax. */
-export const TOTAL_TRADE_COST_PERCENT =
-  EDITION.venueBaseFeePercent + EDITION.creatorTaxPercent;
-
 /**
- * The floor on what reaches this protocol from a trade, as a percentage of trade value.
+ * What reaches this protocol from a trade, as a percentage of trade value.
  *
- * The creator tax arrives in full and is therefore certain. A share of the venue's own
- * fee arrives on top, but the venue does not publish how it divides that, so it is not
- * counted here. What holders are told is the number that can be relied on, not the
- * best case.
+ * The creator tax, and only the creator tax. It arrives in full and is set by this
+ * launch, so it is a number that can be stood behind. The venue's own fee is theirs to
+ * set and to change, and a share of it may reach the protocol as well -- but a figure
+ * that depends on somebody else's undertaking is not one to put in front of a reader.
  */
-export const PROTOCOL_FLOOR_SHARE_OF_TRADE_PERCENT = EDITION.creatorTaxPercent;
+export const PROTOCOL_SHARE_OF_TRADE_PERCENT = EDITION.creatorTaxPercent;
 
 export function levelInfo(level: number): LevelInfo | undefined {
   return LEVELS.find((l) => l.level === level);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {BRAND, EDITION, LEVELS, TOTAL_TRADE_COST_PERCENT, QUARTERS} from "@/lib/brand";
+import {BRAND, EDITION, LEVELS, QUARTERS} from "@/lib/brand";
 import {formatBps} from "@/lib/format";
 import {Section} from "@/components/Section";
 import {LevelLadder} from "@/components/LevelLadder";
@@ -163,12 +163,11 @@ export default function LandingPage() {
           )}
         </ol>
         <p className="mt-6 max-w-3xl text-ink-400">
-          Trading costs {TOTAL_TRADE_COST_PERCENT}% in total: the venue&apos;s{" "}
-          {EDITION.venueBaseFeePercent}%, plus a {EDITION.creatorTaxPercent}% tax this protocol set
-          at launch and can never change. That {EDITION.creatorTaxPercent}% arrives in full. Once
-          it accrues, anyone can trigger the claim — no operator stands between you and a deposit.
-          The router splits it on fixed terms, wraps the rewards portion, and funds short streams
-          so a single sweep does not land on one moment.
+          This launch sets a {EDITION.creatorTaxPercent}% tax on trades, fixed when the token was
+          created and unchangeable since. It reaches the protocol in full. Once it accrues, anyone
+          can trigger the claim — no operator stands between you and a deposit. The router splits
+          it on fixed terms, wraps the rewards portion, and funds short streams so a single sweep
+          does not land on one moment.
         </p>
       </Section>
 

@@ -14,9 +14,9 @@ Supply is fixed at one billion and there is no function capable of creating more
 
 Moving tokens between wallets costs nothing and always will: there is no transfer tax in this token, and no function that could add one. Trading is where the fee is, and it is charged in the asset the pair is priced in rather than in tokens.
 
-Trading costs 4% in total. 1% is the venue's own fee, most of which the venue keeps; 3% is a tax this protocol sets on its own launch, and that 3% arrives here in full. A share of the venue's 1% reaches the protocol too, as the launch creator's cut, but the venue does not publish how it divides that, so treat 3% of what trades as the figure you can count on and anything above it as a bonus.
+This launch sets a 3% tax on trades, and that 3% reaches the protocol in full. It was set when the token was created and cannot be changed by anyone afterwards, including whoever holds the key.
 
-The tax was set when the token launched and cannot be changed by anyone, including whoever holds the key. The venue caps it at 10%; this launch set 3%. That fee, together with the card resale royalty below, is the whole of the protocol's revenue.
+The venue charges a fee of its own as well. That one belongs to the venue — they set it, they can change it, and it is not this protocol's to quote, so no figure for it appears here. Part of it may reach the protocol too. Nothing in this rulebook counts on that, and neither should you: 3% of what trades is the number to hold this protocol to. That, and the card resale royalty below, is the whole of its revenue.
 
 20% of the treasury's share is spent buying the token on the open market, and everything bought is destroyed. Anyone can trigger it. This recycles revenue the protocol already earned — it does not create revenue, and it is not a return. What it does do is make the treasury's share a second route by which supply falls and can never rise.
 

@@ -103,9 +103,10 @@ Three findings worth knowing before reading the code:
   against the route's own 30-minute average and bounds both the pool's deviation from it
   and the trade's own impact. Where a real feed exists, `UniswapV3Adapter` is the better
   choice and the vault can swap between them without touching accounting.
-- **The protocol receives 0.7% of trade value, not 3%.** The venue charges 1% and keeps
-  30% of it. The build handoff's economics were sketched against a figure roughly four
-  times larger. Nothing about the mechanism changes; the size of everything does.
+- **Trading revenue is the 3% creator tax**, set at launch and unchangeable, which
+  reaches the fee router in full. The venue charges a fee of its own on top; that one is
+  theirs to set and change, so no figure for it appears in any user-facing copy and
+  nothing is built on it.
 
 ```bash
 ROBINHOOD_RPC_URL=https://rpc.mainnet.chain.robinhood.com forge test --match-path 'test/fork/*' -vv
