@@ -34,15 +34,18 @@ contract Deploy is Script {
     }
 
     function _config() internal view returns (DeployConfig memory c) {
-        c.tokenName = vm.envOr("TOKEN_NAME", string("Landlord"));
-        c.tokenSymbol = vm.envOr("TOKEN_SYMBOL", string("LORD"));
-        c.nftName = vm.envOr("NFT_NAME", string("Landlord Property Card"));
+        c.tokenName = vm.envOr("TOKEN_NAME", string("Stocktown"));
+        c.tokenSymbol = vm.envOr("TOKEN_SYMBOL", string("TOWN"));
+        c.nftName = vm.envOr("NFT_NAME", string("Stocktown Property Card"));
         c.nftSymbol = vm.envOr("NFT_SYMBOL", string("CARD"));
 
         c.owner = vm.envAddress("OWNER");
         c.tokenRecipient = vm.envAddress("TOKEN_RECIPIENT");
         c.treasurySink = vm.envAddress("TREASURY_SINK");
-        c.buybackRecipient = vm.envAddress("BUYBACK_RECIPIENT");
+        // Burning is the default, because a buyback that keeps the tokens can be
+        // undone by selling them later and a burn cannot.
+        c.burnsBought = vm.envOr("BUYBACK_BURNS", true);
+        c.buybackRecipient = c.burnsBought ? address(0) : vm.envAddress("BUYBACK_RECIPIENT");
         c.weth = vm.envAddress("WETH");
         c.feeSource = vm.envOr("FEE_SOURCE", address(0));
 

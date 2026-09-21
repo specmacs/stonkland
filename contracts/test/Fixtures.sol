@@ -48,14 +48,14 @@ contract Fixtures is Test {
     address[QUARTERS] internal rewardAsset;
 
     function setUp() public virtual {
-        token = new Token("Landlord", "LORD", owner);
+        token = new Token("Stocktown", "TOWN", owner);
 
         distributor = new Distributor(revenueVault, owner);
         registry = new EditionRegistry(address(distributor), owner);
         vm.prank(owner);
         distributor.setRegistry(address(registry));
 
-        nft = new PropertyNFT("Landlord Property Card", "CARD", MULTIPLIER_BPS, owner);
+        nft = new PropertyNFT("Stocktown Property Card", "CARD", MULTIPLIER_BPS, owner);
         hook = new TransferHook(address(nft), address(distributor), EDITION);
         minter = new Minter(address(token), address(nft), owner);
         manager =

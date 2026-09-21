@@ -24,6 +24,9 @@ struct DeployConfig {
     string nftSymbol;
     address owner;
     address treasurySink;
+    /// @dev true destroys bought tokens; false sends them to `buybackRecipient`.
+    bool burnsBought;
+    /// @dev must be the zero address when `burnsBought` is true.
     address buybackRecipient;
     uint16 buybackBps;
     address weth;
@@ -113,6 +116,7 @@ library SystemDeployer {
             c.weth,
             address(d.token),
             c.treasurySink,
+            c.burnsBought,
             c.buybackRecipient,
             c.buybackBps,
             deployer

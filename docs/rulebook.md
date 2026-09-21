@@ -1,6 +1,6 @@
 # The Rulebook
 
-Landlord · Founding Edition. 400 property cards across four quarters. Every figure below matches the deployed contracts, and LORD is the token throughout.
+Stocktown · Founding Edition. 400 property cards across four quarters. Every figure below matches the deployed contracts, and TOWN is the token throughout.
 
 ## What this is
 
@@ -14,6 +14,8 @@ Supply is fixed at one billion and there is no function capable of creating more
 
 Moving tokens between wallets costs nothing. Trading them carries a 3% fee, charged in the trading pair's quote asset rather than in tokens. That fee, together with the card resale royalty below, is the protocol's revenue.
 
+20% of the treasury's share is spent buying the token on the open market, and everything bought is destroyed. Anyone can trigger it. This recycles revenue the protocol already earned — it does not create revenue, and it is not a return. What it does do is make the treasury's share a second route by which supply falls and can never rise.
+
 ## The cards
 
 There are 400 cards, divided evenly into four quarters of 100, each laid out as a 10×10 grid. A card's quarter is fixed at mint and can never change.
@@ -21,6 +23,8 @@ There are 400 cards, divided evenly into four quarters of 100, each laid out as 
 Minting destroys 100,000 tokens. Each wallet may mint 3 cards directly from the protocol. That is a limit on primary mints, not on ownership — you may buy as many cards as you like from other holders.
 
 Every card starts as a House at level one, carrying a weight of 125.
+
+No cards are reserved. There is no team allocation, no founder set, and no owner mint — the contracts contain no function that can create a card outside the 3-per-wallet mint everyone else uses, so anything the team holds was minted or bought on the same terms as yours.
 
 Cards resell with a 5% royalty, which is routed into rewards rather than to anyone's pocket. It is the one revenue source that does not depend on token trading volume.
 
@@ -86,7 +90,7 @@ You will never be paid in another edition's asset, and another edition's asset g
 
 Once deployed, no one — including whoever holds the key — can create tokens or cards beyond the caps, restore destroyed supply, alter a level, weight, or quarter, change the fee split, the stream duration, or the quarter allocation, withdraw or redirect deposited rewards, or touch any edition's weight multiplier or asset set. All of this is demonstrable from the verified source.
 
-Administrative control is limited to pausing minting, upgrades, and conversion; swapping the metadata renderer, which is presentation only; replacing a conversion route, which can change how an asset is bought but never which asset you receive; and registering a new edition.
+Administrative control is limited to pausing minting, upgrades, and conversion; swapping the metadata renderer, which is presentation only; replacing a conversion route, which can change how an asset is bought but never which asset you receive; adjusting the share of treasury revenue spent on buybacks, which cannot touch the rewards leg; and registering a new edition. Whether bought tokens are burned or kept is not on that list — it is fixed at deployment and readable from the verified source.
 
 > Registering a new edition is the one discretionary power in this system, and it shifts future fee share toward the new edition and away from yours. It is held by a single externally owned account with no timelock and no multisig. That is the owner's deliberate choice, stated here rather than buried: if that key is compromised, someone can register an edition; if it is lost, no future edition can ever be registered. This protocol should not be described as decentralised or trustless in administrative terms, because it is neither.
 

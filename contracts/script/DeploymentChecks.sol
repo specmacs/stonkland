@@ -43,6 +43,9 @@ contract DeploymentChecks {
         require(d.royaltyRouter.revenueVault() == address(d.revenueVault), "link: royalty target");
         require(address(d.feeRouter.streamVault()) == address(d.streamVault), "link: fee target");
         require(d.feeRouter.treasury() == address(d.buyback), "link: treasury");
+        require(d.buyback.burnsBought() == c.burnsBought, "buyback: burn behaviour");
+        require(d.buyback.buybackRecipient() == c.buybackRecipient, "buyback: recipient");
+        require(d.buyback.buybackBps() == c.buybackBps, "buyback: share");
 
         (address royaltyReceiver, uint256 royaltyAmount) = d.nft.royaltyInfo(1, 10_000);
         require(royaltyReceiver == address(d.royaltyRouter), "royalty receiver");

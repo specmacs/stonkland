@@ -46,14 +46,15 @@ contract DeployLocal is Script {
 
         Deployment memory d = SystemDeployer.deploy(
             DeployConfig({
-                tokenName: "Landlord",
-                tokenSymbol: "LORD",
+                tokenName: "Stocktown",
+                tokenSymbol: "TOWN",
                 tokenRecipient: owner,
-                nftName: "Landlord Property Card",
+                nftName: "Stocktown Property Card",
                 nftSymbol: "CARD",
                 owner: owner,
                 treasurySink: owner,
-                buybackRecipient: owner,
+                burnsBought: true,
+                buybackRecipient: address(0),
                 buybackBps: 2_000,
                 weth: address(weth),
                 feeSource: address(0),
@@ -96,14 +97,15 @@ contract DeployLocal is Script {
         pure
         returns (DeployConfig memory c)
     {
-        c.tokenName = "Landlord";
-        c.tokenSymbol = "LORD";
+        c.tokenName = "Stocktown";
+        c.tokenSymbol = "TOWN";
         c.tokenRecipient = owner;
-        c.nftName = "Landlord Property Card";
+        c.nftName = "Stocktown Property Card";
         c.nftSymbol = "CARD";
         c.owner = owner;
         c.treasurySink = owner;
-        c.buybackRecipient = owner;
+        c.burnsBought = true;
+        c.buybackRecipient = address(0);
         c.buybackBps = 2_000;
         c.weth = weth;
         c.feeSource = address(0);

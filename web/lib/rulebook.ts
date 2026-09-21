@@ -52,6 +52,10 @@ export const RULEBOOK: Section[] = [
         kind: "p",
         text: `Moving tokens between wallets costs nothing. Trading them carries a ${EDITION.tradingFeePercent}% fee, charged in the trading pair's quote asset rather than in tokens. That fee, together with the card resale royalty below, is the protocol's revenue.`,
       },
+      {
+        kind: "p",
+        text: `${EDITION.buybackBps / 100}% of the treasury's share is spent buying the token on the open market, and everything bought is destroyed. Anyone can trigger it. This recycles revenue the protocol already earned — it does not create revenue, and it is not a return. What it does do is make the treasury's share a second route by which supply falls and can never rise.`,
+      },
     ],
   },
   {
@@ -69,6 +73,10 @@ export const RULEBOOK: Section[] = [
       {
         kind: "p",
         text: `Every card starts as a ${LEVELS[0]?.form} at level one, carrying a weight of ${LEVELS[0]?.weight}.`,
+      },
+      {
+        kind: "p",
+        text: `No cards are reserved. There is no team allocation, no founder set, and no owner mint — the contracts contain no function that can create a card outside the ${EDITION.mintsPerWallet}-per-wallet mint everyone else uses, so anything the team holds was minted or bought on the same terms as yours.`,
       },
       {
         kind: "p",
@@ -201,7 +209,7 @@ export const RULEBOOK: Section[] = [
       },
       {
         kind: "p",
-        text: `Administrative control is limited to pausing minting, upgrades, and conversion; swapping the metadata renderer, which is presentation only; replacing a conversion route, which can change how an asset is bought but never which asset you receive; and registering a new edition.`,
+        text: `Administrative control is limited to pausing minting, upgrades, and conversion; swapping the metadata renderer, which is presentation only; replacing a conversion route, which can change how an asset is bought but never which asset you receive; adjusting the share of treasury revenue spent on buybacks, which cannot touch the rewards leg; and registering a new edition. Whether bought tokens are burned or kept is not on that list — it is fixed at deployment and readable from the verified source.`,
       },
       {
         kind: "callout",

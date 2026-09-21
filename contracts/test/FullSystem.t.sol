@@ -7,6 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SystemDeployer, DeployConfig, Deployment} from "../script/SystemDeployer.sol";
 import {DeploymentChecks} from "../script/DeploymentChecks.sol";
 import {RevenueVault} from "../src/RevenueVault.sol";
+import {TreasuryBuyback} from "../src/TreasuryBuyback.sol";
 import {UniswapV3Adapter} from "../src/adapters/UniswapV3Adapter.sol";
 import {OracleGuard} from "../src/libraries/OracleGuard.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
@@ -44,14 +45,15 @@ contract FullSystemTest is Test {
 
         d = SystemDeployer.deploy(
             DeployConfig({
-                tokenName: "Landlord",
-                tokenSymbol: "LORD",
+                tokenName: "Stocktown",
+                tokenSymbol: "TOWN",
                 tokenRecipient: address(this),
-                nftName: "Landlord Property Card",
+                nftName: "Stocktown Property Card",
                 nftSymbol: "CARD",
                 owner: owner,
                 treasurySink: treasurySink,
-                buybackRecipient: treasurySink,
+                burnsBought: true,
+                buybackRecipient: address(0),
                 buybackBps: 2_000,
                 weth: address(weth),
                 feeSource: address(0),
@@ -240,7 +242,7 @@ contract FullSystemTest is Test {
         assertGt(d.distributor.totalDeposited(EDITION, address(assets[2]), 2), 0);
     }
 
-    function test_treasuryBuybackSpendsItsShareAndForwardsTheRest() public {
+    function test_treasuryBuybackBurnsWhatItBuysAndForwardsTheRest() public {
         UniswapV3Adapter tokenAdapter;
         MockSwapRouter tokenRouter = new MockSwapRouter(1_000e18);
         MockAggregator tokenUsd = new MockAggregator(8, 3e8); // $3 per token
@@ -261,15 +263,28 @@ contract FullSystemTest is Test {
         d.buyback.setAdapter(address(tokenAdapter));
 
         vm.deal(address(d.buyback), 10 ether);
-        uint256 sinkBefore = d.token.balanceOf(treasurySink);
+        uint256 supplyBefore = d.token.totalSupply();
 
         vm.prank(makeAddr("anyone"));
         (uint256 spent, uint256 bought) = d.buyback.execute(0, block.timestamp + 60);
 
         assertEq(spent, 2 ether, "2000 bps of the treasury share");
         assertEq(bought, 2_000e18);
-        assertEq(d.token.balanceOf(treasurySink) - sinkBefore, bought, "bought tokens land where the deploy said");
+
+        // Bought and destroyed, not parked somewhere it could be sold again.
+        assertTrue(d.buyback.burnsBought());
+        assertEq(d.token.totalSupply(), supplyBefore - bought, "supply fell by what was bought");
+        assertEq(d.token.balanceOf(address(d.buyback)), 0, "nothing held back");
+        assertEq(d.token.balanceOf(treasurySink), 0, "the treasury never receives them");
         assertEq(weth.balanceOf(treasurySink), 8 ether, "the remainder goes on to the sink");
+    }
+
+    function test_aDeploymentCannotClaimToBurnWhileNamingARecipient() public {
+        vm.expectRevert(TreasuryBuyback.RecipientContradictsBurn.selector);
+        new TreasuryBuyback(address(weth), address(d.token), treasurySink, true, treasurySink, 2_000, owner);
+
+        vm.expectRevert(TreasuryBuyback.RecipientContradictsBurn.selector);
+        new TreasuryBuyback(address(weth), address(d.token), treasurySink, false, address(0), 2_000, owner);
     }
 
     function test_pausingConversionLeavesTransfersAndClaimsAlone() public {
@@ -350,14 +365,15 @@ contract FullSystemTest is Test {
             assetAddrs[q] = address(assets[q]);
         }
         return DeployConfig({
-            tokenName: "Landlord",
-            tokenSymbol: "LORD",
+            tokenName: "Stocktown",
+            tokenSymbol: "TOWN",
             tokenRecipient: address(this),
-            nftName: "Landlord Property Card",
+            nftName: "Stocktown Property Card",
             nftSymbol: "CARD",
             owner: owner,
             treasurySink: treasurySink,
-            buybackRecipient: treasurySink,
+            burnsBought: true,
+            buybackRecipient: address(0),
             buybackBps: 2_000,
             weth: address(weth),
             feeSource: address(0),

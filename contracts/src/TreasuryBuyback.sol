@@ -7,6 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import {IWETH9} from "./interfaces/IWETH9.sol";
+import {IBurnableERC20} from "./interfaces/IBurnableERC20.sol";
 import {IAcquisitionAdapter} from "./interfaces/IAcquisitionAdapter.sol";
 
 /// @title TreasuryBuyback
@@ -17,9 +18,10 @@ import {IAcquisitionAdapter} from "./interfaces/IAcquisitionAdapter.sol";
 ///      and nothing about it should be described as if it did.
 ///
 ///      The trigger is open to anyone, so the bid does not depend on someone remembering
-///      to press it. The portion is the owner's to set; where the bought tokens land is
-///      not -- that is fixed at construction, so the answer to "does the treasury just
-///      sell them again" is settled by the deployment rather than by a promise.
+///      to press it. The portion is the owner's to set; what happens to the bought tokens
+///      is not. Whether they are burned or kept is fixed at construction and readable
+///      from the verified source, so "does the treasury just sell them again" is answered
+///      by the deployment rather than by a promise.
 contract TreasuryBuyback is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -31,7 +33,12 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
     /// @notice Where the non-buyback remainder goes.
     address public immutable sink;
 
-    /// @notice Where bought tokens land. Immutable, and readable by anyone before they buy.
+    /// @notice True when bought tokens are destroyed rather than held.
+    /// @dev    Fixed at construction. A buyback that burns is the only version of a
+    ///         buyback that cannot be quietly undone by selling the position later.
+    bool public immutable burnsBought;
+
+    /// @notice Where bought tokens land when they are not burned. Zero when they are.
     address public immutable buybackRecipient;
 
     /// @notice Share of incoming treasury revenue spent on buybacks.
@@ -42,28 +49,35 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
     event BuybackBpsSet(uint16 previous, uint16 current);
     event AdapterSet(address indexed adapter);
     event BoughtBack(uint256 spent, uint256 received, address indexed recipient);
+    event Burned(uint256 amount);
     event SweptToSink(uint256 amount);
 
     error ZeroAddress();
     error BpsOutOfRange(uint16 bps);
+    error RecipientContradictsBurn();
     error AdapterNotSet();
     error AdapterAssetMismatch(address expected, address actual);
     error NothingToDo();
 
+    /// @param burnsBought_ true to destroy bought tokens, false to send them to
+    ///        `buybackRecipient_`. When true, `buybackRecipient_` must be the zero
+    ///        address, so a deployment cannot claim to burn while naming a recipient.
     constructor(
         address weth_,
         address token_,
         address sink_,
+        bool burnsBought_,
         address buybackRecipient_,
         uint16 buybackBps_,
         address owner_
     ) Ownable(owner_) {
         if (weth_ == address(0) || token_ == address(0) || sink_ == address(0)) revert ZeroAddress();
-        if (buybackRecipient_ == address(0)) revert ZeroAddress();
+        if (burnsBought_ != (buybackRecipient_ == address(0))) revert RecipientContradictsBurn();
         if (buybackBps_ > BPS_DENOMINATOR) revert BpsOutOfRange(buybackBps_);
         weth = IWETH9(weth_);
         token = IERC20(token_);
         sink = sink_;
+        burnsBought = burnsBought_;
         buybackRecipient = buybackRecipient_;
         buybackBps = buybackBps_;
     }
@@ -107,8 +121,17 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
             IAcquisitionAdapter a = adapter;
             if (address(a) == address(0)) revert AdapterNotSet();
             IERC20(address(weth)).safeTransfer(address(a), spent);
-            bought = a.convert(spent, minOut, deadline, buybackRecipient);
-            emit BoughtBack(spent, bought, buybackRecipient);
+
+            // When burning, the tokens come here first so the amount destroyed is the
+            // amount measured as received rather than a number taken on trust.
+            address recipient = burnsBought ? address(this) : buybackRecipient;
+            bought = a.convert(spent, minOut, deadline, recipient);
+            emit BoughtBack(spent, bought, recipient);
+
+            if (burnsBought && bought != 0) {
+                IBurnableERC20(address(token)).burn(bought);
+                emit Burned(bought);
+            }
         }
 
         uint256 remainder = weth.balanceOf(address(this));

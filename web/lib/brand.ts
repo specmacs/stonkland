@@ -10,9 +10,9 @@
  */
 export const BRAND = {
   /** Working name. */
-  projectName: "Landlord",
+  projectName: "Stocktown",
   /** Working ticker. */
-  tokenTicker: "LORD",
+  tokenTicker: "TOWN",
   /** This edition's name. */
   editionName: "Founding Edition",
   /** What one NFT is called. */
@@ -50,6 +50,10 @@ export const EDITION = {
   royaltyBps: 500,
   /** This edition's weight multiplier, already baked into every stored weight. */
   weightMultiplier: 1.25,
+  /** Share of treasury revenue spent buying the token back and destroying it. */
+  buybackBps: 2_000,
+  /** Cards reserved for the team. None: any team card is minted like anyone else's. */
+  teamAllocation: 0,
 } as const;
 
 export type LevelInfo = {
