@@ -86,6 +86,26 @@ to run anywhere but a local chain.
 The brand is not final. `web/lib/brand.ts` is the only place the project name, ticker,
 edition name, and vocabulary appear. A rename is one edit there.
 
+## Robinhood Chain
+
+The deployment target is Robinhood Chain (4663), with tokenized NVDA, GOOGL, AAPL and
+META as the four quarters' reward assets. [`docs/chain-notes.md`](docs/chain-notes.md)
+records every address, how it was established, and what is still open.
+
+Two findings worth knowing before reading the code:
+
+- **The reward assets are not transfer-restricted.** A contract can hold them and pass
+  them on, verified against the live chain. That was the one finding that could have
+  ended the design rather than delayed it.
+- **There are no price feeds on this chain.** `UniswapV3TwapAdapter` therefore prices
+  against the route's own 30-minute average and bounds both the pool's deviation from it
+  and the trade's own impact. Where a real feed exists, `UniswapV3Adapter` is the better
+  choice and the vault can swap between them without touching accounting.
+
+```bash
+ROBINHOOD_RPC_URL=https://rpc.mainnet.chain.robinhood.com forge test --match-path 'test/fork/*' -vv
+```
+
 ## Before launch
 
 See the blocking items in the handoff: an independent audit, securities counsel sign-off,

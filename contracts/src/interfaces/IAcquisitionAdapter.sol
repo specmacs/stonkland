@@ -13,15 +13,22 @@ interface IAcquisitionAdapter {
     /// @notice The input asset this adapter spends. Immutable.
     function inputToken() external view returns (address);
 
-    /// @notice Oracle-implied output for `amountIn`, ignoring venue liquidity.
-    function expectedOut(uint256 amountIn) external view returns (uint256);
-
-    /// @notice The floor this adapter will refuse to trade below, oracle-derived.
-    function floorOut(uint256 amountIn) external view returns (uint256);
-
     /// @notice Spend exactly `amountIn`, already transferred in, and send the proceeds to
     ///         `recipient`. Reverts on anything unexpected.
     function convert(uint256 amountIn, uint256 minOut, uint256 deadline, address recipient)
         external
         returns (uint256 received);
+}
+
+/// @notice An adapter that can say in advance what a trade should return.
+/// @dev    Separate because not every price reference produces an absolute quote. An
+///         adapter priced off a pool's own time-weighted average works in ticks and
+///         bounds deviation rather than quoting a number, which protects the same thing
+///         without the arithmetic needed to turn a tick back into an amount.
+interface IAcquisitionQuote {
+    /// @notice Oracle-implied output for `amountIn`, ignoring venue liquidity.
+    function expectedOut(uint256 amountIn) external view returns (uint256);
+
+    /// @notice The floor this adapter will refuse to trade below, oracle-derived.
+    function floorOut(uint256 amountIn) external view returns (uint256);
 }

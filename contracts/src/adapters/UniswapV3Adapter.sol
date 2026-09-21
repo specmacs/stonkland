@@ -5,7 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IAcquisitionAdapter} from "../interfaces/IAcquisitionAdapter.sol";
+import {IAcquisitionAdapter, IAcquisitionQuote} from "../interfaces/IAcquisitionAdapter.sol";
 import {IAggregatorV3} from "../interfaces/IAggregatorV3.sol";
 import {OracleGuard} from "../libraries/OracleGuard.sol";
 
@@ -36,7 +36,7 @@ interface ISwapRouter {
 ///      A failed conversion leaves the funds where they were. Funds waiting are an
 ///      acceptable resting state, sometimes for days if the asset is thinly traded. A bad
 ///      conversion is not.
-contract UniswapV3Adapter is IAcquisitionAdapter {
+contract UniswapV3Adapter is IAcquisitionAdapter, IAcquisitionQuote {
     using SafeERC20 for IERC20;
     using OracleGuard for IAggregatorV3;
 
@@ -108,7 +108,7 @@ contract UniswapV3Adapter is IAcquisitionAdapter {
         _assetDecimals = IERC20Metadata(asset_).decimals();
     }
 
-    /// @inheritdoc IAcquisitionAdapter
+    /// @inheritdoc IAcquisitionQuote
     function expectedOut(uint256 amountIn) public view returns (uint256) {
         OracleGuard.Price memory inPrice = inputUsdFeed.readFresh(staleAfter);
         OracleGuard.Price memory outPrice = assetUsdFeed.readFresh(staleAfter);
@@ -120,7 +120,7 @@ contract UniswapV3Adapter is IAcquisitionAdapter {
         return numerator / denominator;
     }
 
-    /// @inheritdoc IAcquisitionAdapter
+    /// @inheritdoc IAcquisitionQuote
     function floorOut(uint256 amountIn) public view returns (uint256) {
         return (expectedOut(amountIn) * (BPS_DENOMINATOR - maxDeviationBps)) / BPS_DENOMINATOR;
     }
