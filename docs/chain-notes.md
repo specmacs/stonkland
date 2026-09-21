@@ -57,18 +57,16 @@ $1.2M for NVDA, and the gap is wider for the others. A two-hop `WETH â†’ USDG â†
 route would fill larger conversions better, and the adapter supports multi-hop paths. It
 is worth measuring before choosing, and USDG's 6 decimals need respecting either way.
 
-## Transfer restrictions: clear
+## Transfer restrictions: none
 
-The one finding that could have ended the design. Tokenized equities are frequently
-permissioned, and a token that only verified holders may receive cannot be held by the
-distributor or paid to a card owner.
+All four are permissionless ERC-20s. No whitelist, no blocklist, no admitted-holder list.
 
 The fork test moves a real balance from a real holder into a fresh contract, then out of
-that contract into another. All four pass. A contract can hold these and pass them on.
+that contract into another. All four pass. A contract can hold these and pass them on,
+which is the whole of the question and the chain is the authority on it.
 
-That is the mechanical question only. Whether the issuer's terms *permit* a protocol to
-acquire and redistribute them is a question for Robinhood and for counsel, and it is
-still open.
+Worth keeping the test anyway: it is cheap, it runs against the live chain, and it would
+catch the day one of these is replaced by something that does gate transfers.
 
 ## No price feeds, so the pools price themselves
 

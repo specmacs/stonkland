@@ -234,7 +234,7 @@ export const RULEBOOK: Section[] = [
           `Rewards depend entirely on trading activity and card resales. If no one trades and no one sells, nothing is distributed.`,
           `Conversions depend on liquidity in the reward asset and can fail or execute poorly.`,
           `Smart contracts can contain flaws that audits do not catch.`,
-          `The reward asset carries its own issuer risk, availability restrictions, and possible transfer limitations that are outside this protocol's control and may prevent a payout from reaching you.`,
+          `Each reward asset is a token tracking a share price, issued by somebody else. It can lose value with the share, it depends on its issuer continuing to back it, and its onchain market can thin out or disappear. None of that is within this protocol's control.`,
           `A single key holds every administrative role, with no timelock standing between a decision and its effect.`,
           `Each new edition permanently reduces your share of future fees.`,
           `Regulatory treatment of assets like these is unsettled and may change.`,

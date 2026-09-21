@@ -40,7 +40,6 @@ export default function TermsPage() {
           {[
             "Which jurisdictions are served, and which are blocked, with the geoblocking implemented to match.",
             "The legal characterisation of the token, the cards, and the reward assets, reviewed by securities counsel with the full mechanics in front of them.",
-            "Confirmation from each reward asset's issuer that their terms permit a protocol to acquire and redistribute the asset — a contract question, separate from securities law.",
             "The acceptable-use, disclaimer, and limitation-of-liability language that any published terms would carry.",
             "How disputes are handled, and under whose law.",
           ].map((item) => (

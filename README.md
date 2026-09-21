@@ -97,9 +97,8 @@ trade through and whose pull-based fee escrow the fee router claims from.
 
 Three findings worth knowing before reading the code:
 
-- **The reward assets are not transfer-restricted.** A contract can hold them and pass
-  them on, verified against the live chain. That was the one finding that could have
-  ended the design rather than delayed it.
+- **The reward assets are permissionless ERC-20s.** No whitelist, no blocklist. A
+  contract can hold them and pass them on, verified against the live chain.
 - **There are no price feeds on this chain.** `UniswapV3TwapAdapter` therefore prices
   against the route's own 30-minute average and bounds both the pool's deviation from it
   and the trade's own impact. Where a real feed exists, `UniswapV3Adapter` is the better
@@ -114,7 +113,7 @@ ROBINHOOD_RPC_URL=https://rpc.mainnet.chain.robinhood.com forge test --match-pat
 
 ## Before launch
 
-See the blocking items in the handoff: an independent audit, securities counsel sign-off,
-the jurisdiction decision implemented, confirmation from each reward asset's issuer,
-liquidity depth confirmed, terms and privacy published, monitoring, and a written incident
-procedure. `/terms` and `/privacy` currently say plainly that they are not yet in force.
+From the handoff's list: an independent audit, terms and privacy published, monitoring on
+oracle staleness and stalled pipeline stages, and a written incident procedure saying who
+pauses what. `/terms` and `/privacy` currently say plainly that they are not yet in
+force.

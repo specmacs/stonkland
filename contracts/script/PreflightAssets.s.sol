@@ -18,9 +18,9 @@ import {OracleGuard} from "../src/libraries/OracleGuard.sol";
 ///      The question it exists to answer is not "will the code compile". It is whether a
 ///      tokenized equity can be held by a contract and sent on to whoever is owed it.
 ///
-///      Tokenized equities are frequently permissioned. If the issuer restricts transfers
-///      to verified holders, then a contract cannot hold the asset and holders cannot
-///      receive it, and no amount of care in the distributor changes that. The protocol
+///      Some tokenized equities are permissioned. Where transfers are restricted to
+///      admitted holders, a contract cannot hold the asset and holders cannot receive it,
+///      and no amount of care in the distributor changes that. The protocol
 ///      already fails closed in that case -- a refused transfer reverts and leaves the
 ///      credit on the ledger rather than consuming it -- but failing closed on every
 ///      single claim is a dead reward loop, not a working one.
@@ -62,9 +62,8 @@ contract PreflightAssets is Script, StdCheats {
         console2.log("");
         if (allClear) {
             console2.log("All four assets can be held and moved on by a contract.");
-            console2.log("This clears the mechanical question only. It says nothing about");
-            console2.log("whether the issuer's terms permit it, which is a question for");
-            console2.log("them and for counsel, not for a fork.");
+            console2.log("They are permissionless ERC-20s: no whitelist, no blocklist,");
+            console2.log("nothing to be admitted to. The chain is the authority on this.");
         } else {
             console2.log("AT LEAST ONE ASSET CANNOT BE USED AS A REWARD ASSET.");
             console2.log("A contract cannot hold it, or cannot pass it on. The reward loop");
