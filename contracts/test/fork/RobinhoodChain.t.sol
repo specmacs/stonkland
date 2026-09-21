@@ -6,6 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {UniswapV3TwapAdapter} from "../../src/adapters/UniswapV3TwapAdapter.sol";
 import {IUniswapV3Pool} from "../../src/interfaces/IUniswapV3Pool.sol";
+import {IFeeEscrow} from "../../src/interfaces/IFeeEscrow.sol";
 
 /// @notice Runs the reward-asset assumptions against the real chain rather than a mock.
 ///
@@ -24,6 +25,11 @@ contract RobinhoodChainForkTest is Test {
     uint256 internal constant CHAIN_ID = 4663;
     address internal constant WETH = 0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73;
     address internal constant USDG = 0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168;
+    address internal constant V3_FACTORY = 0x1f7d7550B1b028f7571E69A784071F0205FD2EfA;
+
+    // The launch venue.
+    address internal constant PONS_SWAP_ROUTER = 0xCaf681a66D020601342297493863E78C959E5cb2;
+    address internal constant PONS_FEE_ESCROW = 0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e;
 
     // The official Robinhood equity tokens, one per quarter. Note that impostor tokens
     // carrying these exact symbols also trade on this chain; these are the addresses, and
@@ -155,6 +161,42 @@ contract RobinhoodChainForkTest is Test {
         }
     }
 
+    /// @dev The adapters trade through this, so it had better be what it claims. The
+    ///      canonical Ethereum router address has an unrelated contract at it on this
+    ///      chain, which is exactly the mistake this test exists to stop being made
+    ///      twice.
+    function test_theVenuesSwapRouterIsARealUniswapRouter() public view onlyLive {
+        assertGt(PONS_SWAP_ROUTER.code.length, 0, "no contract");
+        assertEq(IUniswapRouterView(PONS_SWAP_ROUTER).factory(), V3_FACTORY, "wrong factory");
+        assertEq(IUniswapRouterView(PONS_SWAP_ROUTER).WETH9(), WETH, "wrong WETH");
+    }
+
+    /// @dev The fee escrow pays `msg.sender`, which is the single fact the whole reward
+    ///      loop's permissionlessness rests on: the fee router is the named recipient,
+    ///      anyone may call the router, and the router is what calls this.
+    function test_theFeeEscrowPaysWhoeverCallsItAndHasNoOwner() public onlyLive {
+        assertGt(PONS_FEE_ESCROW.code.length, 0, "no contract");
+
+        // With nothing credited, the escrow reverts with NoBalance() rather than
+        // returning quietly. That is why the fee router wraps both claims: an empty
+        // escrow is the ordinary case on any sweep that runs ahead of trading, and
+        // without the wrapping it would take the whole distribution down with it.
+        address caller = address(new Holder());
+        assertEq(IFeeEscrow(PONS_FEE_ESCROW).balanceOf(caller), 0);
+
+        vm.prank(caller);
+        vm.expectRevert(bytes4(keccak256("NoBalance()")));
+        IFeeEscrow(PONS_FEE_ESCROW).claim();
+
+        vm.prank(caller);
+        vm.expectRevert(bytes4(keccak256("NoBalance()")));
+        IFeeEscrow(PONS_FEE_ESCROW).claimToken(WETH);
+
+        // No owner means no address that can redirect what has been credited.
+        (bool hasOwner,) = PONS_FEE_ESCROW.staticcall(abi.encodeWithSignature("owner()"));
+        assertFalse(hasOwner, "the escrow has an owner");
+    }
+
     /// @dev Reports how far each pool sits from its own average at the forked block, so
     ///      the band is chosen from how these markets actually behave rather than a guess.
     function test_reportDeviationAtTheForkedBlock() public onlyLive {
@@ -188,6 +230,11 @@ contract RobinhoodChainForkTest is Test {
             );
         }
     }
+}
+
+interface IUniswapRouterView {
+    function factory() external view returns (address);
+    function WETH9() external view returns (address);
 }
 
 /// @dev Stands in for the distributor, and for a card owner that happens to be a contract.

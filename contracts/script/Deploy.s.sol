@@ -47,7 +47,7 @@ contract Deploy is Script {
         c.burnsBought = vm.envOr("BUYBACK_BURNS", true);
         c.buybackRecipient = c.burnsBought ? address(0) : vm.envAddress("BUYBACK_RECIPIENT");
         c.weth = vm.envAddress("WETH");
-        c.feeSource = vm.envOr("FEE_SOURCE", address(0));
+        c.feeEscrow = vm.envOr("FEE_ESCROW", address(0));
 
         c.buybackBps = uint16(vm.envOr("BUYBACK_BPS", uint256(0)));
         c.weightMultiplierBps = uint16(vm.envOr("WEIGHT_MULTIPLIER_BPS", uint256(12_500)));

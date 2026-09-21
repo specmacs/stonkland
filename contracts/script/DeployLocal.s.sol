@@ -57,7 +57,7 @@ contract DeployLocal is Script {
                 buybackRecipient: address(0),
                 buybackBps: 2_000,
                 weth: address(weth),
-                feeSource: address(0),
+                feeEscrow: address(0),
                 weightMultiplierBps: 12_500,
                 rewardAssets: assetAddrs,
                 imageBaseURI: "http://localhost:3000/game/pieces/level-",
@@ -108,7 +108,7 @@ contract DeployLocal is Script {
         c.buybackRecipient = address(0);
         c.buybackBps = 2_000;
         c.weth = weth;
-        c.feeSource = address(0);
+        c.feeEscrow = address(0);
         c.weightMultiplierBps = 12_500;
         c.rewardAssets = assets;
     }

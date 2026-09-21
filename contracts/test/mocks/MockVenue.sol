@@ -123,8 +123,51 @@ contract RefusingTreasury {
 
 /// @dev A venue whose fee claim reverts, to prove it cannot block distributing what is
 ///      already in hand.
-contract RevertingFeeSource {
-    function claimFees() external pure {
+contract RevertingFeeEscrow {
+    function claim() external pure {
         revert("venue down");
+    }
+
+    function claimToken(address) external pure {
+        revert("venue down");
+    }
+
+    function balanceOf(address) external pure returns (uint256) {
+        return 0;
+    }
+}
+
+/// @dev A pull-based escrow that pays whoever calls it, the way the launch venue's does.
+contract MockFeeEscrow {
+    MockWETH public immutable weth;
+
+    mapping(address => uint256) public credited;
+
+    constructor(MockWETH weth_) {
+        weth = weth_;
+    }
+
+    receive() external payable {}
+
+    function credit(address account) external payable {
+        credited[account] += msg.value;
+    }
+
+    function balanceOf(address account) external view returns (uint256) {
+        return credited[account];
+    }
+
+    function claim() external {
+        uint256 owed = credited[msg.sender];
+        if (owed == 0) return;
+        credited[msg.sender] = 0;
+        (bool ok,) = msg.sender.call{value: owed}("");
+        require(ok, "MockFeeEscrow: send failed");
+    }
+
+    function claimToken(address token) external {
+        uint256 owed = IERC20(token).balanceOf(address(this));
+        if (owed == 0) return;
+        SafeERC20.safeTransfer(IERC20(token), msg.sender, owed);
     }
 }

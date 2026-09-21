@@ -30,7 +30,7 @@ struct DeployConfig {
     address buybackRecipient;
     uint16 buybackBps;
     address weth;
-    address feeSource; // may be zero until the venue is settled
+    address feeEscrow; // the venue's pull-based fee escrow; zero if the venue has none
     uint16 weightMultiplierBps;
     address[4] rewardAssets;
     string imageBaseURI;
@@ -122,7 +122,7 @@ library SystemDeployer {
             deployer
         );
         d.streamVault = new StreamVault(c.weth, address(d.revenueVault));
-        d.feeRouter = new FeeRouter(c.weth, address(d.buyback), address(d.streamVault), c.feeSource);
+        d.feeRouter = new FeeRouter(c.weth, address(d.buyback), address(d.streamVault), c.feeEscrow);
 
         // 5. The collection and everything that may write to it.
         d.nft = new PropertyNFT(c.nftName, c.nftSymbol, c.weightMultiplierBps, deployer);

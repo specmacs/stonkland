@@ -92,7 +92,10 @@ The deployment target is Robinhood Chain (4663), with tokenized NVDA, GOOGL, AAP
 META as the four quarters' reward assets. [`docs/chain-notes.md`](docs/chain-notes.md)
 records every address, how it was established, and what is still open.
 
-Two findings worth knowing before reading the code:
+The token launches on [Pons](https://ponsfamily.com), whose swap router the adapters
+trade through and whose pull-based fee escrow the fee router claims from.
+
+Three findings worth knowing before reading the code:
 
 - **The reward assets are not transfer-restricted.** A contract can hold them and pass
   them on, verified against the live chain. That was the one finding that could have
@@ -101,6 +104,9 @@ Two findings worth knowing before reading the code:
   against the route's own 30-minute average and bounds both the pool's deviation from it
   and the trade's own impact. Where a real feed exists, `UniswapV3Adapter` is the better
   choice and the vault can swap between them without touching accounting.
+- **The protocol receives 0.7% of trade value, not 3%.** The venue charges 1% and keeps
+  30% of it. The build handoff's economics were sketched against a figure roughly four
+  times larger. Nothing about the mechanism changes; the size of everything does.
 
 ```bash
 ROBINHOOD_RPC_URL=https://rpc.mainnet.chain.robinhood.com forge test --match-path 'test/fork/*' -vv

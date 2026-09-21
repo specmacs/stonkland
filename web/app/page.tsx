@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {BRAND, EDITION, LEVELS, QUARTERS} from "@/lib/brand";
+import {BRAND, EDITION, LEVELS, PROTOCOL_SHARE_OF_TRADE_PERCENT, QUARTERS} from "@/lib/brand";
 import {formatBps} from "@/lib/format";
 import {Section} from "@/components/Section";
 import {LevelLadder} from "@/components/LevelLadder";
@@ -163,10 +163,11 @@ export default function LandingPage() {
           )}
         </ol>
         <p className="mt-6 max-w-3xl text-ink-400">
-          Trading carries a {EDITION.tradingFeePercent}% fee. Once it accrues, anyone can trigger
-          the claim — no operator stands between you and a deposit. The router splits it on fixed
-          terms, wraps the rewards portion, and funds short streams so a single sweep does not
-          land on one moment.
+          The venue charges {EDITION.venueTradingFeePercent}% on trades and keeps part of it; this
+          protocol receives {PROTOCOL_SHARE_OF_TRADE_PERCENT}% of what trades. Once it accrues,
+          anyone can trigger the claim — no operator stands between you and a deposit. The router
+          splits it on fixed terms, wraps the rewards portion, and funds short streams so a single
+          sweep does not land on one moment.
         </p>
       </Section>
 

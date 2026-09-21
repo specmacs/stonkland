@@ -12,7 +12,7 @@ Nothing here pays a rate. There is no schedule of returns and no promise that re
 
 Supply is fixed at one billion and there is no function capable of creating more. The only direction supply can move is down, because every mint and every upgrade destroys tokens permanently.
 
-Moving tokens between wallets costs nothing. Trading them carries a 3% fee, charged in the trading pair's quote asset rather than in tokens. That fee, together with the card resale royalty below, is the protocol's revenue.
+Moving tokens between wallets costs nothing and always will: there is no transfer tax in this token, and no function that could add one. Trading is where the fee is. The venue the token launches on charges 1% on trades, in the pair's quote asset rather than in tokens, and keeps part of it. This protocol receives the launch creator's share, 70% of that fee, which works out at 0.7% of what trades. That, and the card resale royalty below, is the whole of the protocol's revenue.
 
 20% of the treasury's share is spent buying the token on the open market, and everything bought is destroyed. Anyone can trigger it. This recycles revenue the protocol already earned — it does not create revenue, and it is not a return. What it does do is make the treasury's share a second route by which supply falls and can never rise.
 

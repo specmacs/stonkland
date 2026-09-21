@@ -6,7 +6,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import {IWETH9} from "./interfaces/IWETH9.sol";
-import {IFeeSource} from "./interfaces/IFeeSource.sol";
+import {IFeeEscrow} from "./interfaces/IFeeEscrow.sol";
 import {StreamVault} from "./StreamVault.sol";
 
 /// @title FeeRouter
@@ -15,6 +15,10 @@ import {StreamVault} from "./StreamVault.sol";
 /// @dev The split is a pair of constants. There is no setter, no owner and no role that
 ///      can change where the money goes, which is the point: a fee split that an operator
 ///      can move is not a split, it is a promise.
+///
+///      This router is registered as the launch's fee recipient at the venue. That is a
+///      deployment step, not a code path: until it is done, trading fees accrue to
+///      whatever address was named instead and never reach holders.
 ///
 ///      Ordering inside `distribute` is deliberate. The rewards leg is funded first and
 ///      the treasury leg second, because the treasury is an address this protocol does
@@ -36,8 +40,9 @@ contract FeeRouter is ReentrancyGuard {
     address public immutable treasury;
     StreamVault public immutable streamVault;
 
-    /// @notice A venue-specific fee claim, if the venue needs one. May be unset.
-    IFeeSource public immutable feeSource;
+    /// @notice The venue's fee escrow. Trading fees are credited to this router there,
+    ///         and pulled from it by whoever calls `distribute`. May be unset.
+    IFeeEscrow public immutable feeEscrow;
 
     /// @notice Treasury money that has been split off but not yet delivered.
     uint256 public treasuryLiability;
@@ -45,12 +50,20 @@ contract FeeRouter is ReentrancyGuard {
     event Distributed(uint256 total, uint256 toRewards, uint256 toTreasury);
     event TreasuryPaid(uint256 amount);
     event TreasuryPaymentDeferred(uint256 amount, uint256 outstanding);
-    event FeeClaimFailed();
+    /// @notice A claim against the venue did not go through.
+    /// @param  what which leg was attempted, "native" or "token"
+    /// @param  reason the venue's raw revert data
+    /// @dev    Expected in normal operation, not an alarm on its own. The venue reverts
+    ///         rather than returning zero when nothing has been credited, so every sweep
+    ///         that runs ahead of any trading activity lands here. The reason bytes are
+    ///         carried so an operator can tell that apart from a venue that is actually
+    ///         broken, without this contract having to know the venue's error types.
+    event FeeClaimSkipped(string what, bytes reason);
 
     error ZeroAddress();
     error BadSplit();
 
-    constructor(address weth_, address treasury_, address streamVault_, address feeSource_) {
+    constructor(address weth_, address treasury_, address streamVault_, address feeEscrow_) {
         if (weth_ == address(0) || treasury_ == address(0) || streamVault_ == address(0)) {
             revert ZeroAddress();
         }
@@ -58,7 +71,7 @@ contract FeeRouter is ReentrancyGuard {
         weth = IWETH9(weth_);
         treasury = treasury_;
         streamVault = StreamVault(streamVault_);
-        feeSource = IFeeSource(feeSource_); // may legitimately be the zero address
+        feeEscrow = IFeeEscrow(feeEscrow_); // may legitimately be the zero address
     }
 
     /// @notice Accept native fees from a venue that pays in ETH.
@@ -73,12 +86,23 @@ contract FeeRouter is ReentrancyGuard {
     /// @notice Claim whatever has accrued, split it, and move both legs. Open to anyone:
     ///         no operator stands between a trade and a holder's reward.
     function distribute() external nonReentrant returns (uint256 toRewards, uint256 toTreasury) {
-        // A venue that cannot be swept right now must not block distributing what is
-        // already here, so a failed claim is noted and stepped over.
-        if (address(feeSource) != address(0)) {
-            try feeSource.claimFees() {}
-            catch {
-                emit FeeClaimFailed();
+        // Pull whatever the venue has credited to this router. Fees arrive in the asset
+        // the pair is priced in, which is native value for a launch paired against ETH
+        // and WETH for one paired against WETH, so both are asked for.
+        //
+        // Both are wrapped because the venue reverts rather than returning zero when it
+        // has nothing credited, which is the ordinary case on any sweep that runs ahead
+        // of trading. Without this, an empty escrow would take the whole distribution
+        // down with it and nothing already in hand would ever move.
+        IFeeEscrow escrow = feeEscrow;
+        if (address(escrow) != address(0)) {
+            try escrow.claim() {}
+            catch (bytes memory reason) {
+                emit FeeClaimSkipped("native", reason);
+            }
+            try escrow.claimToken(address(weth)) {}
+            catch (bytes memory reason) {
+                emit FeeClaimSkipped("token", reason);
             }
         }
 

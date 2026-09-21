@@ -40,8 +40,19 @@ export const EDITION = {
   mintsPerWallet: 3,
   /** Tokens destroyed per mint, in whole tokens. */
   mintBurn: 100_000,
-  /** Trading fee, charged by the venue in the pair's quote asset. */
-  tradingFeePercent: 3,
+  /**
+   * The venue's trading fee, as a percentage of trade value.
+   *
+   * Charged by the launch venue in the pair's quote asset, never by the token itself,
+   * which has no transfer tax of any kind. Pons documents 1% on a V1 launch. Confirm
+   * against the launch actually used before this number goes in front of anybody.
+   */
+  venueTradingFeePercent: 1,
+  /**
+   * The launch creator's share of that fee, in basis points. The remainder is the
+   * venue's. Pons documents 7000 for current V1 launches.
+   */
+  creatorShareOfVenueFeeBps: 7_000,
   feeSplitTreasuryBps: 3_333,
   feeSplitRewardsBps: 6_667,
   streamEpochSeconds: 300,
@@ -84,6 +95,16 @@ export const LEVELS: readonly LevelInfo[] = [
 ] as const;
 
 export const MAX_LEVEL = 5;
+
+/**
+ * What share of trade value actually reaches this protocol, as a percentage.
+ *
+ * The venue takes its fee and keeps a cut; only the creator's share arrives here. Stating
+ * the venue's headline fee as though all of it were protocol revenue would overstate what
+ * holders can expect by a factor of about three.
+ */
+export const PROTOCOL_SHARE_OF_TRADE_PERCENT =
+  (EDITION.venueTradingFeePercent * EDITION.creatorShareOfVenueFeeBps) / 10_000;
 
 export function levelInfo(level: number): LevelInfo | undefined {
   return LEVELS.find((l) => l.level === level);

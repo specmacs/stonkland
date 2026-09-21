@@ -12,7 +12,7 @@ import {UniswapV3Adapter} from "../../src/adapters/UniswapV3Adapter.sol";
 import {OracleGuard} from "../../src/libraries/OracleGuard.sol";
 import {MockERC20} from "../mocks/MockERC20.sol";
 import {
-    MockWETH, MockAggregator, MockSwapRouter, RefusingTreasury, RevertingFeeSource
+    MockWETH, MockAggregator, MockSwapRouter, RefusingTreasury, RevertingFeeEscrow, MockFeeEscrow
 } from "../mocks/MockVenue.sol";
 
 contract AllocationControllerTest is Test {
@@ -214,14 +214,39 @@ contract FeeRouterTest is Test {
     }
 
     function test_aBrokenVenueDoesNotBlockDistributingWhatIsAlreadyHere() public {
-        RevertingFeeSource source = new RevertingFeeSource();
+        RevertingFeeEscrow escrow = new RevertingFeeEscrow();
         FeeRouter r =
-            new FeeRouter(address(weth), address(treasury), address(streamVault), address(source));
+            new FeeRouter(address(weth), address(treasury), address(streamVault), address(escrow));
         treasury.setAccepting(true);
         vm.deal(address(r), 10 ether);
 
         (uint256 toRewards,) = r.distribute();
         assertGt(toRewards, 0, "the failed claim was stepped over, not fatal");
+    }
+
+    /// @dev The venue credits this router and anyone pulls it through. This is the whole
+    ///      reason the loop stays permissionless despite the venue naming one recipient.
+    function test_anyoneCanPullTheVenuesFeesThroughTheRouter() public {
+        MockFeeEscrow escrow = new MockFeeEscrow(weth);
+        FeeRouter r =
+            new FeeRouter(address(weth), address(treasury), address(streamVault), address(escrow));
+        treasury.setAccepting(true);
+
+        // The venue credits the router, exactly as a launch with the router named as its
+        // fee recipient would.
+        vm.deal(address(this), 10 ether);
+        escrow.credit{value: 10 ether}(address(r));
+        assertEq(escrow.balanceOf(address(r)), 10 ether);
+        assertEq(r.distributable(), 0, "nothing has been pulled through yet");
+
+        // A stranger triggers it, and the money lands where the split says.
+        vm.prank(makeAddr("a passer-by"));
+        (uint256 toRewards, uint256 toTreasury) = r.distribute();
+
+        assertEq(toTreasury, (10 ether * 3_333) / 10_000);
+        assertEq(toRewards, 10 ether - toTreasury);
+        assertEq(weth.balanceOf(address(streamVault)), toRewards);
+        assertEq(escrow.balanceOf(address(r)), 0, "the escrow was emptied");
     }
 
     function test_distributeWithNothingToDoIsANoOp() public {

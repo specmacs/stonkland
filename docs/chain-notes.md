@@ -93,13 +93,54 @@ An external feed is strictly better evidence than a venue's own history. If Chai
 Pyth ever deploy here, switch back to `UniswapV3Adapter`; the vault can swap an adapter
 without touching any accounting.
 
+## The launch venue: Pons
+
+The token launches on [Pons](https://ponsfamily.com), which deploys a fixed-supply ERC-20
+together with its pool in a single transaction and locks the liquidity permanently.
+
+| Contract | Address |
+|---|---|
+| Swap router | `0xCaf681a66D020601342297493863E78C959E5cb2` |
+| V2 fee escrow | `0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e` |
+| V2 factory | `0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e` |
+| V2 meme hook | `0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044` |
+| V2 launch locker | `0x267444D099b10fB5Ed7c3Cc7B7c767AdcA574952` |
+| V1 factory | `0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB` |
+| V1 locker | `0x736D76699C26D0d966744cAe304C000d471f7F35` |
+| V1 position manager | `0x73991a25C818Bf1f1128dEAaB1492D45638DE0D3` |
+
+The swap router is a genuine Uniswap V3 `SwapRouter`: `factory()` and `WETH9()` both
+resolve to the addresses in the table above. The adapters trade through it.
+
+### Fees, and why the loop stays permissionless
+
+Pons charges **1%** on trades for a V1 launch, split 70% to the launch creator and 30% to
+Pons. So this protocol receives **0.7% of trade value**, not the 1% headline and certainly
+not the 3% the original build handoff assumed. That is roughly a quarter of the revenue
+the handoff's economics were sketched against. It changes nothing mechanically, and it
+changes the size of everything.
+
+Fees do not arrive by themselves. They accrue in a pull-based escrow, and the escrow's
+`claim()` and `claimToken(address)` pay `msg.sender`. Verified against the deployed
+bytecode: both selectors are present, and there is no `owner()`.
+
+That shape is what keeps the reward loop open to anyone despite the venue naming a single
+recipient. The fee router is registered as that recipient; anyone may call the router; the
+router is what calls the escrow. No operator's cadence sits between a trade and a holder's
+reward.
+
+**This depends on a deployment step, not on code.** The token has to be launched with the
+deployed `FeeRouter` as its fee recipient. Until that is done, trading fees accrue to
+whatever address was named instead and never reach card holders.
+
 ## Still open
 
-1. **The swap router.** Nothing implementing the usual `exactInput` interface was found.
-   The addresses appearing as swap senders expose something else. The adapter needs a
-   router, or needs rewriting to call pools directly through a swap callback.
-2. **How the TOWN pool's fee is collected, and who may claim it.** The reward loop hangs
-   off this.
-3. **The ticker.** `TOWN` already trades on this chain, and on seven other tokens
-   elsewhere. Nothing breaks technically; it is a discoverability and impersonation
-   problem.
+1. **V1 or V2.** V1 is a direct Uniswap V3 pool against WETH at a documented 1%/70%. V2
+   runs a bonding curve that graduates into a locked Uniswap V4 pool, charges a base fee
+   plus an optional creator tax, and allows a wider choice of pairing asset. The escrow
+   address above is V2's. The numbers in this document are V1's.
+2. **Whether a creator tax is set on a V2 launch, and at what rate.** Fixed at launch,
+   unchangeable afterwards.
+3. **The ticker.** `TOWN` already trades on this chain and on seven other tokens
+   elsewhere. Noted and accepted; it is a discoverability and impersonation matter, not a
+   technical one.

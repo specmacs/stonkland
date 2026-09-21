@@ -1,4 +1,4 @@
-import {BRAND, EDITION, LEVELS} from "./brand";
+import {BRAND, EDITION, LEVELS, PROTOCOL_SHARE_OF_TRADE_PERCENT} from "./brand";
 
 /**
  * The rulebook, in one place.
@@ -50,7 +50,7 @@ export const RULEBOOK: Section[] = [
       },
       {
         kind: "p",
-        text: `Moving tokens between wallets costs nothing. Trading them carries a ${EDITION.tradingFeePercent}% fee, charged in the trading pair's quote asset rather than in tokens. That fee, together with the card resale royalty below, is the protocol's revenue.`,
+        text: `Moving tokens between wallets costs nothing and always will: there is no transfer tax in this token, and no function that could add one. Trading is where the fee is. The venue the token launches on charges ${EDITION.venueTradingFeePercent}% on trades, in the pair's quote asset rather than in tokens, and keeps part of it. This protocol receives the launch creator's share, ${EDITION.creatorShareOfVenueFeeBps / 100}% of that fee, which works out at ${PROTOCOL_SHARE_OF_TRADE_PERCENT}% of what trades. That, and the card resale royalty below, is the whole of the protocol's revenue.`,
       },
       {
         kind: "p",
