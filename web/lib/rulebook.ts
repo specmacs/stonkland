@@ -1,4 +1,4 @@
-import {BRAND, EDITION, LEVELS, PROTOCOL_SHARE_OF_TRADE_PERCENT} from "./brand";
+import {BRAND, EDITION, LEVELS, TOTAL_TRADE_COST_PERCENT} from "./brand";
 
 /**
  * The rulebook, in one place.
@@ -50,7 +50,15 @@ export const RULEBOOK: Section[] = [
       },
       {
         kind: "p",
-        text: `Moving tokens between wallets costs nothing and always will: there is no transfer tax in this token, and no function that could add one. Trading is where the fee is. The venue the token launches on charges ${EDITION.venueTradingFeePercent}% on trades, in the pair's quote asset rather than in tokens, and keeps part of it. This protocol receives the launch creator's share, ${EDITION.creatorShareOfVenueFeeBps / 100}% of that fee, which works out at ${PROTOCOL_SHARE_OF_TRADE_PERCENT}% of what trades. That, and the card resale royalty below, is the whole of the protocol's revenue.`,
+        text: `Moving tokens between wallets costs nothing and always will: there is no transfer tax in this token, and no function that could add one. Trading is where the fee is, and it is charged in the asset the pair is priced in rather than in tokens.`,
+      },
+      {
+        kind: "p",
+        text: `Trading costs ${TOTAL_TRADE_COST_PERCENT}% in total. ${EDITION.venueBaseFeePercent}% is the venue's own fee, most of which the venue keeps; ${EDITION.creatorTaxPercent}% is a tax this protocol sets on its own launch, and that ${EDITION.creatorTaxPercent}% arrives here in full. A share of the venue's ${EDITION.venueBaseFeePercent}% reaches the protocol too, as the launch creator's cut, but the venue does not publish how it divides that, so treat ${EDITION.creatorTaxPercent}% of what trades as the figure you can count on and anything above it as a bonus.`,
+      },
+      {
+        kind: "p",
+        text: `The tax was set when the token launched and cannot be changed by anyone, including whoever holds the key. The venue caps it at 10%; this launch set ${EDITION.creatorTaxPercent}%. That fee, together with the card resale royalty below, is the whole of the protocol's revenue.`,
       },
       {
         kind: "p",
@@ -149,7 +157,7 @@ export const RULEBOOK: Section[] = [
           `Anyone can trigger the claim that pulls accrued fees into the protocol.`,
           `The router splits them on fixed terms: one third to the treasury, two thirds to rewards.`,
           `The rewards portion is wrapped and funded into ${EDITION.streamEpochSeconds}-second streams, so a single large sweep is spread across time rather than landing entirely on whoever upgraded a minute earlier.`,
-          `As streams mature, the proceeds are converted into each ${quarter}'s reward asset through fixed routes, with price-oracle checks that will reject the conversion rather than accept a bad one.`,
+          `As streams mature, the proceeds are converted into each ${quarter}'s reward asset through fixed routes. The route is checked against its own thirty-minute average price before the trade and again after it, and refuses rather than accepting a bad fill — both one somebody has arranged, and one caused by the size of the trade itself against a thin market.`,
           `Converted rewards are deposited to the distributor, where cards accrue against them by weight.`,
         ],
       },

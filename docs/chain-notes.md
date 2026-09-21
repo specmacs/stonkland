@@ -138,10 +138,17 @@ creator, which here is this protocol. On a V1 launch that was documented as 1% s
 mechanism is unaffected and the size of everything is not.
 
 A V2 launch adds an **optional creator tax**, set at launch and unchangeable afterwards,
-capped at 10% (read live: `maxCreatorTaxBps()` on the factory returns `1000`). It goes
-entirely to the creator, so it lands in the fee router alongside the base fee's creator
-share. Given how little the base fee alone yields, this is the largest single lever on
-how much ever reaches a card.
+capped at 10% (`maxCreatorTaxBps()` on the factory returns `1000`). It goes to the creator
+in full.
+
+**This launch sets it to 3%.** With the venue's own 1% on top — `feeBps()` reads `100` on
+a live V2 curve — a trade costs **4%** in total. The 3% reaches the fee router in full and
+is therefore the figure holders can count on; a share of the venue's 1% arrives on top as
+the creator's cut, but the venue does not publish how it divides that, so nothing is built
+or claimed on it.
+
+The creator tax only reaches the protocol if **the fee router is the launch's creator
+address**. Get that wrong at launch and the revenue goes somewhere else, permanently.
 
 Fees do not arrive by themselves. They accrue in a pull-based escrow, and the escrow's
 `claim()` and `claimToken(address)` pay `msg.sender`. Verified against the deployed

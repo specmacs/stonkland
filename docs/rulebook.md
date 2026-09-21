@@ -12,7 +12,11 @@ Nothing here pays a rate. There is no schedule of returns and no promise that re
 
 Supply is fixed at one billion and there is no function capable of creating more. The only direction supply can move is down, because every mint and every upgrade destroys tokens permanently.
 
-Moving tokens between wallets costs nothing and always will: there is no transfer tax in this token, and no function that could add one. Trading is where the fee is. The venue the token launches on charges 1% on trades, in the pair's quote asset rather than in tokens, and keeps part of it. This protocol receives the launch creator's share, 70% of that fee, which works out at 0.7% of what trades. That, and the card resale royalty below, is the whole of the protocol's revenue.
+Moving tokens between wallets costs nothing and always will: there is no transfer tax in this token, and no function that could add one. Trading is where the fee is, and it is charged in the asset the pair is priced in rather than in tokens.
+
+Trading costs 4% in total. 1% is the venue's own fee, most of which the venue keeps; 3% is a tax this protocol sets on its own launch, and that 3% arrives here in full. A share of the venue's 1% reaches the protocol too, as the launch creator's cut, but the venue does not publish how it divides that, so treat 3% of what trades as the figure you can count on and anything above it as a bonus.
+
+The tax was set when the token launched and cannot be changed by anyone, including whoever holds the key. The venue caps it at 10%; this launch set 3%. That fee, together with the card resale royalty below, is the whole of the protocol's revenue.
 
 20% of the treasury's share is spent buying the token on the open market, and everything bought is destroyed. Anyone can trigger it. This recycles revenue the protocol already earned — it does not create revenue, and it is not a return. What it does do is make the treasury's share a second route by which supply falls and can never rise.
 
@@ -63,7 +67,7 @@ Trading fees accumulate at the venue. From there:
 1. Anyone can trigger the claim that pulls accrued fees into the protocol.
 2. The router splits them on fixed terms: one third to the treasury, two thirds to rewards.
 3. The rewards portion is wrapped and funded into 300-second streams, so a single large sweep is spread across time rather than landing entirely on whoever upgraded a minute earlier.
-4. As streams mature, the proceeds are converted into each quarter's reward asset through fixed routes, with price-oracle checks that will reject the conversion rather than accept a bad one.
+4. As streams mature, the proceeds are converted into each quarter's reward asset through fixed routes. The route is checked against its own thirty-minute average price before the trade and again after it, and refuses rather than accepting a bad fill — both one somebody has arranged, and one caused by the size of the trade itself against a thin market.
 5. Converted rewards are deposited to the distributor, where cards accrue against them by weight.
 
 Every step is permissionless. No operator has to act for you to be paid, and no one can redirect a deposit once it is made. Steps can stall — a conversion may fail if liquidity is thin, and the funds simply wait until it succeeds.
