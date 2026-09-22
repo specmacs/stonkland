@@ -203,10 +203,10 @@ export default function LandingPage() {
                 style={{backgroundColor: `var(${q.colorVar})`}}
               >
                 <p className="font-mono text-[11px] uppercase tracking-[0.16em] opacity-80">
-                  {q.label}
+                  {q.label} {BRAND.groupTerm}
                 </p>
                 <p className="mt-4 font-display text-3xl font-bold leading-none">{q.assetName}</p>
-                <p className="mt-2.5 text-sm opacity-85">is what this quarter pays in</p>
+                <p className="mt-2.5 text-sm opacity-85">is what this district pays in</p>
               </div>
               <dl className="divide-y divide-ink/10 px-5">
                 <div className="flex items-baseline justify-between gap-2 py-3">
@@ -309,7 +309,7 @@ export default function LandingPage() {
                 EDITION.tokenMaxSupply.toLocaleString("en-US"),
                 BRAND.tokenTicker,
               ],
-              ["Cards in this edition", EDITION.cardSupply.toLocaleString("en-US"), "across four quarters"],
+              ["Cards in this edition", EDITION.cardSupply.toLocaleString("en-US"), `across four ${BRAND.groupTermPlural.toLowerCase()}`],
               ["Mint burn", EDITION.mintBurn.toLocaleString("en-US"), `${BRAND.tokenTicker} per card`],
               ["Build burns", BUILD_BURN_RANGE, "per level, rising"],
               ["Primary mints", String(EDITION.mintsPerWallet), "per wallet"],

@@ -68,7 +68,7 @@ export function MintFlow() {
             <ReadGate
               state={counts}
               loadingLabel={`Reading each ${BRAND.groupTerm.toLowerCase()}'s count…`}
-              failureLabel="Counts did not read back, so no quarter can be chosen yet."
+              failureLabel="Counts did not read back, so no district can be chosen yet."
             >
               {(data) => (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -104,7 +104,7 @@ export function MintFlow() {
             <div className="border-t-rule border-ink lg:border-l-rule lg:border-t-0">
               <Step
                 n={3}
-                label={`Mint in ${QUARTERS[quarter]?.label ?? ""}`}
+                label={`Mint in ${QUARTERS[quarter]?.label ?? ""} ${BRAND.groupTerm}`}
                 value={`${house?.form} · ${BRAND.scoreTerm} ${house?.weight}`}
                 tint="bg-tint-mint"
                 inner
@@ -402,7 +402,7 @@ function MintPanel({
                 abi={minterAbi}
                 functionName="mint"
                 args={[quarter]}
-                label={`Mint in ${QUARTERS[quarter]?.label ?? ""}`}
+                label={`Mint in ${QUARTERS[quarter]?.label ?? ""} ${BRAND.groupTerm}`}
                 pendingLabel="Minting…"
                 disabledReason={disabledReason}
                 confirm={

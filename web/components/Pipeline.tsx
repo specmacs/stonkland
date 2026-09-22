@@ -177,9 +177,9 @@ function PushStage({data}: {data: ProtocolStats}) {
                     variant="secondary"
                     disabledReason={
                       data.perQuarterMinted[q.index] === undefined
-                        ? "This quarter's card count could not be read."
+                        ? `This ${BRAND.groupTerm.toLowerCase()}'s card count could not be read.`
                         : (data.perQuarterMinted[q.index] ?? 0n) === 0n
-                          ? "No cards in this quarter yet."
+                          ? `No cards in this ${BRAND.groupTerm.toLowerCase()} yet.`
                           : undefined
                     }
                   />

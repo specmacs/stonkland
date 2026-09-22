@@ -165,7 +165,7 @@ function describe(error: Error): string {
     return "You've used all your primary mints. Cards are available from holders.";
   }
   if (/QuarterFull/.test(message)) {
-    return "This quarter is fully claimed. Cards are available from holders.";
+    return "This district is fully claimed. Cards are available from holders.";
   }
   if (/NotCardOwner/.test(message)) {
     return "Only the current owner can build on this card.";

@@ -21,8 +21,8 @@ export const BRAND = {
   /** The per-card score. Defined before any number derived from it is shown. */
   scoreTerm: "Yield Weight",
   /** A group of cards sharing a reward pool. */
-  groupTerm: "Quarter",
-  groupTermPlural: "Quarters",
+  groupTerm: "District",
+  groupTermPlural: "Districts",
   /** The rewards page. */
   rewardsPageTerm: "Ground Rent",
   strapline: "The property game that settles onchain",
@@ -154,19 +154,23 @@ export function formName(level: number): string {
 }
 
 /**
- * Quarters are zero-indexed on chain and one-indexed everywhere a person reads them.
+ * Districts are zero-indexed on chain and named here after the asset each one pays in.
  *
- * `assetName` is what this deployment intends each quarter to pay in. It is written here,
- * not read from a contract, so it may only be used in explanatory copy about the design.
- * Anywhere a live figure is shown, the asset's symbol is read from chain and that read is
- * what is displayed -- a name in this file is a statement of intent, and an interface that
- * dressed it up as chain state would be lying about the one thing it promises not to.
+ * Both `label` and `assetName` are written in this file, not read from a contract. They
+ * are names this deployment chose, and they may only be used as names -- anywhere a live
+ * figure is shown, the asset's symbol is read from its own contract and that read is what
+ * appears beside the number.
+ *
+ * Naming a district after a ticker makes that distinction load-bearing rather than
+ * academic: if a district called NVDA were ever configured with some other asset, the read
+ * symbol beside its figures would not say NVDA, and the disagreement would be visible.
+ * That is the whole reason the symbol is still read rather than assumed to match.
  */
 export const QUARTERS = [
-  {index: 0, label: "Quarter One", short: "Q1", colorVar: "--quarter-1", assetName: "NVIDIA"},
-  {index: 1, label: "Quarter Two", short: "Q2", colorVar: "--quarter-2", assetName: "Alphabet"},
-  {index: 2, label: "Quarter Three", short: "Q3", colorVar: "--quarter-3", assetName: "Apple"},
-  {index: 3, label: "Quarter Four", short: "Q4", colorVar: "--quarter-4", assetName: "Meta"},
+  {index: 0, label: "NVDA", short: "NVDA", colorVar: "--quarter-1", assetName: "NVIDIA"},
+  {index: 1, label: "GOOGL", short: "GOOGL", colorVar: "--quarter-2", assetName: "Alphabet"},
+  {index: 2, label: "AAPL", short: "AAPL", colorVar: "--quarter-3", assetName: "Apple"},
+  {index: 3, label: "META", short: "META", colorVar: "--quarter-4", assetName: "Meta"},
 ] as const;
 
 /**
@@ -177,9 +181,9 @@ export const QUARTERS = [
  * to blur that however much shorter the blurred version reads.
  */
 export const REWARD_ASSET_EXPLAINER =
-  "Each quarter pays in a token that tracks one company's share price. A token is not a " +
-  "share: holding one gives you no ownership, no dividend and no vote in the company it " +
-  "tracks.";
+  `Each ${BRAND.groupTerm.toLowerCase()} pays in a token that tracks one company's share ` +
+  "price. A token is not a share: holding one gives you no ownership, no dividend and no " +
+  "vote in the company it tracks.";
 
 export type Quarter = (typeof QUARTERS)[number];
 

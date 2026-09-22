@@ -45,7 +45,7 @@ export function GroundRent() {
         ) : (
           <ReadGate
             state={standings}
-            loadingLabel="Reading your standing in each quarter…"
+            loadingLabel="Reading your standing in each district…"
             failureLabel="Your scoreboard could not be read. Onchain reads did not succeed."
           >
             {(rows) => (

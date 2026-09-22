@@ -1,10 +1,10 @@
 # The Rulebook
 
-StonkTown · Founding Edition. 400 property cards across four quarters. Every figure below matches the deployed contracts, and TOWN is the token throughout.
+StonkTown · Founding Edition. 400 property cards across four districts. Every figure below matches the deployed contracts, and TOWN is the token throughout.
 
 ## What this is
 
-A board game that settles onchain. The Founding Edition contains 400 property cards. That cap is fixed in the contract and cannot be raised by anyone, so no card beyond it can ever exist in this edition -- but later editions are a deliberate part of the design, and each is its own collection with its own cap. What that does to your share is set out further down, and it is worth reading before you buy. Each belongs to one of four quarters of the city, 100 to a quarter. You acquire a card by destroying tokens, and you improve it by destroying more. An improved card carries more weight, and weight decides how the quarter's incoming rewards are divided among the cards inside it.
+A board game that settles onchain. The Founding Edition contains 400 property cards. That cap is fixed in the contract and cannot be raised by anyone, so no card beyond it can ever exist in this edition -- but later editions are a deliberate part of the design, and each is its own collection with its own cap. What that does to your share is set out further down, and it is worth reading before you buy. Each belongs to one of four districts of the city, 100 to a district. You acquire a card by destroying tokens, and you improve it by destroying more. An improved card carries more weight, and weight decides how the district's incoming rewards are divided among the cards inside it.
 
 Nothing here pays a rate. There is no schedule of returns and no promise that rewards arrive at all. What the protocol distributes is what it actually received, split according to weight. If it receives nothing, it distributes nothing.
 
@@ -22,7 +22,7 @@ The venue charges a fee of its own as well. That one belongs to the venue — th
 
 ## The cards
 
-There are 400 cards, divided evenly into four quarters of 100, each laid out as a 10×10 grid. A card's quarter is fixed at mint and can never change.
+There are 400 cards, divided evenly into four districts of 100, each laid out as a 10×10 grid. A card's district is fixed at mint and can never change.
 
 Minting destroys 100,000 tokens. Each wallet may mint 3 cards directly from the protocol. That is a limit on primary mints, not on ownership — you may buy as many cards as you like from other holders.
 
@@ -48,15 +48,15 @@ Levels must be taken in order. A card cannot skip a level, cannot be reduced, an
 
 Reaching the top is rare by arithmetic, not by policy: building every card to Landmark would take more tokens than will ever exist. Most cards will never get there, and the ones that do will be few.
 
-> Upgrading is irreversible. Tokens spent on an upgrade are gone, and the only thing you receive in return is a higher share of whatever the quarter happens to receive afterward. Treat it as spending, not as depositing.
+> Upgrading is irreversible. Tokens spent on an upgrade are gone, and the only thing you receive in return is a higher share of whatever the district happens to receive afterward. Treat it as spending, not as depositing.
 
 ## Weight
 
-Yield Weight is a card's score inside its quarter, and nothing else. It is not a rate, not a yield, and not a claim on anything outside the quarter's pool.
+Yield Weight is a card's score inside its district, and nothing else. It is not a rate, not a yield, and not a claim on anything outside the district's pool.
 
-When rewards arrive in a quarter, they are divided among that quarter's cards in proportion to weight. A Landmark carries five times the weight of a House, so it receives five times the share of the same deposit. If the deposit is small, five times a small number is still a small number. If there is no deposit, weight determines nothing.
+When rewards arrive in a district, they are divided among that district's cards in proportion to weight. A Landmark carries five times the weight of a House, so it receives five times the share of the same deposit. If the deposit is small, five times a small number is still a small number. If there is no deposit, weight determines nothing.
 
-Weight only matters relative to the other cards in the same quarter. As other owners build, your share of each deposit falls even though your weight hasn't changed. This is the central tension of the game and it is intentional.
+Weight only matters relative to the other cards in the same district. As other owners build, your share of each deposit falls even though your weight hasn't changed. This is the central tension of the game and it is intentional.
 
 The exact weights for this edition are 125, 200, 312, 456, 625. They are the base schedule multiplied by this edition's 1.25×, with fractions truncated, which is why levels three and four read 312 and 456 rather than half-units. The ratio the paragraph above promises holds exactly: 625 is five times 125.
 
@@ -67,18 +67,18 @@ Trading fees accumulate at the venue. From there:
 1. Anyone can trigger the claim that pulls accrued fees into the protocol.
 2. The router splits them on fixed terms: one third to the treasury, two thirds to rewards.
 3. The rewards portion is wrapped and funded into 300-second streams, so a single large sweep is spread across time rather than landing entirely on whoever upgraded a minute earlier.
-4. As streams mature, the proceeds are converted into each quarter's reward asset through fixed routes. The route is checked against its own thirty-minute average price before the trade and again after it, and refuses rather than accepting a bad fill — both one somebody has arranged, and one caused by the size of the trade itself against a thin market.
+4. As streams mature, the proceeds are converted into each district's reward asset through fixed routes. The route is checked against its own thirty-minute average price before the trade and again after it, and refuses rather than accepting a bad fill — both one somebody has arranged, and one caused by the size of the trade itself against a thin market.
 5. Converted rewards are deposited to the distributor, where cards accrue against them by weight.
 
-No one can redirect a deposit once it is made, and no operator has to act for you to be paid. Claiming the venue's fees, splitting them, releasing the stream and sweeping card royalties are open to anyone, always — those contracts have no owner and no pause. Allocating between quarters and converting a quarter into its asset are open to anyone while the vault is running, and to a named processor only while conversion is paused. Steps can stall — a conversion may fail if liquidity is thin, and the funds simply wait until it succeeds.
+No one can redirect a deposit once it is made, and no operator has to act for you to be paid. Claiming the venue's fees, splitting them, releasing the stream and sweeping card royalties are open to anyone, always — those contracts have no owner and no pause. Allocating between districts and converting a district into its asset are open to anyone while the vault is running, and to a named processor only while conversion is paused. Steps can stall — a conversion may fail if liquidity is thin, and the funds simply wait until it succeeds.
 
-Each quarter is allocated an equal share and converts independently. A quarter with no minted cards accrues its share as a reserve rather than passing it to the others.
+Each district is allocated an equal share and converts independently. A district with no minted cards accrues its share as a reserve rather than passing it to the others.
 
 ## Claiming, holding, selling
 
 Rewards accrue to the card, but they are settled to a wallet. Whenever a card is transferred, upgraded, claimed against, or paid out by a push, the protocol settles what has accrued so far and credits it to the current owner.
 
-You are not required to claim. Anyone can call a function that settles and pays every card in a quarter, and in practice that is run on a schedule, so rewards arrive without you doing anything. It is bounded and resumable, because paying a whole quarter is more work than one transaction should carry, and an owner whose transfer fails is skipped rather than blocking everyone behind them — their credit is untouched and waiting.
+You are not required to claim. Anyone can call a function that settles and pays every card in a district, and in practice that is run on a schedule, so rewards arrive without you doing anything. It is bounded and resumable, because paying a whole district is more work than one transaction should carry, and an owner whose transfer fails is skipped rather than blocking everyone behind them — their credit is untouched and waiting.
 
 The claim is still there, and it always will be. A reward that only arrives when somebody remembers to run something is a reward with an operator standing in front of it. Nothing you are owed expires, and nothing you are owed is ever swept anywhere else.
 
@@ -96,7 +96,7 @@ You will never be paid in another edition's asset, and another edition's asset g
 
 ## What cannot be changed
 
-Once deployed, no one — including whoever holds the key — can create tokens or cards beyond the caps, restore destroyed supply, alter a level, weight, or quarter, change the fee split, the stream duration, or the quarter allocation, withdraw or redirect deposited rewards, or touch any edition's weight multiplier or asset set. All of this is demonstrable from the verified source.
+Once deployed, no one — including whoever holds the key — can create tokens or cards beyond the caps, restore destroyed supply, alter a level, weight, or district, change the fee split, the stream duration, or the district allocation, withdraw or redirect deposited rewards, or touch any edition's weight multiplier or asset set. All of this is demonstrable from the verified source.
 
 Administrative control is the following list and nothing else. Pausing minting, upgrades, and conversion. Swapping the metadata renderer, which is presentation only. Replacing a conversion route, which can change how an asset is bought but never which asset you receive, because the route is checked against the edition's frozen asset list before it is accepted. Naming who may move the two vault stages while conversion is paused. Naming who may trigger the treasury buyback, setting a ceiling on what it spends per call and a cooldown between calls, and replacing the route it buys through. Adjusting the share of treasury revenue spent on buybacks, which cannot touch the rewards leg. And registering a new edition.
 

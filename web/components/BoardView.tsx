@@ -254,7 +254,7 @@ function QuarterGrid({
             className="grid gap-1.5 p-4"
             style={{gridTemplateColumns: `repeat(${EDITION.gridSize}, minmax(0, 1fr))`}}
             role="grid"
-            aria-label={`${quarterMeta?.label ?? "Quarter"} plots`}
+            aria-label={`${quarterMeta?.label ?? BRAND.groupTerm} plots`}
           >
             {cells.map((tokenId) => {
               const card = byTokenId.get(tokenId.toString());
