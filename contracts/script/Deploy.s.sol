@@ -62,8 +62,11 @@ contract Deploy is Script {
         c.rewardAssets[2] = vm.envAddress("REWARD_ASSET_Q3");
         c.rewardAssets[3] = vm.envAddress("REWARD_ASSET_Q4");
 
-        c.imageBaseURI = vm.envOr("IMAGE_BASE_URI", string(""));
-        c.externalBaseURI = vm.envOr("EXTERNAL_BASE_URI", string(""));
+        // Required. Deployed empty, every card renders as a broken image on every
+        // marketplace that reads tokenURI, and the first anyone knows is a launch-day
+        // screenshot. The owner can fix it afterwards; better not to need to.
+        c.imageBaseURI = vm.envString("IMAGE_BASE_URI");
+        c.externalBaseURI = vm.envString("EXTERNAL_BASE_URI");
     }
 
 
