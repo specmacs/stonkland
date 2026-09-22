@@ -39,9 +39,9 @@ export function BoardView() {
               <div className="panel mb-6 flex flex-wrap items-center gap-x-8 gap-y-3 p-5">
                 <div>
                   <p className="rule-label">Claimed</p>
-                  <p className="mt-1 font-mono text-2xl text-ink-100">
+                  <p className="mt-1 font-mono text-2xl text-ink">
                     {formatCount(data.total)}
-                    <span className="text-ink-600"> / {EDITION.cardSupply}</span>
+                    <span className="text-inkFaint"> / {EDITION.cardSupply}</span>
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-x-6 gap-y-2">
@@ -55,9 +55,9 @@ export function BoardView() {
                         />
                         {q.short}
                       </p>
-                      <p className="mt-1 font-mono text-sm text-ink-300">
+                      <p className="mt-1 font-mono text-sm text-inkMuted">
                         {formatCount(data.perQuarter[q.index] ?? 0n)}
-                        <span className="text-ink-600"> / {EDITION.quarterCap}</span>
+                        <span className="text-inkFaint"> / {EDITION.quarterCap}</span>
                       </p>
                     </div>
                   ))}
@@ -84,7 +84,7 @@ export function BoardView() {
           )}
         </ReadGate>
 
-        <p className="mt-8 max-w-3xl text-xs leading-relaxed text-ink-500">
+        <p className="mt-8 max-w-3xl text-xs leading-relaxed text-inkMuted">
           Minted details come from onchain reads. Open cells represent{" "}
           {BRAND.groupTerm.toLowerCase()} capacity only and never carry a placeholder ID, level,
           owner, or weight.
@@ -122,10 +122,10 @@ function Filters({
               type="button"
               onClick={() => onQuarter(q.index)}
               aria-pressed={quarter === q.index}
-              className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors ${
+              className={`flex items-center gap-1.5 border-rule px-3 py-1.5 text-sm font-medium transition-colors ${
                 quarter === q.index
-                  ? "border-ink-600 bg-ink-800 text-ink-100"
-                  : "border-ink-800 text-ink-400 hover:text-ink-200"
+                  ? "border-ink bg-ink text-paper"
+                  : "border-ink text-inkMuted hover:text-ink"
               }`}
             >
               <span
@@ -148,10 +148,10 @@ function Filters({
               type="button"
               onClick={() => onOwnership(o)}
               aria-pressed={ownership === o}
-              className={`rounded-md border px-3 py-1.5 text-sm capitalize transition-colors ${
+              className={`border-rule px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
                 ownership === o
-                  ? "border-ink-600 bg-ink-800 text-ink-100"
-                  : "border-ink-800 text-ink-400 hover:text-ink-200"
+                  ? "border-ink bg-ink text-paper"
+                  : "border-ink text-inkMuted hover:text-ink"
               }`}
             >
               {o}
@@ -169,10 +169,10 @@ function Filters({
               type="button"
               onClick={() => onLevel(l)}
               aria-pressed={levelFilter === l}
-              className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
+              className={`border-rule px-3 py-1.5 text-sm font-medium transition-colors ${
                 levelFilter === l
-                  ? "border-ink-600 bg-ink-800 text-ink-100"
-                  : "border-ink-800 text-ink-400 hover:text-ink-200"
+                  ? "border-ink bg-ink text-paper"
+                  : "border-ink text-inkMuted hover:text-ink"
               }`}
             >
               {l === "all" ? "All" : `${l}★`}
@@ -222,10 +222,10 @@ function QuarterGrid({
         if (mintedCount === 0) {
           return (
             <div className="panel p-8 text-center">
-              <p className="text-sm text-ink-300">
+              <p className="text-sm text-inkMuted">
                 No cards minted in this {BRAND.groupTerm.toLowerCase()} yet.
               </p>
-              <p className="mt-2 text-xs text-ink-500">
+              <p className="mt-2 text-xs text-inkMuted">
                 All {EDITION.quarterCap} plots are open capacity.
               </p>
             </div>
@@ -260,7 +260,7 @@ function QuarterGrid({
                     key={tokenId.toString()}
                     role="gridcell"
                     aria-label="Open plot"
-                    className="aspect-square rounded border border-dashed border-ink-800/80 bg-ink-900/20"
+                    className="aspect-square border border-dashed border-ink/25 bg-paperShade/50"
                   />
                 );
               }
@@ -273,19 +273,17 @@ function QuarterGrid({
                   role="gridcell"
                   onClick={() => onSelect(card)}
                   title={`#${card.tokenId} · ${formName(card.level)} · ${BRAND.scoreTerm} ${card.weight}`}
-                  className={`group relative aspect-square rounded border transition-colors ${
-                    isYours
-                      ? "border-brass-500 bg-ink-800"
-                      : "border-ink-700 bg-ink-900 hover:border-ink-600"
+                  className={`group relative aspect-square border-rule bg-paper transition-transform hover:-translate-y-0.5 ${
+                    isYours ? "border-seal" : "border-ink"
                   }`}
                   style={{
                     boxShadow: `inset 0 -2px 0 0 var(${quarterMeta?.colorVar ?? "--quarter-1"})`,
                   }}
                 >
-                  <span className="absolute inset-x-0 top-1 text-[9px] leading-none text-ink-600">
+                  <span className="absolute inset-x-0 top-1 font-mono text-[9px] leading-none text-inkFaint">
                     {card.tokenId.toString()}
                   </span>
-                  <span className="absolute inset-x-0 bottom-2 text-[11px] font-medium leading-none text-ink-200">
+                  <span className="absolute inset-x-0 bottom-2 font-mono text-[11px] font-semibold leading-none text-ink">
                     {card.level}★
                   </span>
                 </button>
@@ -299,12 +297,12 @@ function QuarterGrid({
 }
 
 function Hidden() {
-  return <div aria-hidden className="aspect-square rounded border border-ink-900/60 opacity-25" />;
+  return <div aria-hidden className="aspect-square rounded border-rule border-ink/15 opacity-25" />;
 }
 
 export function CardSummaryLine({card}: {card: CardState}) {
   return (
-    <p className="font-mono text-xs text-ink-500">
+    <p className="font-mono text-xs text-inkMuted">
       #{card.tokenId.toString()} · {formName(card.level)} · {BRAND.scoreTerm} {card.weight} ·{" "}
       {formatCompactTokens(card.burned)} burned · {shortAddress(card.owner)}
     </p>

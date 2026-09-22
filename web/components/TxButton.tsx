@@ -90,8 +90,8 @@ export function TxButton({
   return (
     <div>
       {awaitingConfirm && confirm ? (
-        <div className="panel border-brass-500/40 p-4">
-          <div className="text-sm leading-relaxed text-ink-200">{confirm}</div>
+        <div className="panel border-seal p-4">
+          <div className="text-sm leading-relaxed text-ink">{confirm}</div>
           <div className="mt-4 flex gap-2">
             <button type="button" onClick={fire} className="btn-primary">
               Yes, continue
@@ -117,12 +117,12 @@ export function TxButton({
       )}
 
       {error && (
-        <p className="mt-2 text-xs text-ink-400" role="alert">
+        <p className="mt-2 text-xs text-inkMuted" role="alert">
           {describe(error)}
         </p>
       )}
       {receipt.isLoading && (
-        <p className="mt-2 text-xs text-ink-500" role="status">
+        <p className="mt-2 text-xs text-inkMuted" role="status">
           Waiting for confirmation…
         </p>
       )}
@@ -149,7 +149,7 @@ function Disabled({
       >
         {label}
       </button>
-      <p id="tx-disabled-reason" className="mt-2 text-xs text-ink-400">
+      <p id="tx-disabled-reason" className="mt-2 text-xs text-inkMuted">
         {reason}
       </p>
     </div>

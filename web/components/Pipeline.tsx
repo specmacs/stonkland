@@ -26,7 +26,7 @@ export function Pipeline() {
   return (
     <section>
       <h2 className="rule-label mb-3">Move the pipeline</h2>
-      <p className="mb-5 max-w-3xl text-sm leading-relaxed text-ink-400">
+      <p className="mb-5 max-w-3xl text-sm leading-relaxed text-inkMuted">
         Rewards travel from trading fees to your card through the stages below. Every one is
         open to anyone — no operator has to act for you to be paid, and nothing here can send
         funds anywhere other than onward. If a stage has something waiting, you can move it
@@ -113,7 +113,7 @@ function ConvertStage({data}: {data: ProtocolStats}) {
           const pending = data.vaultPerQuarterPending[q.index];
           const nothingWaiting = pending === undefined || pending === 0n;
           return (
-            <div key={q.index} className="rounded-md border border-ink-800 p-3">
+            <div key={q.index} className="rounded-md border-rule border-ink p-3">
               <p className="rule-label flex items-center gap-1.5">
                 <span
                   aria-hidden
@@ -122,9 +122,9 @@ function ConvertStage({data}: {data: ProtocolStats}) {
                 />
                 {q.label}
               </p>
-              <p className="mt-1.5 font-mono text-sm text-ink-200">
+              <p className="mt-1.5 font-mono text-sm text-ink">
                 {pending === undefined ? (
-                  <span className="text-ink-600">not read</span>
+                  <span className="text-inkFaint">not read</span>
                 ) : (
                   `${formatAssetAmount(pending, 18)} WETH`
                 )}
@@ -200,14 +200,14 @@ function Stage({
 
         <div className="shrink-0 text-right">
           <p className="rule-label">Waiting</p>
-          <p className="mt-1 font-mono text-base text-ink-100">
+          <p className="mt-1 font-mono text-base text-ink">
             {unread ? (
-              <span className="text-ink-600">not read</span>
+              <span className="text-inkFaint">not read</span>
             ) : (
               `${formatAssetAmount(amount, 18)} WETH`
             )}
           </p>
-          {alsoWaiting && <p className="mt-1 text-xs text-ink-500">{alsoWaiting}</p>}
+          {alsoWaiting && <p className="mt-1 text-xs text-inkMuted">{alsoWaiting}</p>}
         </div>
       </div>
 
@@ -237,10 +237,10 @@ function StageHeader({step, title, body}: {step: number; title: string; body: st
   return (
     <div className="min-w-0 max-w-2xl">
       <p className="flex items-center gap-2">
-        <span className="font-mono text-xs text-brass-500">{step}</span>
-        <span className="text-sm font-medium text-ink-100">{title}</span>
+        <span className="font-mono text-xs text-seal">{step}</span>
+        <span className="text-sm font-medium text-ink">{title}</span>
       </p>
-      <p className="mt-1.5 text-sm leading-relaxed text-ink-400">{body}</p>
+      <p className="mt-1.5 text-sm leading-relaxed text-inkMuted">{body}</p>
     </div>
   );
 }

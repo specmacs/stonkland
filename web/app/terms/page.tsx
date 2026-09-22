@@ -26,8 +26,8 @@ export default function TermsPage() {
       />
 
       <div className="mx-auto max-w-3xl px-4 pb-8 sm:px-6">
-        <div className="panel border-brass-500/40 p-5">
-          <p className="text-sm leading-relaxed text-ink-200">
+        <div className="panel border-seal p-5">
+          <p className="text-sm leading-relaxed text-ink">
             {BRAND.projectName} has no terms of service in force. Nothing on this site should be
             read as a contract, an offer, or a representation about how the protocol will be
             operated. Until counsel has reviewed and published terms here, treat this deployment
@@ -35,7 +35,7 @@ export default function TermsPage() {
           </p>
         </div>
 
-        <h2 className="mt-10 text-lg font-semibold text-ink-100">What still has to be settled</h2>
+        <h2 className="mt-10 text-lg font-semibold text-ink">What still has to be settled</h2>
         <ul className="mt-4 space-y-3">
           {[
             "Which jurisdictions are served, and which are blocked, with the geoblocking implemented to match.",
@@ -43,16 +43,16 @@ export default function TermsPage() {
             "The acceptable-use, disclaimer, and limitation-of-liability language that any published terms would carry.",
             "How disputes are handled, and under whose law.",
           ].map((item) => (
-            <li key={item} className="flex gap-3 text-sm leading-relaxed text-ink-300">
-              <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-ink-600" />
+            <li key={item} className="flex gap-3 text-sm leading-relaxed text-inkMuted">
+              <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-inkFaint" />
               {item}
             </li>
           ))}
         </ul>
 
-        <p className="mt-8 text-sm text-ink-400">
+        <p className="mt-8 text-sm text-inkMuted">
           In the meantime, the{" "}
-          <Link href="/rulebook" className="text-brass-400 underline underline-offset-4">
+          <Link href="/rulebook" className="text-seal underline underline-offset-4">
             rulebook
           </Link>{" "}
           describes exactly how the protocol behaves, including the parts that carry risk.

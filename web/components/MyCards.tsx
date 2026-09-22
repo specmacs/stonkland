@@ -27,7 +27,7 @@ export function MyCards() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {!isConnected ? (
-          <div className="panel p-8 text-center text-sm text-ink-300">
+          <div className="panel p-8 text-center text-sm text-inkMuted">
             Connect a wallet to read its cards from the configured network.
           </div>
         ) : (
@@ -38,7 +38,7 @@ export function MyCards() {
           >
             {(cards) =>
               cards.length === 0 ? (
-                <div className="panel p-8 text-center text-sm text-ink-300">
+                <div className="panel p-8 text-center text-sm text-inkMuted">
                   No cards in this wallet yet.
                 </div>
               ) : (
@@ -104,28 +104,28 @@ function CardRow({
             />
             {quarter?.label}
           </p>
-          <h2 className="mt-1 truncate text-base font-medium text-ink-100">
+          <h2 className="mt-1 truncate text-base font-medium text-ink">
             #{card.tokenId.toString()} · {formName(card.level)}
           </h2>
 
           <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
             <div>
               <dt className="rule-label">{BRAND.scoreTerm}</dt>
-              <dd className="mt-0.5 font-mono text-brass-400">{card.weight}</dd>
+              <dd className="mt-0.5 font-mono text-seal">{card.weight}</dd>
             </div>
             <div>
               <dt className="rule-label">Lifetime burn</dt>
-              <dd className="mt-0.5 font-mono text-ink-200">{formatWholeTokens(card.burned)}</dd>
+              <dd className="mt-0.5 font-mono text-ink">{formatWholeTokens(card.burned)}</dd>
             </div>
             <div className="col-span-2">
               <dt className="rule-label">Pending on this card</dt>
-              <dd className="mt-0.5 font-mono text-ink-200">
+              <dd className="mt-0.5 font-mono text-ink">
                 {card.pending === undefined ? (
-                  <span className="text-ink-500">Could not be read</span>
+                  <span className="text-inkMuted">Could not be read</span>
                 ) : assetSymbol && assetDecimals !== undefined ? (
                   `${formatAssetAmount(card.pending, assetDecimals)} ${assetSymbol}`
                 ) : (
-                  <span className="text-ink-500">
+                  <span className="text-inkMuted">
                     No reward asset is configured for this {BRAND.groupTerm.toLowerCase()}
                   </span>
                 )}
@@ -135,9 +135,9 @@ function CardRow({
         </div>
       </div>
 
-      <div className="mt-5 border-t border-ink-800 pt-4">
+      <div className="mt-5 border-t-rule border-ink pt-4">
         {maxed ? (
-          <p className="text-xs text-ink-500">
+          <p className="text-xs text-inkMuted">
             At the top of the ladder. This card cannot be built further, reduced, or reset.
           </p>
         ) : (
@@ -162,11 +162,11 @@ function BuildControl({
 
   return (
     <div>
-      <p className="mb-3 text-sm text-ink-300">
+      <p className="mb-3 text-sm text-inkMuted">
         Build to {formName(nextLevel)} — burns{" "}
-        <span className="font-mono text-ink-100">{formatWholeTokens(nextBurn)}</span>{" "}
+        <span className="font-mono text-ink">{formatWholeTokens(nextBurn)}</span>{" "}
         {BRAND.tokenTicker}, raising {BRAND.scoreTerm.toLowerCase()} to{" "}
-        <span className="font-mono text-brass-400">{nextWeight}</span>.
+        <span className="font-mono text-seal">{nextWeight}</span>.
       </p>
 
       <div className="flex flex-wrap gap-2">
@@ -192,7 +192,7 @@ function BuildControl({
           disabledReason={disabledReason}
           confirm={
             <>
-              <strong className="block text-ink-100">
+              <strong className="block text-ink">
                 Build to {formName(nextLevel)}?
               </strong>
               <span className="mt-1 block">

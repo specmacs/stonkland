@@ -21,9 +21,9 @@ export default function RulebookPage() {
               <li key={section.id}>
                 <a
                   href={`#${section.id}`}
-                  className="flex gap-2 text-sm text-ink-400 hover:text-ink-200"
+                  className="flex gap-2 text-sm text-inkMuted hover:text-ink"
                 >
-                  <span className="font-mono text-xs text-ink-600">{i + 1}</span>
+                  <span className="font-mono text-xs text-inkFaint">{i + 1}</span>
                   {section.heading}
                 </a>
               </li>
@@ -33,8 +33,8 @@ export default function RulebookPage() {
 
         <article className="max-w-3xl pb-8">
           {RULEBOOK.map((section) => (
-            <section key={section.id} id={section.id} className="scroll-mt-24 border-t border-ink-800 py-8 first:border-t-0 first:pt-0">
-              <h2 className="text-xl font-semibold tracking-tight text-ink-100">
+            <section key={section.id} id={section.id} className="scroll-mt-24 border-t-rule border-ink py-8 first:border-t-0 first:pt-0">
+              <h2 className="font-display text-2xl font-bold text-ink">
                 {section.heading}
               </h2>
               <div className="mt-4 space-y-4">
@@ -53,11 +53,11 @@ export default function RulebookPage() {
 function BlockView({block}: {block: Block}) {
   switch (block.kind) {
     case "p":
-      return <p className="leading-relaxed text-ink-300">{block.text}</p>;
+      return <p className="leading-relaxed text-inkMuted">{block.text}</p>;
 
     case "callout":
       return (
-        <p className="rounded-md border-l-2 border-brass-500 bg-ink-900/60 py-3 pl-4 pr-4 leading-relaxed text-ink-200">
+        <p className="rounded-md border-l-2 border-seal bg-paperShade py-3 pl-4 pr-4 leading-relaxed text-ink">
           {block.text}
         </p>
       );
@@ -66,8 +66,8 @@ function BlockView({block}: {block: Block}) {
       return (
         <ul className="space-y-2">
           {block.items.map((item, i) => (
-            <li key={i} className="flex gap-3 leading-relaxed text-ink-300">
-              <span aria-hidden className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-ink-600" />
+            <li key={i} className="flex gap-3 leading-relaxed text-inkMuted">
+              <span aria-hidden className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-inkFaint" />
               {item}
             </li>
           ))}
@@ -78,8 +78,8 @@ function BlockView({block}: {block: Block}) {
       return (
         <ol className="space-y-2">
           {block.items.map((item, i) => (
-            <li key={i} className="flex gap-3 leading-relaxed text-ink-300">
-              <span className="mt-0.5 font-mono text-xs text-brass-500">{i + 1}</span>
+            <li key={i} className="flex gap-3 leading-relaxed text-inkMuted">
+              <span className="mt-0.5 font-mono text-xs text-seal">{i + 1}</span>
               {item}
             </li>
           ))}
@@ -91,7 +91,7 @@ function BlockView({block}: {block: Block}) {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[26rem] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-ink-800 text-left">
+              <tr className="border-b-rule border-ink text-left">
                 {block.head.map((h, i) => (
                   <th
                     key={h}
@@ -105,11 +105,11 @@ function BlockView({block}: {block: Block}) {
             </thead>
             <tbody>
               {block.rows.map((row) => (
-                <tr key={row[0]} className="border-b border-ink-800/60">
+                <tr key={row[0]} className="border-b-rule border-ink/20">
                   {row.map((cell, i) => (
                     <td
                       key={i}
-                      className={`py-3 ${i > 1 ? "text-right font-mono" : ""} ${i === 0 ? "font-mono text-ink-500" : "text-ink-200"} ${i < row.length - 1 ? "pr-4" : ""}`}
+                      className={`py-3 ${i > 1 ? "text-right font-mono" : ""} ${i === 0 ? "font-mono text-inkMuted" : "text-ink"} ${i < row.length - 1 ? "pr-4" : ""}`}
                     >
                       {cell}
                     </td>

@@ -21,7 +21,7 @@ export function WeightComparison() {
 
   return (
     <div className="panel overflow-hidden">
-      <div className="border-b border-ink-800 px-6 py-4">
+      <div className="border-b-rule border-ink px-6 py-4">
         <p className="rule-label">If these two cards shared one {BRAND.groupTerm.toLowerCase()}</p>
       </div>
 
@@ -33,7 +33,7 @@ export function WeightComparison() {
           share={housePct}
           note="One burn. The cheapest place on the board."
         />
-        <div className="border-t border-ink-800 sm:border-l sm:border-t-0">
+        <div className="border-t-rule border-ink sm:border-l sm:border-t-0">
           <Side
             level={landmark.level}
             form={landmark.form}
@@ -45,14 +45,14 @@ export function WeightComparison() {
         </div>
       </div>
 
-      <div className="border-t border-ink-800 px-6 py-5">
-        <p className="text-sm leading-relaxed text-ink-300">
+      <div className="border-t-rule border-ink px-6 py-5">
+        <p className="text-sm leading-relaxed text-inkMuted">
           The {landmark.form} takes {landmark.weight / house.weight} times the{" "}
           {house.form}&apos;s share of the same deposit, because its weight is{" "}
           {landmark.weight / house.weight} times larger. That is the whole of the
           relationship.
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-ink-500">
+        <p className="mt-2 text-sm leading-relaxed text-inkMuted">
           It says nothing about how much arrives. Five times a small number is a small
           number, and five times nothing is nothing.
         </p>
@@ -81,7 +81,7 @@ function Side({
       <div className="flex items-center gap-4">
         <PieceArt level={level} className="h-16 w-16 shrink-0" />
         <div>
-          <p className="text-sm font-medium text-ink-100">{form}</p>
+          <p className="text-sm font-medium text-ink">{form}</p>
           <p className="rule-label mt-1">
             {BRAND.scoreTerm} {weight}
           </p>
@@ -90,22 +90,22 @@ function Side({
 
       <p className="figure mt-5">
         {share.toFixed(share % 1 === 0 ? 0 : 1)}
-        <span className="ml-1 font-sans text-lg text-ink-500">%</span>
+        <span className="ml-1 font-sans text-lg text-inkMuted">%</span>
       </p>
       <p className="rule-label mt-1.5">of that deposit</p>
 
       <div
-        className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-ink-800"
+        className="mt-4 h-3 w-full overflow-hidden border-rule border-ink bg-paperShade"
         role="img"
         aria-label={`${form} takes ${share.toFixed(1)} percent`}
       >
         <div
-          className={`h-full rounded-full ${emphasis ? "bg-brass-500" : "bg-ink-600"}`}
+          className={`h-full ${emphasis ? "bg-seal" : "bg-inkFaint"}`}
           style={{width: `${share}%`}}
         />
       </div>
 
-      <p className="mt-4 text-xs leading-relaxed text-ink-500">{note}</p>
+      <p className="mt-4 text-xs leading-relaxed text-inkMuted">{note}</p>
     </div>
   );
 }

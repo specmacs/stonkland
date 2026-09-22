@@ -3,55 +3,64 @@
 @tailwind utilities;
 
 :root {
-  --quarter-1: #4a8fd4;
-  --quarter-2: #d98b3a;
-  --quarter-3: #5fa86b;
-  --quarter-4: #a774c4;
+  --quarter-1: #1c63c9;
+  --quarter-2: #d96a0b;
+  --quarter-3: #15803d;
+  --quarter-4: #8b3fb5;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
+  background-color: #c9ddd4;
 }
 
 body {
-  background-color: #000000;
-  color: #c6d1dc;
+  background-color: #c9ddd4;
+  color: #15120c;
   -webkit-font-smoothing: antialiased;
 }
 
-/* A visible focus ring everywhere, not just where a component remembered one. */
 :focus-visible {
-  outline: 2px solid #dbb864;
+  outline: 3px solid #15120c;
   outline-offset: 2px;
-  border-radius: 2px;
 }
 
 @layer components {
+  /* A printed label: small, spaced, and set in the mono face. */
   .rule-label {
-    @apply text-[11px] uppercase tracking-[0.18em] text-ink-500;
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-inkMuted;
   }
 
-  /* Numbers carry the argument on most of these pages, so they get display sizes
-     rather than body sizes. */
-  .figure {
-    @apply font-mono text-3xl leading-none text-ink-100 sm:text-4xl;
-  }
-
+  /* Card stock, bounded by a rule rather than a hairline. */
   .panel {
-    @apply rounded-lg border border-ink-800 bg-ink-900/60;
+    @apply border-rule border-ink bg-paper;
+  }
+
+  .panel-raised {
+    @apply panel shadow-card;
+  }
+
+  .figure {
+    @apply font-mono text-stat tabular-nums text-ink;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm
-           font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 border-rule border-ink px-5 py-3
+           font-display text-sm font-semibold uppercase tracking-wide transition-transform
+           disabled:cursor-not-allowed disabled:opacity-40;
   }
 
+  /* Buttons sit proud of the page and press down when used. */
   .btn-primary {
-    @apply btn bg-brass-500 text-ink-950 hover:bg-brass-400 disabled:hover:bg-brass-500;
+    @apply btn bg-ink text-paper shadow-cardSm hover:-translate-x-px hover:-translate-y-px
+           active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
+           disabled:translate-x-0 disabled:translate-y-0;
   }
 
   .btn-secondary {
-    @apply btn border border-ink-700 text-ink-200 hover:border-ink-600 hover:text-ink-100;
+    @apply btn bg-paper text-ink shadow-cardSm hover:-translate-x-px hover:-translate-y-px
+           active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
+           disabled:translate-x-0 disabled:translate-y-0;
   }
 }
 
@@ -62,5 +71,6 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transform: none !important;
   }
 }

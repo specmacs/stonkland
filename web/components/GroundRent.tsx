@@ -32,7 +32,7 @@ export function GroundRent() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {!isConnected ? (
-          <div className="panel p-8 text-center text-sm text-ink-300">
+          <div className="panel p-8 text-center text-sm text-inkMuted">
             Connect a wallet to open your scoreboard.
           </div>
         ) : (
@@ -60,13 +60,13 @@ export function GroundRent() {
           </ReadGate>
         )}
 
-        <div className="panel mt-8 border-brass-500/30 p-5">
-          <h2 className="text-sm font-medium text-ink-100">Before you sell</h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-300">
+        <div className="panel mt-8 border-seal p-5">
+          <h2 className="text-sm font-medium text-ink">Before you sell</h2>
+          <p className="mt-2 text-sm leading-relaxed text-inkMuted">
             Credited amounts stay with this wallet and do not transfer with a card. Pending
             amounts settle to you when a card is sold.
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-ink-500">
+          <p className="mt-2 text-xs leading-relaxed text-inkMuted">
             A marketplace will not explain this to either party. The buyer begins accruing from
             the moment of the sale and shares only in deposits that arrive afterwards.
           </p>
@@ -103,7 +103,7 @@ function QuarterRow({
             />
             {quarter?.label}
           </p>
-          <p className="mt-1 text-sm text-ink-400">
+          <p className="mt-1 text-sm text-inkMuted">
             {cardsHeld === undefined
               ? "—"
               : `${cardsHeld} card${cardsHeld === 1 ? "" : "s"} held`}
@@ -115,7 +115,7 @@ function QuarterRow({
             {row.quarterWeight > 0n && (
               <>
                 {" · "}
-                <span className="text-ink-300">
+                <span className="text-inkMuted">
                   {formatShare(row.walletWeight, row.quarterWeight)} of this{" "}
                   {BRAND.groupTerm.toLowerCase()}
                 </span>
@@ -125,30 +125,30 @@ function QuarterRow({
         </div>
 
         {asset && (
-          <span className="rounded-full border border-ink-800 px-3 py-1 font-mono text-xs text-ink-400">
+          <span className="rounded-full border-rule border-ink px-3 py-1 font-mono text-xs text-inkMuted">
             {asset.symbol}
           </span>
         )}
       </div>
 
       {row.incomplete && (
-        <p className="mt-3 text-xs text-ink-400" role="alert">
+        <p className="mt-3 text-xs text-inkMuted" role="alert">
           Some figures in this row did not read back, so this row is not complete.
         </p>
       )}
 
       {!asset ? (
-        <p className="mt-4 text-sm text-ink-500">
+        <p className="mt-4 text-sm text-inkMuted">
           No reward asset is configured for this {BRAND.groupTerm.toLowerCase()} in this
           deployment.
         </p>
       ) : nothingDeposited ? (
-        <p className="mt-4 text-sm text-ink-400">
+        <p className="mt-4 text-sm text-inkMuted">
           No rewards have been deposited to this {BRAND.groupTerm.toLowerCase()} yet.
         </p>
       ) : (
         <>
-          <dl className="mt-4 grid gap-px overflow-hidden rounded-md border border-ink-800 bg-ink-800 sm:grid-cols-3">
+          <dl className="mt-4 grid gap-px overflow-hidden rounded-md border-rule border-ink bg-ink sm:grid-cols-3">
             <Figure
               label="Pending on cards"
               value={formatAssetAmount(row.pendingOnCards, asset.decimals)}
@@ -169,7 +169,7 @@ function QuarterRow({
             />
           </dl>
 
-          <p className="mt-3 font-mono text-xs text-ink-500">
+          <p className="mt-3 font-mono text-xs text-inkMuted">
             Deposited to this {BRAND.groupTerm.toLowerCase()}:{" "}
             {formatAssetAmount(row.totalDeposited, asset.decimals)} {asset.symbol}
             {row.reserve > 0n && (
@@ -212,12 +212,12 @@ function Figure({
   note: string;
 }) {
   return (
-    <div className="bg-ink-950 p-4">
+    <div className="bg-tabletop p-4">
       <dt className="rule-label">{label}</dt>
-      <dd className="mt-1.5 font-mono text-lg text-ink-100">
-        {value} <span className="text-sm text-ink-500">{symbol}</span>
+      <dd className="mt-1.5 font-mono text-lg text-ink">
+        {value} <span className="text-sm text-inkMuted">{symbol}</span>
       </dd>
-      <p className="mt-2 text-xs leading-relaxed text-ink-500">{note}</p>
+      <p className="mt-2 text-xs leading-relaxed text-inkMuted">{note}</p>
     </div>
   );
 }

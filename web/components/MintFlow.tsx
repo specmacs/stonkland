@@ -34,8 +34,8 @@ export function MintFlow() {
 
         <ol className="mb-8 flex flex-wrap gap-x-6 gap-y-2">
           {STEPS.map((step, i) => (
-            <li key={step} className="flex items-center gap-2 text-sm text-ink-400">
-              <span className="font-mono text-xs text-brass-500">{i + 1}</span>
+            <li key={step} className="flex items-center gap-2 text-sm text-inkMuted">
+              <span className="font-mono text-xs text-seal">{i + 1}</span>
               {step}
             </li>
           ))}
@@ -49,7 +49,7 @@ export function MintFlow() {
           ].map((chip) => (
             <span
               key={chip}
-              className="rounded-full border border-ink-800 px-3 py-1 text-xs text-ink-300"
+              className="rounded-full border-rule border-ink px-3 py-1 text-xs text-inkMuted"
             >
               {chip}
             </span>
@@ -77,7 +77,7 @@ export function MintFlow() {
                         aria-pressed={quarter === q.index}
                         disabled={full}
                         className={`panel p-4 text-left transition-colors disabled:opacity-40 ${
-                          quarter === q.index ? "border-brass-500/60" : "hover:border-ink-700"
+                          quarter === q.index ? "border-seal" : "hover:border-ink"
                         }`}
                       >
                         <span className="flex items-center gap-2">
@@ -86,13 +86,13 @@ export function MintFlow() {
                             className="h-2 w-2 rounded-full"
                             style={{backgroundColor: `var(${q.colorVar})`}}
                           />
-                          <span className="text-sm text-ink-100">{q.label}</span>
+                          <span className="text-sm text-ink">{q.label}</span>
                         </span>
-                        <span className="mt-2 block font-mono text-xs text-ink-400">
+                        <span className="mt-2 block font-mono text-xs text-inkMuted">
                           {minted} / {EDITION.quarterCap} claimed
                         </span>
                         {full && (
-                          <span className="mt-1 block text-xs text-ink-500">
+                          <span className="mt-1 block text-xs text-inkMuted">
                             This {BRAND.groupTerm.toLowerCase()} is fully claimed. Cards are
                             available from holders.
                           </span>
@@ -110,19 +110,19 @@ export function MintFlow() {
               <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <div>
                   <dt className="rule-label">Starting form</dt>
-                  <dd className="mt-0.5 text-ink-100">{house?.form}</dd>
+                  <dd className="mt-0.5 text-ink">{house?.form}</dd>
                 </div>
                 <div>
                   <dt className="rule-label">Starting {BRAND.scoreTerm.toLowerCase()}</dt>
-                  <dd className="mt-0.5 font-mono text-brass-400">{house?.weight}</dd>
+                  <dd className="mt-0.5 font-mono text-seal">{house?.weight}</dd>
                 </div>
                 <div>
                   <dt className="rule-label">{BRAND.groupTerm}</dt>
-                  <dd className="mt-0.5 text-ink-100">{QUARTERS[quarter]?.label}</dd>
+                  <dd className="mt-0.5 text-ink">{QUARTERS[quarter]?.label}</dd>
                 </div>
                 <div>
                   <dt className="rule-label">Burn</dt>
-                  <dd className="mt-0.5 font-mono text-ink-200">
+                  <dd className="mt-0.5 font-mono text-ink">
                     {EDITION.mintBurn.toLocaleString("en-US")} {BRAND.tokenTicker}
                   </dd>
                 </div>
@@ -148,7 +148,7 @@ function MintPanel({
 
   return (
     <div className="panel p-6">
-      <h2 className="text-sm font-medium text-ink-100">Mint</h2>
+      <h2 className="text-sm font-medium text-ink">Mint</h2>
 
       <ReadGate
         state={mint}
@@ -191,7 +191,7 @@ function MintPanel({
                 </Row>
                 <Row label="Status">
                   {state.paused ? (
-                    <span className="text-ink-400">Paused onchain</span>
+                    <span className="text-inkMuted">Paused onchain</span>
                   ) : (
                     <span className="text-quarter-3">Open</span>
                   )}
@@ -224,7 +224,7 @@ function MintPanel({
                   disabledReason={disabledReason}
                   confirm={
                     <>
-                      <strong className="block text-ink-100">
+                      <strong className="block text-ink">
                         This burn is permanent.
                       </strong>
                       <span className="mt-1 block">
@@ -237,10 +237,10 @@ function MintPanel({
                 />
               </div>
 
-              <p className="mt-5 border-t border-ink-800 pt-4 text-xs leading-relaxed text-ink-500">
+              <p className="mt-5 border-t-rule border-ink pt-4 text-xs leading-relaxed text-inkMuted">
                 This burn is permanent. The tokens are destroyed and cannot be recovered.
               </p>
-              <p className="mt-3 text-xs leading-relaxed text-ink-500">
+              <p className="mt-3 text-xs leading-relaxed text-inkMuted">
                 {EDITION.mintsPerWallet} primary mints per wallet. There is no limit on cards
                 acquired from other holders.
               </p>
@@ -256,7 +256,7 @@ function Row({label, children}: {label: string; children: React.ReactNode}) {
   return (
     <div className="flex items-baseline justify-between gap-4">
       <dt className="rule-label">{label}</dt>
-      <dd className="font-mono text-ink-200">{children}</dd>
+      <dd className="font-mono text-ink">{children}</dd>
     </div>
   );
 }

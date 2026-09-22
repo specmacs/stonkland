@@ -21,10 +21,10 @@ import {formName} from "@/lib/brand";
 const BASE = {cx: 100, cy: 150, halfWidth: 58, halfDepth: 29} as const;
 
 const FACE = {
-  top: "#8a94a0",
-  right: "#5c6672",
-  left: "#3b434e",
-  outline: "#2a313a",
+  top: "#cbbfa6",
+  right: "#9d8f74",
+  left: "#6b6152",
+  outline: "#15120c",
 } as const;
 
 type Box = {
@@ -56,8 +56,9 @@ function Prism({height, scale, lift}: Box) {
   const hd = BASE.halfDepth * scale;
   const baseY = BASE.cy - lift;
 
+  // Every face carries an ink outline, the way a printed piece would.
   return (
-    <g>
+    <g stroke={FACE.outline} strokeWidth="2" strokeLinejoin="round">
       <path d={leftFace(baseY, hw, hd, height)} fill={FACE.left} />
       <path d={rightFace(baseY, hw, hd, height)} fill={FACE.right} />
       <path d={diamond(baseY - height, hw, hd)} fill={FACE.top} />
@@ -84,7 +85,7 @@ function Windows({
   const cells = [0.3, 0.55, 0.8];
 
   return (
-    <g opacity="0.42">
+    <g opacity="0.75">
       {Array.from({length: storeys}, (_, s) => {
         const y = baseY - (s + 0.55) * storeyHeight;
         return cells.map((t) => {
@@ -95,8 +96,8 @@ function Windows({
           const ry = y + hd * t;
           return (
             <g key={`${s}-${t}`}>
-              <rect x={lx - 3} y={ly - 3} width="6" height="5" fill="#cdd6e0" rx="0.5" />
-              <rect x={rx - 3} y={ry - 3} width="6" height="5" fill="#e6ecf2" rx="0.5" />
+              <rect x={lx - 3} y={ly - 3} width="6" height="5" fill="#3d372c" rx="0.5" />
+              <rect x={rx - 3} y={ry - 3} width="6" height="5" fill="#2a251c" rx="0.5" />
             </g>
           );
         });
@@ -117,9 +118,9 @@ export function PieceArt({level, className = ""}: {level: number; className?: st
       {/* The plot. Identical at every level, so the footprint never appears to move. */}
       <path
         d={diamond(BASE.cy + 6, BASE.halfWidth + 10, BASE.halfDepth + 5)}
-        fill="#161d25"
+        fill="#e8dcc2"
         stroke={FACE.outline}
-        strokeWidth="1"
+        strokeWidth="2.5"
       />
 
       {level === 1 && <House />}
@@ -146,15 +147,15 @@ function House() {
           than a box with a lid. */}
       <path
         d={`M ${cx - hw} ${cy - h} L ${cx} ${cy + hd - h} L ${cx} ${cy + hd - h - ridge} L ${cx - hw} ${cy - h - ridge * 0.5} Z`}
-        fill="#6e7885"
+        fill="#9d8f74" stroke="#15120c" strokeWidth="2" strokeLinejoin="round"
       />
       <path
         d={`M ${cx} ${cy + hd - h} L ${cx + hw} ${cy - h} L ${cx + hw} ${cy - h - ridge * 0.5} L ${cx} ${cy + hd - h - ridge} Z`}
-        fill="#9aa4b0"
+        fill="#bdb094" stroke="#15120c" strokeWidth="2" strokeLinejoin="round"
       />
       <path
         d={`M ${cx - hw} ${cy - h - ridge * 0.5} L ${cx} ${cy + hd - h - ridge} L ${cx + hw} ${cy - h - ridge * 0.5} L ${cx} ${cy - hd - h - ridge * 0.5 + hd} Z`}
-        fill="#b4bec9"
+        fill="#d6cbb2" stroke="#15120c" strokeWidth="2" strokeLinejoin="round"
         opacity="0.9"
       />
     </g>
@@ -214,15 +215,15 @@ function Landmark() {
       {/* Crown: a tapered cap, then a spire. */}
       <path
         d={`M ${cx - BASE.halfWidth * 0.5} ${cy - 142} L ${cx} ${cy - 142 + BASE.halfDepth * 0.5} L ${cx} ${crownTop + 12} L ${cx - 6} ${crownTop + 16} Z`}
-        fill="#6e7885"
+        fill="#9d8f74" stroke="#15120c" strokeWidth="2" strokeLinejoin="round"
       />
       <path
         d={`M ${cx} ${cy - 142 + BASE.halfDepth * 0.5} L ${cx + BASE.halfWidth * 0.5} ${cy - 142} L ${cx + 6} ${crownTop + 16} L ${cx} ${crownTop + 12} Z`}
-        fill="#a7b1bd"
+        fill="#cbbfa6" stroke="#15120c" strokeWidth="2" strokeLinejoin="round"
       />
       <path
         d={`M ${cx} ${crownTop + 14} L ${cx + 2.2} ${crownTop + 2} L ${cx} ${crownTop - 14} L ${cx - 2.2} ${crownTop + 2} Z`}
-        fill="#dbb864"
+        fill="#c8161d" stroke="#15120c" strokeWidth="2" strokeLinejoin="round"
       />
     </g>
   );

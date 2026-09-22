@@ -9,7 +9,7 @@ export function LevelLadder({showCumulative = true}: {showCumulative?: boolean})
           The five forms, their {BRAND.scoreTerm}, and what each costs to reach
         </caption>
         <thead>
-          <tr className="border-b border-ink-800 text-left">
+          <tr className="border-b-rule border-ink text-left">
             <th scope="col" className="rule-label py-3 pr-4 font-normal">Level</th>
             <th scope="col" className="rule-label py-3 pr-4 font-normal">Form</th>
             <th scope="col" className="rule-label py-3 pr-4 text-right font-normal">
@@ -27,19 +27,19 @@ export function LevelLadder({showCumulative = true}: {showCumulative?: boolean})
         </thead>
         <tbody>
           {LEVELS.map((l) => (
-            <tr key={l.level} className="border-b border-ink-800/60">
-              <td className="py-3 pr-4 font-mono text-ink-400">{l.level}</td>
-              <td className="py-3 pr-4 text-ink-100">{l.form}</td>
-              <td className="py-3 pr-4 text-right font-mono text-brass-400">{l.weight}</td>
-              <td className="py-3 pr-4 text-right font-mono text-ink-300">
+            <tr key={l.level} className="border-b-rule border-ink/20">
+              <td className="py-3 pr-4 font-mono text-inkMuted">{l.level}</td>
+              <td className="py-3 pr-4 text-ink">{l.form}</td>
+              <td className="py-3 pr-4 text-right font-mono text-seal">{l.weight}</td>
+              <td className="py-3 pr-4 text-right font-mono text-inkMuted">
                 {l.level === 1 ? (
-                  <span className="text-ink-500">{l.burnToReach.toLocaleString("en-US")} (mint)</span>
+                  <span className="text-inkMuted">{l.burnToReach.toLocaleString("en-US")} (mint)</span>
                 ) : (
                   l.burnToReach.toLocaleString("en-US")
                 )}
               </td>
               {showCumulative && (
-                <td className="py-3 text-right font-mono text-ink-500">
+                <td className="py-3 text-right font-mono text-inkMuted">
                   {l.cumulativeBurn.toLocaleString("en-US")}
                 </td>
               )}

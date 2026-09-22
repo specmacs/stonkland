@@ -21,7 +21,7 @@ export function Mark({className = ""}: {className?: string}) {
         d="M28 28H18v-2h8v-8h2v10Z"
         fill="currentColor"
       />
-      <rect x="11" y="11" width="10" height="10" rx="1" fill="currentColor" opacity="0.55" />
+      <rect x="11" y="11" width="10" height="10" rx="1" fill="currentColor" opacity="0.35" />
     </svg>
   );
 }

@@ -26,10 +26,10 @@ export function ReadGate<T>({
   }
   if (state.status === "loading") {
     return (
-      <p className="flex items-center gap-2 py-6 text-sm text-ink-400" role="status" aria-live="polite">
+      <p className="flex items-center gap-2 py-6 text-sm text-inkMuted" role="status" aria-live="polite">
         <span
           aria-hidden
-          className="h-1.5 w-1.5 animate-pulse rounded-full bg-brass-500"
+          className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold"
         />
         {loadingLabel}
       </p>
@@ -38,8 +38,8 @@ export function ReadGate<T>({
   if (state.status === "error") {
     return (
       <div className="panel p-4 text-sm" role="alert">
-        <p className="text-ink-200">{failureLabel}</p>
-        <p className="mt-1 text-xs text-ink-500">{state.error.message}</p>
+        <p className="text-ink">{failureLabel}</p>
+        <p className="mt-1 text-xs text-inkMuted">{state.error.message}</p>
       </div>
     );
   }
@@ -50,9 +50,9 @@ export function ReadGate<T>({
 export function ConfigMissing({missing}: {missing: string[]}) {
   return (
     <div className="panel p-4 text-sm" role="alert">
-      <p className="text-ink-200">Contract addresses are not configured for this deployment.</p>
+      <p className="text-ink">Contract addresses are not configured for this deployment.</p>
       {missing.length > 0 && (
-        <p className="mt-2 font-mono text-xs text-ink-500">{missing.join(" · ")}</p>
+        <p className="mt-2 font-mono text-xs text-inkMuted">{missing.join(" · ")}</p>
       )}
     </div>
   );

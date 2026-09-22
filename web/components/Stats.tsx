@@ -38,7 +38,7 @@ export function Stats() {
           )}
         </ReadGate>
 
-        <div className="mt-12 border-t border-ink-800 pt-10">
+        <div className="mt-12 border-t-rule border-ink pt-10">
           <Pipeline />
         </div>
 
@@ -53,7 +53,7 @@ function Supply({data}: {data: ProtocolStats}) {
   return (
     <section>
       <h2 className="rule-label mb-3">Token</h2>
-      <dl className="grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-3">
+      <dl className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-3">
         <Stat label="Circulating supply" value={formatWholeTokens(data.tokenSupply)} unit={BRAND.tokenTicker} />
         <Stat label="Burned to date" value={formatWholeTokens(burned)} unit={BRAND.tokenTicker} />
         <Stat
@@ -61,7 +61,7 @@ function Supply({data}: {data: ProtocolStats}) {
           value={formatShare(burned, data.tokenMaxSupply)}
         />
       </dl>
-      <p className="mt-3 text-xs text-ink-500">
+      <p className="mt-3 text-xs text-inkMuted">
         Supply is fixed at {formatWholeTokens(data.tokenMaxSupply)} and there is no function that
         can create more. Every token missing from circulation was destroyed by a mint or a build.
       </p>
@@ -73,7 +73,7 @@ function Cards({data}: {data: ProtocolStats}) {
   return (
     <section>
       <h2 className="rule-label mb-3">Cards</h2>
-      <dl className="grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-4">
+      <dl className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-4">
         <Stat
           label="Minted"
           value={`${formatCount(data.cardsMinted)} / ${EDITION.cardSupply}`}
@@ -86,9 +86,9 @@ function Cards({data}: {data: ProtocolStats}) {
         />
       </dl>
 
-      <div className="mt-4 grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-4">
+      <div className="mt-4 grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-4">
         {QUARTERS.map((q) => (
-          <div key={q.index} className="bg-ink-950 p-4">
+          <div key={q.index} className="bg-tabletop p-4">
             <p className="rule-label flex items-center gap-1.5">
               <span
                 aria-hidden
@@ -97,17 +97,17 @@ function Cards({data}: {data: ProtocolStats}) {
               />
               {q.label}
             </p>
-            <p className="mt-1.5 font-mono text-lg text-ink-100">
+            <p className="mt-1.5 font-mono text-lg text-ink">
               {formatCount(data.perQuarterMinted[q.index] ?? 0n)}
-              <span className="text-sm text-ink-600"> / {EDITION.quarterCap}</span>
+              <span className="text-sm text-inkFaint"> / {EDITION.quarterCap}</span>
             </p>
-            <p className="mt-1 font-mono text-xs text-ink-500">
+            <p className="mt-1 font-mono text-xs text-inkMuted">
               {BRAND.scoreTerm.toLowerCase()} {formatCount(data.perQuarterWeight[q.index] ?? 0n)}
             </p>
           </div>
         ))}
       </div>
-      <p className="mt-3 text-xs text-ink-500">
+      <p className="mt-3 text-xs text-inkMuted">
         Each {BRAND.groupTerm.toLowerCase()} is allocated{" "}
         {formatBps(EDITION.quarterAllocationBps)} of the edition&apos;s reward share, frozen at
         deployment. A {BRAND.groupTerm.toLowerCase()} with no minted cards holds its share as a
@@ -130,7 +130,7 @@ function Rewards({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[34rem] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-ink-800 text-left">
+            <tr className="border-b-rule border-ink text-left">
               <th scope="col" className="rule-label py-3 pr-4 font-normal">{BRAND.groupTerm}</th>
               <th scope="col" className="rule-label py-3 pr-4 font-normal">Asset</th>
               <th scope="col" className="rule-label py-3 pr-4 text-right font-normal">Deposited</th>
@@ -143,23 +143,23 @@ function Rewards({
               const deposited = data.depositedPerQuarter[q.index];
               const claimed = data.claimedPerQuarter[q.index];
               return (
-                <tr key={q.index} className="border-b border-ink-800/60">
-                  <td className="py-3 pr-4 text-ink-200">{q.label}</td>
-                  <td className="py-3 pr-4 font-mono text-ink-400">
-                    {asset?.symbol ?? <span className="text-ink-600">not configured</span>}
+                <tr key={q.index} className="border-b-rule border-ink/20">
+                  <td className="py-3 pr-4 text-ink">{q.label}</td>
+                  <td className="py-3 pr-4 font-mono text-inkMuted">
+                    {asset?.symbol ?? <span className="text-inkFaint">not configured</span>}
                   </td>
-                  <td className="py-3 pr-4 text-right font-mono text-ink-200">
+                  <td className="py-3 pr-4 text-right font-mono text-ink">
                     {asset && deposited !== undefined ? (
                       formatAssetAmount(deposited, asset.decimals)
                     ) : (
-                      <span className="text-ink-600">—</span>
+                      <span className="text-inkFaint">—</span>
                     )}
                   </td>
-                  <td className="py-3 text-right font-mono text-ink-400">
+                  <td className="py-3 text-right font-mono text-inkMuted">
                     {asset && claimed !== undefined ? (
                       formatAssetAmount(claimed, asset.decimals)
                     ) : (
-                      <span className="text-ink-600">—</span>
+                      <span className="text-inkFaint">—</span>
                     )}
                   </td>
                 </tr>
@@ -168,7 +168,7 @@ function Rewards({
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-xs text-ink-500">
+      <p className="mt-3 text-xs text-inkMuted">
         A dash means the figure has no configured asset behind it, or its read did not
         succeed. It never means zero.
       </p>
@@ -208,31 +208,31 @@ function PipelineState({data}: {data: ProtocolStats}) {
   return (
     <section>
       <h2 className="rule-label mb-3">Reward pipeline</h2>
-      <dl className="grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-2 lg:grid-cols-5">
+      <dl className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-2 lg:grid-cols-5">
         {stages.map((s) => (
-          <div key={s.label} className="bg-ink-950 p-4">
+          <div key={s.label} className="bg-tabletop p-4">
             <dt className="rule-label">{s.label}</dt>
-            <dd className="mt-1.5 font-mono text-base text-ink-100">
+            <dd className="mt-1.5 font-mono text-base text-ink">
               {s.value === undefined ? (
-                <span className="text-ink-600">not read</span>
+                <span className="text-inkFaint">not read</span>
               ) : (
                 `${formatAssetAmount(s.value, 18)} WETH`
               )}
             </dd>
-            <p className="mt-2 text-xs leading-relaxed text-ink-500">{s.note}</p>
+            <p className="mt-2 text-xs leading-relaxed text-inkMuted">{s.note}</p>
           </div>
         ))}
       </dl>
 
-      <div className="mt-4 grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-4">
+      <div className="mt-4 grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-4">
         {QUARTERS.map((q) => {
           const pending = data.vaultPerQuarterPending[q.index];
           return (
-            <div key={q.index} className="bg-ink-950 p-4">
+            <div key={q.index} className="bg-tabletop p-4">
               <p className="rule-label">{q.label} awaiting conversion</p>
-              <p className="mt-1.5 font-mono text-sm text-ink-200">
+              <p className="mt-1.5 font-mono text-sm text-ink">
                 {pending === undefined ? (
-                  <span className="text-ink-600">not read</span>
+                  <span className="text-inkFaint">not read</span>
                 ) : (
                   `${formatAssetAmount(pending, 18)} WETH`
                 )}
@@ -241,7 +241,7 @@ function PipelineState({data}: {data: ProtocolStats}) {
           );
         })}
       </div>
-      <p className="mt-3 text-xs leading-relaxed text-ink-500">
+      <p className="mt-3 text-xs leading-relaxed text-inkMuted">
         Each {BRAND.groupTerm.toLowerCase()} converts independently. A route that fails leaves
         only that {BRAND.groupTerm.toLowerCase()}&apos;s WETH pending, and pending is a
         comfortable resting state — sometimes for days, if the asset is thinly traded.
@@ -252,11 +252,11 @@ function PipelineState({data}: {data: ProtocolStats}) {
 
 function Stat({label, value, unit}: {label: string; value: string; unit?: string}) {
   return (
-    <div className="bg-ink-950 p-5">
+    <div className="bg-tabletop p-5">
       <dt className="rule-label">{label}</dt>
       <dd className="figure mt-2">
         {value}
-        {unit && <span className="ml-2 font-sans text-sm text-ink-500">{unit}</span>}
+        {unit && <span className="ml-2 font-sans text-sm text-inkMuted">{unit}</span>}
       </dd>
     </div>
   );

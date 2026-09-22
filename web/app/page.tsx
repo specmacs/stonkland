@@ -22,11 +22,11 @@ export default function LandingPage() {
 
         <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
           <div>
-            <p className="text-sm uppercase tracking-[0.14em] text-brass-400">{BRAND.strapline}</p>
-            <h1 className="mt-4 text-5xl font-semibold tracking-tight text-ink-100 sm:text-6xl">
+            <p className="text-sm uppercase tracking-[0.14em] text-seal">{BRAND.strapline}</p>
+            <h1 className="mt-4 text-5xl font-semibold tracking-tight text-ink sm:text-6xl">
               Build the block.
             </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-300">
+            <p className="mt-5 max-w-2xl text-body-lg text-inkMuted">
               {EDITION.cardSupply} {BRAND.itemName.toLowerCase()}s, and never more. Burn to claim
               one, burn again to build it, and take a larger share of what your{" "}
               {BRAND.groupTerm.toLowerCase()} actually collects.
@@ -41,11 +41,11 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <div className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-4">
+            <div className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-4">
               {["ACQUIRE", "CLAIM A CARD", "BUILD 1 → 5", "COLLECT RENT"].map((beat, i) => (
-                <div key={beat} className="bg-ink-950 px-4 py-4">
-                  <span className="font-mono text-[11px] text-ink-600">0{i + 1}</span>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-ink-300">{beat}</p>
+                <div key={beat} className="bg-tabletop px-4 py-4">
+                  <span className="font-mono text-[11px] text-inkFaint">0{i + 1}</span>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-inkMuted">{beat}</p>
                 </div>
               ))}
             </div>
@@ -53,10 +53,10 @@ export default function LandingPage() {
 
           <div className="panel p-6">
             <PieceArt level={5} className="mx-auto h-44 w-44" />
-            <p className="mt-4 text-center text-sm text-ink-300">
+            <p className="mt-4 text-center text-sm text-inkMuted">
               {LEVELS[4]?.form} · {BRAND.scoreTerm} {LEVELS[4]?.weight}
             </p>
-            <p className="mt-3 text-center text-xs text-ink-500">
+            <p className="mt-3 text-center text-xs text-inkMuted">
               No fixed rate. No guaranteed return.
             </p>
           </div>
@@ -69,7 +69,7 @@ export default function LandingPage() {
 
       {/* How it works */}
       <Section heading="Five moves. One loop.">
-        <ol className="grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-2 lg:grid-cols-5">
+        <ol className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-2 lg:grid-cols-5">
           {[
             ["Acquire tokens", `Buy ${BRAND.tokenTicker} on the launch venue.`],
             ["Claim a card", `Mint one of only ${EDITION.cardSupply}.`],
@@ -77,10 +77,10 @@ export default function LandingPage() {
             ["Raise your weight", `Every level increases the card's ${BRAND.scoreTerm}.`],
             ["Collect rent", `Claim your relative share of what the ${BRAND.groupTerm.toLowerCase()} received.`],
           ].map(([title, body], i) => (
-            <li key={title} className="bg-ink-950 p-5">
-              <span className="font-mono text-xs text-brass-500">{i + 1}</span>
-              <h3 className="mt-2 text-sm font-medium text-ink-100">{title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-400">{body}</p>
+            <li key={title} className="bg-tabletop p-5">
+              <span className="font-mono text-xs text-seal">{i + 1}</span>
+              <h3 className="mt-2 text-sm font-medium text-ink">{title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-inkMuted">{body}</p>
             </li>
           ))}
         </ol>
@@ -96,15 +96,15 @@ export default function LandingPage() {
             <figure key={l.level} className="text-center">
               <PieceArt level={l.level} className="mx-auto h-20 w-20 sm:h-24 sm:w-24" />
               <figcaption className="mt-2">
-                <span className="block text-xs text-ink-200">{l.form}</span>
-                <span className="block font-mono text-[11px] text-ink-500">{l.weight}</span>
+                <span className="block text-xs text-ink">{l.form}</span>
+                <span className="block font-mono text-[11px] text-inkMuted">{l.weight}</span>
               </figcaption>
             </figure>
           ))}
         </div>
         <div className="panel p-5">
           <LevelLadder />
-          <p className="mt-4 text-xs text-ink-500">
+          <p className="mt-4 text-xs text-inkMuted">
             Taking a card from {LEVELS[0]?.form} to {LEVELS[4]?.form} destroys{" "}
             {LEVELS[4]?.cumulativeBurn.toLocaleString("en-US")} {BRAND.tokenTicker} in total,
             the mint included. Reaching the top is rare by design: if every card were built
@@ -126,18 +126,18 @@ export default function LandingPage() {
                 className="block h-1 w-10 rounded-full"
                 style={{backgroundColor: `var(${q.colorVar})`}}
               />
-              <h3 className="mt-3 text-sm font-medium text-ink-100">{q.label}</h3>
-              <p className="mt-1 text-sm text-ink-300">
+              <h3 className="mt-3 text-sm font-medium text-ink">{q.label}</h3>
+              <p className="mt-1 text-sm text-inkMuted">
                 Pays in a token tracking {q.assetName}
               </p>
-              <p className="mt-3 font-mono text-xs text-ink-500">
+              <p className="mt-3 font-mono text-xs text-inkMuted">
                 {EDITION.quarterCap} cards · {EDITION.gridSize}×{EDITION.gridSize} ·{" "}
                 {formatBps(EDITION.quarterAllocationBps)} of the reward share
               </p>
             </div>
           ))}
         </div>
-        <p className="mt-6 max-w-3xl text-sm leading-relaxed text-ink-400">
+        <p className="mt-6 max-w-3xl text-sm leading-relaxed text-inkMuted">
           {REWARD_ASSET_EXPLAINER}
         </p>
         <NonAffiliation className="mt-3 max-w-3xl" />
@@ -148,7 +148,7 @@ export default function LandingPage() {
         eyebrow="MORE LEVELS = MORE RELATIVE WEIGHT"
         heading={`Your score inside the ${BRAND.groupTerm.toLowerCase()}.`}
       >
-        <p className="max-w-3xl text-ink-300">
+        <p className="max-w-3xl text-inkMuted">
           {BRAND.scoreTerm} sets a card&apos;s relative share of rewards actually deposited into
           its {BRAND.groupTerm.toLowerCase()}. More weight means a larger slice of the same
           deposit — not a rate, and not a promise.
@@ -157,7 +157,7 @@ export default function LandingPage() {
           <WeightComparison />
         </div>
 
-        <p className="mt-6 max-w-3xl text-sm text-ink-500">
+        <p className="mt-6 max-w-3xl text-sm text-inkMuted">
           Weight only matters against the other cards in the same {BRAND.groupTerm.toLowerCase()}.
           As other owners build, your share of each deposit falls even though your weight has
           not changed. That is the central tension of the game, and it is intentional.
@@ -166,16 +166,16 @@ export default function LandingPage() {
 
       {/* Reward flow */}
       <Section heading="How rent reaches your card.">
-        <ol className="grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-5">
+        <ol className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-5">
           {["Trades", "Fee claim", "Fixed split", `${EDITION.streamEpochSeconds}-second streams`, "Rent to claims"].map(
             (stage) => (
-              <li key={stage} className="bg-ink-950 px-4 py-5 text-sm text-ink-200">
+              <li key={stage} className="bg-tabletop px-4 py-5 text-sm text-ink">
                 {stage}
               </li>
             ),
           )}
         </ol>
-        <p className="mt-6 max-w-3xl text-ink-400">
+        <p className="mt-6 max-w-3xl text-inkMuted">
           This launch sets a {EDITION.creatorTaxPercent}% tax on trades, fixed when the token was
           created and unchangeable since. It reaches the protocol in full. Once it accrues, anyone
           can trigger the claim — no operator stands between you and a deposit. The router splits
@@ -186,7 +186,7 @@ export default function LandingPage() {
 
       {/* Rule card */}
       <Section heading="The rules that cannot move.">
-        <dl className="grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-2 lg:grid-cols-5">
+        <dl className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-2 lg:grid-cols-5">
           {[
             ["Fixed supply", "1,000,000,000"],
             ["Cards, ever", EDITION.cardSupply.toLocaleString("en-US")],
@@ -194,13 +194,13 @@ export default function LandingPage() {
             ["Build burns", "500k → 2M"],
             ["Primary mints per wallet", String(EDITION.mintsPerWallet)],
           ].map(([label, value]) => (
-            <div key={label} className="bg-ink-950 p-5">
+            <div key={label} className="bg-tabletop p-5">
               <dt className="rule-label">{label}</dt>
-              <dd className="mt-2 font-mono text-lg text-ink-100">{value}</dd>
+              <dd className="mt-2 font-mono text-lg text-ink">{value}</dd>
             </div>
           ))}
         </dl>
-        <p className="mt-5 text-sm text-ink-400">
+        <p className="mt-5 text-sm text-inkMuted">
           Every burn is permanent. Supply can only fall.
         </p>
       </Section>

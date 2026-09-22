@@ -23,7 +23,7 @@ export function CardDetail({card, onClose}: {card: CardState; onClose: () => voi
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/80 p-4 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 p-4 backdrop-blur-sm sm:items-center"
       onClick={onClose}
       role="presentation"
     >
@@ -34,7 +34,7 @@ export function CardDetail({card, onClose}: {card: CardState; onClose: () => voi
         aria-modal="true"
         aria-label={`Card ${card.tokenId}`}
         onClick={(e) => e.stopPropagation()}
-        className="panel w-full max-w-lg bg-ink-900 p-6"
+        className="panel w-full max-w-lg bg-paper p-6"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -46,14 +46,14 @@ export function CardDetail({card, onClose}: {card: CardState; onClose: () => voi
               />
               {quarter?.label}
             </p>
-            <h2 className="mt-1 text-xl font-semibold text-ink-100">
+            <h2 className="mt-1 text-xl font-semibold text-ink">
               {BRAND.itemName} #{card.tokenId.toString()}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-ink-700 px-2.5 py-1 text-sm text-ink-400 hover:text-ink-200"
+            className="rounded-md border-rule border-ink px-2.5 py-1 text-sm text-inkMuted hover:text-ink"
           >
             Close
           </button>
@@ -64,28 +64,28 @@ export function CardDetail({card, onClose}: {card: CardState; onClose: () => voi
           <dl className="grid flex-1 grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <div>
               <dt className="rule-label">Form</dt>
-              <dd className="mt-0.5 text-ink-100">
-                {formName(card.level)} <span className="text-ink-500">({card.level}★)</span>
+              <dd className="mt-0.5 text-ink">
+                {formName(card.level)} <span className="text-inkMuted">({card.level}★)</span>
               </dd>
             </div>
             <div>
               <dt className="rule-label">{BRAND.scoreTerm}</dt>
-              <dd className="mt-0.5 font-mono text-brass-400">{card.weight}</dd>
+              <dd className="mt-0.5 font-mono text-seal">{card.weight}</dd>
             </div>
             <div className="col-span-2">
               <dt className="rule-label">Lifetime burn</dt>
-              <dd className="mt-0.5 font-mono text-ink-200">
+              <dd className="mt-0.5 font-mono text-ink">
                 {formatWholeTokens(card.burned)} {BRAND.tokenTicker}
               </dd>
             </div>
             <div className="col-span-2">
               <dt className="rule-label">Owner</dt>
-              <dd className="mt-0.5 font-mono text-ink-300">{shortAddress(card.owner)}</dd>
+              <dd className="mt-0.5 font-mono text-inkMuted">{shortAddress(card.owner)}</dd>
             </div>
           </dl>
         </div>
 
-        <p className="mt-5 border-t border-ink-800 pt-4 text-xs leading-relaxed text-ink-500">
+        <p className="mt-5 border-t-rule border-ink pt-4 text-xs leading-relaxed text-inkMuted">
           {next
             ? `Next level is ${next.form} at ${BRAND.scoreTerm} ${next.weight}, reached by burning ${next.burnToReach.toLocaleString("en-US")} ${BRAND.tokenTicker}. Only the current owner can build.`
             : `This card is at ${formName(card.level)}, the top of the ladder. It cannot be built further, reduced, or reset.`}

@@ -14,15 +14,15 @@ export function PhaseNotice({className = ""}: {className?: string}) {
 
   return (
     <aside
-      className={`panel border-brass-500/30 p-5 ${className}`}
+      className={`panel border-seal p-5 ${className}`}
       aria-label="Launch phase"
     >
       <p className="rule-label">Where the launch is</p>
-      <p className="mt-2 text-sm leading-relaxed text-ink-200">
+      <p className="mt-2 text-sm leading-relaxed text-ink">
         {BRAND.tokenTicker} is still on its bonding curve. It trades against the curve
         rather than a pool, and the curve has to be bought out before a pool exists.
       </p>
-      <p className="mt-3 text-sm leading-relaxed text-ink-400">
+      <p className="mt-3 text-sm leading-relaxed text-inkMuted">
         Everything about the cards works now and works the same afterwards: minting,
         building, transferring, and claiming whatever a {BRAND.groupTerm.toLowerCase()}{" "}
         has received. The {EDITION.buybackBps / 100}% treasury buyback is the one part that
