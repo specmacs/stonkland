@@ -32,7 +32,7 @@ export const RULEBOOK: Section[] = [
     blocks: [
       {
         kind: "p",
-        text: `A board game that settles onchain. The ${BRAND.editionName} contains ${n(EDITION.cardSupply)} ${card}s. That cap is fixed in the contract and cannot be raised by anyone, so no card beyond it can ever exist in this edition -- but later editions are a deliberate part of the design, and each is its own collection with its own cap. What that does to your share is set out further down, and it is worth reading before you buy. Each belongs to one of four ${quarters} of the city, ${n(EDITION.quarterCap)} to a ${quarter}. You acquire a card by destroying tokens, and you improve it by destroying more. An improved card carries more weight, and weight decides how the ${quarter}'s incoming rewards are divided among the cards inside it.`,
+        text: `A board game that settles onchain. The ${BRAND.editionName} contains ${n(EDITION.cardSupply)} ${card}s. That cap is fixed in the contract and cannot be raised by anyone, so no card beyond it can ever exist in this edition — but later editions are a deliberate part of the design, and each is its own collection with its own cap. What that does to your share is set out further down, and it is worth reading before you buy. Each belongs to one of four ${quarters} of the city, ${n(EDITION.quarterCap)} to a ${quarter}. You acquire a card by destroying tokens, and you improve it by destroying more. An improved card carries more weight, and weight decides how the ${quarter}'s incoming rewards are divided among the cards inside it.`,
       },
       {
         kind: "p",

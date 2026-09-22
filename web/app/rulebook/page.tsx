@@ -33,7 +33,7 @@ export default function RulebookPage() {
         tone="sky"
       />
 
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-24 pt-14 sm:px-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-12 px-4 pb-24 pt-14 sm:px-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
         <nav aria-label="Rulebook contents" className="lg:sticky lg:top-24 lg:self-start">
           <div className="border-rule border-ink bg-paperCard shadow-card">
             <p className="rule-label border-b-rule border-ink bg-tint-cream px-4 py-3">Contents</p>
@@ -42,7 +42,7 @@ export default function RulebookPage() {
                 <li key={section.id}>
                   <a
                     href={`#${section.id}`}
-                    className="flex items-center gap-3 px-2 py-2 text-sm text-inkMuted transition-colors hover:bg-tint-cream hover:text-ink"
+                    className="flex items-start gap-3 px-2 py-2 text-sm text-inkMuted transition-colors hover:bg-tint-cream hover:text-ink"
                   >
                     <span
                       className={`flex h-6 w-6 shrink-0 items-center justify-center border border-ink font-mono text-[11px] text-ink ${
@@ -51,7 +51,7 @@ export default function RulebookPage() {
                     >
                       {i + 1}
                     </span>
-                    {section.heading}
+                    <span className="min-w-0">{section.heading}</span>
                   </a>
                 </li>
               ))}
