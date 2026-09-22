@@ -295,6 +295,34 @@ export const feeRouterAbi = [
   {type: "function", name: "REWARDS_BPS", inputs: [], outputs: [{type: "uint16"}], stateMutability: "view"},
 ] as const;
 
+/**
+ * The permissionless stages of the reward pipeline.
+ *
+ * Every one of these is open to anyone by design, which is only true in practice if
+ * something can press them. A protocol whose rewards move only when its team runs a
+ * script has an operator whether it admits to one or not.
+ */
+export const pipelineAbi = [
+  {type: "function", name: "distribute", inputs: [], outputs: [{type: "uint256"}, {type: "uint256"}], stateMutability: "nonpayable"},
+  {type: "function", name: "flushTreasury", inputs: [], outputs: [{type: "uint256"}], stateMutability: "nonpayable"},
+  {type: "function", name: "release", inputs: [], outputs: [{type: "uint256"}], stateMutability: "nonpayable"},
+  {type: "function", name: "allocate", inputs: [], outputs: [{type: "uint256"}], stateMutability: "nonpayable"},
+  {
+    type: "function",
+    name: "processQuarter",
+    inputs: [
+      {name: "edition", type: "uint256"},
+      {name: "quarter", type: "uint8"},
+      {name: "minOuts", type: "uint256[]"},
+      {name: "deadline", type: "uint256"},
+    ],
+    outputs: [{type: "uint256[]"}],
+    stateMutability: "nonpayable",
+  },
+  {type: "function", name: "forward", inputs: [], outputs: [{type: "uint256"}], stateMutability: "nonpayable"},
+  {type: "function", name: "pending", inputs: [], outputs: [{type: "uint256"}], stateMutability: "view"},
+] as const;
+
 export const erc20MetadataAbi = [
   {type: "function", name: "symbol", inputs: [], outputs: [{type: "string"}], stateMutability: "view"},
   {type: "function", name: "decimals", inputs: [], outputs: [{type: "uint8"}], stateMutability: "view"},

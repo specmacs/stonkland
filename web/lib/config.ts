@@ -100,7 +100,37 @@ export function requireAddress(key: ContractKey): Address {
 /** The edition this interface is built for. */
 export const EDITION_ID = 1n;
 
-const KNOWN_CHAINS: readonly Chain[] = [mainnet, base, sepolia, baseSepolia];
+/**
+ * The launch chain. Described here rather than imported because viem does not ship it,
+ * and a chain the site cannot name is a chain where every control renders disabled.
+ */
+const robinhood = defineChain({
+  id: 4_663,
+  name: "Robinhood Chain",
+  nativeCurrency: {name: "Ether", symbol: "ETH", decimals: 18},
+  rpcUrls: {default: {http: ["https://rpc.mainnet.chain.robinhood.com"]}},
+  blockExplorers: {default: {name: "Robinscan", url: "https://robinscan.io"}},
+});
+
+const robinhoodTestnet = defineChain({
+  id: 46_630,
+  name: "Robinhood Chain Testnet",
+  nativeCurrency: {name: "Ether", symbol: "ETH", decimals: 18},
+  rpcUrls: {default: {http: ["https://rpc.testnet.chain.robinhood.com/rpc"]}},
+  blockExplorers: {
+    default: {name: "Explorer", url: "https://explorer.testnet.chain.robinhood.com"},
+  },
+  testnet: true,
+});
+
+const KNOWN_CHAINS: readonly Chain[] = [
+  robinhood,
+  robinhoodTestnet,
+  mainnet,
+  base,
+  sepolia,
+  baseSepolia,
+];
 
 const CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? "0");
 const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL?.trim() ?? "";

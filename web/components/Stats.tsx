@@ -6,6 +6,7 @@ import {useProtocolStats, useRewardAssets, type ProtocolStats} from "@/lib/reads
 import {PageHeader} from "./Section";
 import {ReadGate} from "./ReadGate";
 import {NonAffiliation} from "./Disclaimer";
+import {Pipeline} from "./Pipeline";
 
 export function Stats() {
   const stats = useProtocolStats();
@@ -32,10 +33,14 @@ export function Stats() {
                 data={data}
                 assets={assets.status === "ready" ? assets.data : undefined}
               />
-              <Pipeline data={data} />
+              <PipelineState data={data} />
             </div>
           )}
         </ReadGate>
+
+        <div className="mt-12 border-t border-ink-800 pt-10">
+          <Pipeline />
+        </div>
 
         <NonAffiliation className="mt-10 max-w-3xl" />
       </div>
@@ -171,7 +176,7 @@ function Rewards({
   );
 }
 
-function Pipeline({data}: {data: ProtocolStats}) {
+function PipelineState({data}: {data: ProtocolStats}) {
   const stages: {label: string; value: bigint | undefined; note: string}[] = [
     {
       label: "Awaiting fee split",
