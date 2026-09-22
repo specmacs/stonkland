@@ -199,7 +199,21 @@ curve under that name — so nothing here is built against it.
 2. **TOWN's PoolKey**, once the launch graduates. The shape is already known from live
    pools on this venue: `currency0` is the zero address (native ETH), `currency1` is the
    token, `fee` is 0, `tickSpacing` is 60, and `hooks` is the hook the graduation names.
-   Read it off the singleton's `Initialize` event and pass it to `UniswapV4Adapter`, then
+   Run `script/DeployV4Buyback.s.sol`, which recovers it, deploys the adapter and wires it:
+
+   ```
+   POOL_MANAGER=0x8366a39CC670B4001A1121B8F6A443A643e40951 \
+   LAUNCH_TOKEN=<TOWN> PONS_HOOK=<the launch's hook> \
+   TREASURY_BUYBACK=<from the deploy manifest> \
+   forge script script/DeployV4Buyback.s.sol:DeployV4Buyback --rpc-url $RPC --broadcast
+   ```
+
+   The key is searched rather than typed: a V4 pool's id is the hash of its key, so every
+   plausible fee and tick spacing is tried against the singleton and the one that holds a
+   price is the real one. A fork test checks that search against a pool the suite already
+   trades through, so it cannot quietly stop working before the day it is needed.
+
+   Historically this said to read it off the singleton's `Initialize` event and pass it to `UniswapV4Adapter`, then
    `TreasuryBuyback.setAdapter`. Nothing else is touched.
 3. **The ticker.** `TOWN` already trades on this chain and on seven other tokens
    elsewhere. Noted and accepted; a discoverability matter, not a technical one.

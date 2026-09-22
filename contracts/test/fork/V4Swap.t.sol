@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {UniswapV4Adapter} from "../../src/adapters/UniswapV4Adapter.sol";
-import {PoolKey} from "../../src/interfaces/IPoolManagerV4.sol";
+import {IPoolManagerV4, PoolKey} from "../../src/interfaces/IPoolManagerV4.sol";
 import {TreasuryBuyback} from "../../src/TreasuryBuyback.sol";
 import {Token} from "../../src/Token.sol";
 
@@ -160,5 +160,36 @@ contract V4SwapForkTest is Test {
         vm.prank(keeper);
         vm.expectRevert();
         buyback.execute(0, block.timestamp + 60);
+    }
+
+    /// @dev The launch script recovers the pool key by searching rather than being told
+    ///      it. If that search cannot find a pool this test already trades against, it
+    ///      would fail silently on launch day against the pool that actually matters.
+    function test_theLaunchScriptsSearchFindsThisPool() public {
+        if (!live) return;
+
+        uint24[4] memory fees = [uint24(0), 100, 3000, 10000];
+        int24[8] memory spacings =
+            [int24(1), int24(10), int24(50), int24(60), int24(100), int24(200), int24(2000), int24(60000)];
+
+        bool found;
+        for (uint256 f; f < fees.length && !found; ++f) {
+            for (uint256 sp; sp < spacings.length && !found; ++sp) {
+                PoolKey memory candidate = PoolKey({
+                    currency0: address(0),
+                    currency1: GRADUATED_TOKEN,
+                    fee: fees[f],
+                    tickSpacing: spacings[sp],
+                    hooks: GRADUATED_HOOK
+                });
+                bytes32 id = keccak256(abi.encode(candidate));
+                if (IPoolManagerV4(POOL_MANAGER).extsload(keccak256(abi.encode(id, uint256(6)))) != bytes32(0)) {
+                    found = true;
+                    assertEq(uint256(candidate.fee), 0, "the graduated pool's own fee is zero");
+                    assertEq(int256(candidate.tickSpacing), int256(60), "tick spacing");
+                }
+            }
+        }
+        assertTrue(found, "the script's search did not find a pool this suite trades against");
     }
 }
