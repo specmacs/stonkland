@@ -96,7 +96,6 @@ export function MintFlow() {
               label="What you receive"
               value={`${house?.form} · one star`}
               tint="bg-tint-sun"
-              inner
             >
               <CardPreview quarter={quarter} />
             </Step>
@@ -107,7 +106,6 @@ export function MintFlow() {
                 label={`Mint in ${QUARTERS[quarter]?.label ?? ""} ${BRAND.groupTerm}`}
                 value={`${house?.form} · ${BRAND.scoreTerm} ${house?.weight}`}
                 tint="bg-tint-mint"
-                inner
               >
                 <MintPanel quarter={quarter} mint={mint} counts={counts} />
               </Step>
@@ -190,26 +188,24 @@ function Step({
   label,
   value,
   tint,
-  inner = false,
   children,
 }: {
   n: number;
   label: string;
   value: string;
   tint: string;
-  inner?: boolean;
   children: ReactNode;
 }) {
   return (
     <section>
       <header className={`flex items-center gap-4 border-b-rule border-ink px-5 py-3.5 ${tint}`}>
-        <span className="pip bg-paperCard text-ink">{n}</span>
+        <span className="pip bg-paperCard text-ink">{String(n).padStart(2, "0")}</span>
         <div className="min-w-0">
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/60">{label}</p>
           <p className="truncate font-display text-lg font-bold text-ink">{value}</p>
         </div>
       </header>
-      <div className={inner ? "p-5" : "p-5"}>{children}</div>
+      <div className="p-5">{children}</div>
     </section>
   );
 }

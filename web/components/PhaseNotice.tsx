@@ -2,6 +2,18 @@ import {BRAND, EDITION} from "@/lib/brand";
 import {LAUNCH_PHASE} from "@/lib/config";
 
 /**
+ * Whether there is anything to say at all.
+ *
+ * Only "curve" has anything to say, and only when somebody has actually said it. An unset
+ * variable means nobody has, and the honest response to that is nothing at all.
+ *
+ * Exported because a caller that pads around this notice has to collapse that padding
+ * too. A component returning null inside a wrapper that still renders leaves a band of
+ * empty page where the notice would have been, which reads as something failing to load.
+ */
+export const HAS_PHASE_NOTICE = LAUNCH_PHASE === "curve";
+
+/**
  * Says where the launch is, because the two phases behave differently and somebody
  * arriving mid-curve should not have to work that out from a disabled button.
  *
@@ -10,9 +22,7 @@ import {LAUNCH_PHASE} from "@/lib/config";
  * treasury has anything to buy it back against.
  */
 export function PhaseNotice({className = ""}: {className?: string}) {
-  // Only "curve" has anything to say, and only when somebody has actually said it. An
-  // unset variable means nobody has, and the honest response to that is nothing at all.
-  if (LAUNCH_PHASE !== "curve") return null;
+  if (!HAS_PHASE_NOTICE) return null;
 
   return (
     <aside

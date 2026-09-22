@@ -137,3 +137,14 @@ body {
     transform: none !important;
   }
 }
+
+/* A horizontal scroller that bleeds to the screen edge. The bar itself is noise on a
+   six-item nav that fits on any screen wider than a phone. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
