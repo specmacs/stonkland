@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import {BRAND} from "@/lib/brand";
+import {USES_WALLETCONNECT} from "@/lib/config";
 import {PageHeader} from "@/components/Section";
 
 export const metadata: Metadata = {
@@ -38,6 +39,9 @@ export default function PrivacyPage() {
             "The RPC provider configured for this deployment will see the requests your browser makes, including your address when it is part of a query. That provider has its own policies.",
             "Wallet software you choose to connect has its own policies, which this project does not control.",
             "There is no analytics script, no advertising pixel, and no third-party tracker on this site.",
+            USES_WALLETCONNECT
+              ? "This deployment offers WalletConnect. Its library contacts WalletConnect's own servers when the page loads, which is outside this project's control and subject to their policies."
+              : "This deployment does not offer WalletConnect, whose library would otherwise contact its own servers on page load. Only wallets that need no third party are available.",
           ].map((item) => (
             <li key={item} className="flex gap-3 text-sm leading-relaxed text-inkMuted">
               <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-inkFaint" />
@@ -45,6 +49,13 @@ export default function PrivacyPage() {
             </li>
           ))}
         </ul>
+
+        <p className="mt-6 border-l-4 border-ink/15 pl-4 font-mono text-[11px] leading-relaxed text-inkMuted">
+          The claim above is checkable rather than asserted: load any page of this site with
+          your browser&apos;s network panel open and filter for requests leaving this domain.
+          Fonts are compiled into the site at build time, so there is no request to a font
+          host either.
+        </p>
 
         <h2 className="mt-10 text-lg font-semibold text-ink">What a blockchain keeps</h2>
         <p className="mt-4 text-sm leading-relaxed text-inkMuted">

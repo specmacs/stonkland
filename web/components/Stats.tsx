@@ -321,7 +321,7 @@ function PipelineState({data}: {data: ProtocolStats}) {
       label: "Awaiting allocation",
       value: data.vaultUnallocated,
       cap: "bg-tint-mint",
-      note: `Held before being divided between editions by weight, then between ${BRAND.groupTermPlural.toLowerCase()}.`,
+      note: `Held before being divided between editions by weight, then between ${BRAND.groupTermPlural.toLowerCase()}. Open to anyone while the vault runs.`,
     },
   ];
 

@@ -80,6 +80,18 @@ export const EDITION = {
   teamAllocation: 0,
 } as const;
 
+/**
+ * How many owner-restricted functions exist across the contracts.
+ *
+ * The rulebook states this number and claims its list of administrative powers is
+ * exhaustive. That claim is only safe if something counts, so
+ * `scripts/check-parameters.mjs` counts the `onlyOwner` functions in the Solidity and
+ * fails the build when this disagrees. Adding an owner power without saying so in the
+ * rulebook is precisely the drift that would matter most to a reader, and it is the one
+ * kind of drift nobody notices by eye.
+ */
+export const OWNER_FUNCTION_COUNT = 23;
+
 export type LevelInfo = {
   level: 1 | 2 | 3 | 4 | 5;
   form: string;

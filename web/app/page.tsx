@@ -129,7 +129,7 @@ export default function LandingPage() {
             One loop.
           </>
         }
-        sub="Each move is a transaction anyone can send. There is no queue, no allowlist, and no operator whose attention any of it waits on."
+        sub="Each move is a transaction you send yourself. There is no queue, no allowlist, and nobody to apply to. Minting and building can be paused by the owner, and when either is, the interface says so and the control is off — that is the whole of anyone's ability to stand between you and a move."
         tone="ink"
       >
         <ol className="card-row grid bg-ink sm:grid-cols-2 lg:grid-cols-5">

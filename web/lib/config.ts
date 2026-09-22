@@ -160,6 +160,17 @@ export const CHAIN_CONFIGURED = Boolean(CHAIN && RPC_TRANSPORT_URL);
 export const WALLETCONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() ?? "";
 
+/**
+ * Whether this deployment offers WalletConnect, and therefore whether the page reaches a
+ * third party at all.
+ *
+ * Lives here rather than in the wallet setup because the privacy page states it, and that
+ * page is rendered on the server. Without a project id the connector cannot work, so it
+ * is left out entirely -- which is what makes "no third-party tracker" a fact about this
+ * build rather than an aspiration.
+ */
+export const USES_WALLETCONNECT = WALLETCONNECT_PROJECT_ID.length > 0;
+
 /** Where to buy the token. Absent until a market exists, which disables the Buy control. */
 export const POOL_URL = process.env.NEXT_PUBLIC_POOL_URL?.trim() ?? "";
 

@@ -41,6 +41,14 @@ function solTable(file, fn) {
   return out;
 }
 
+/** Pull an exported top-level numeric constant out of the TypeScript config. */
+function tsConst(file, name) {
+  const src = read(join(web, file));
+  const m = new RegExp(`export const ${name}\\s*=\\s*([0-9_]+)`).exec(src);
+  if (!m) throw new Error(`${name} not found in ${file}`);
+  return Number(m[1].replace(/_/g, ""));
+}
+
 /** Pull a numeric literal out of the TypeScript config. */
 function tsNumber(file, key) {
   const src = read(join(web, file));
@@ -113,6 +121,35 @@ for (const l of levels) {
   if (solNames[l.level] !== l.form) {
     failures.push(`level ${l.level} name: contracts say ${solNames[l.level]}, copy says ${l.form}`);
   }
+}
+
+// --- Administrative surface ------------------------------------------------------
+// The rulebook claims its list of owner powers is exhaustive and states the count. That
+// claim is only safe if something counts, so this does. An owner power added without a
+// corresponding rulebook entry is the drift that matters most to a reader and the one
+// nobody catches by eye.
+{
+  const {readdirSync} = await import("node:fs");
+  const files = [];
+  const walk = (dir) => {
+    for (const e of readdirSync(dir, {withFileTypes: true})) {
+      if (e.isDirectory()) walk(join(dir, e.name));
+      else if (e.name.endsWith(".sol")) files.push(join(dir, e.name));
+    }
+  };
+  walk(contracts);
+
+  let owned = 0;
+  for (const f of files) {
+    const src = readFileSync(f, "utf8");
+    // Declarations only: `onlyOwner` appearing in a comment or a modifier definition is
+    // not a function carrying it.
+    for (const m of src.matchAll(/function\s+\w+\s*\([^)]*\)[^{;]*\bonlyOwner\b/g)) {
+      void m;
+      owned += 1;
+    }
+  }
+  check("owner-restricted function count", owned, tsConst("brand.ts", "OWNER_FUNCTION_COUNT"));
 }
 
 // --- Report ----------------------------------------------------------------------

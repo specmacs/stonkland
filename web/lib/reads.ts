@@ -613,6 +613,14 @@ export type ProtocolStats = {
   streamReleasable: bigint | undefined;
   streamUnmatured: bigint | undefined;
   vaultUnallocated: bigint | undefined;
+  /**
+   * Whether the vault is paused.
+   *
+   * Load-bearing for the controls: `allocate` and `processQuarter` are open to everyone
+   * while the vault runs and to the named processor only while it is paused. Without this
+   * the interface offers both to anybody and lets the wallet deliver the refusal.
+   */
+  vaultPaused: boolean | undefined;
   vaultPerQuarterPending: (bigint | undefined)[];
   depositedPerQuarter: (bigint | undefined)[];
   claimedPerQuarter: (bigint | undefined)[];
@@ -671,7 +679,10 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
     );
   }
   if (revenueVault) {
-    calls.push({address: revenueVault, abi: revenueVaultAbi, functionName: "unallocated"});
+    calls.push(
+      {address: revenueVault, abi: revenueVaultAbi, functionName: "paused"},
+      {address: revenueVault, abi: revenueVaultAbi, functionName: "unallocated"},
+    );
     for (const q of QUARTERS) {
       calls.push({
         address: revenueVault,
@@ -720,6 +731,7 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
     const treasuryLiability = feeRouter ? cursor.nextBigint() : undefined;
     const streamReleasable = streamVault ? cursor.nextBigint() : undefined;
     const streamUnmatured = streamVault ? cursor.nextBigint() : undefined;
+    const vaultPaused = revenueVault ? cursor.next<boolean>() : undefined;
     const vaultUnallocated = revenueVault ? cursor.nextBigint() : undefined;
     const vaultPerQuarterPending = QUARTERS.map(() =>
       revenueVault ? cursor.nextBigint() : undefined,
@@ -768,6 +780,7 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
         streamReleasable,
         streamUnmatured,
         vaultUnallocated,
+        vaultPaused,
         vaultPerQuarterPending,
         depositedPerQuarter,
         claimedPerQuarter,

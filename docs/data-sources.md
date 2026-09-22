@@ -171,8 +171,25 @@ used says why, in place, rather than failing in the wallet.
 | Claim and split | `distribute()` | FeeRouter | Nothing waiting · state unreadable |
 | Release | `release()` | StreamVault | Nothing matured · state unreadable |
 | Allocate | `allocate()` | RevenueVault | Nothing unallocated · state unreadable |
-| Convert | `processQuarter(edition, q, [0], deadline)` | RevenueVault | Nothing waiting in that quarter · state unreadable |
+| Convert | `processQuarter(edition, q, [0], deadline)` | RevenueVault | Nothing waiting in that quarter · state unreadable · **vault paused** (processor only) · pause state unreadable |
 | Forward | `forward()` | RoyaltyRouter | Nothing waiting · state unreadable |
+
+### Who may actually call these
+
+Not uniform, and the interface must not imply that it is.
+
+| Stage | Contract | Who |
+| --- | --- | --- |
+| Claim and split, retry treasury | FeeRouter | Anyone, always. No owner, no pause. |
+| Release | StreamVault | Anyone, always. No owner, no pause. |
+| Forward royalties | RoyaltyRouter | Anyone, always. No owner, no pause. |
+| Allocate, Convert | RevenueVault | Anyone while running; the named `processor` only while paused. |
+| Mint | Minter | Anyone while open and unpaused. |
+| Build | ProgressionManager | The card's owner, while unpaused. |
+| Claim | Distributor | The wallet being claimed for. |
+
+`RevenueVault.paused()` is read into `vaultPaused` and disables Allocate and Convert with
+a reason, rather than letting the wallet deliver the refusal.
 
 The mint and the build both carry an explicit confirmation naming the exact burn, because
 both are irreversible. The approve control appears only while an approval is actually
@@ -247,7 +264,11 @@ contracts:
   computes one.
 - A placeholder token id, owner, level, weight, or reward amount.
 - A cached or estimated metric presented as live.
-- A default that stands in for a failed read. In particular **no failed read is ever
+- A default that stands in for a failed read.
+- A third-party request. WalletConnect is only offered when a project id is configured,
+  because its library contacts its own servers on page load whether or not anyone opens
+  it — which, with no project id, was telemetry in exchange for a connector that could not
+  work. Verified with a network trace across every page: zero requests leave the origin. In particular **no failed read is ever
   coalesced to zero** — not a balance, not a quarter's minted count, not a pending or
   credited amount. Zero and "did not read" are different facts and the interface keeps
   them apart, in the type system rather than by convention: every such field is

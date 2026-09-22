@@ -1,4 +1,4 @@
-import {BRAND, EDITION, LEVELS} from "./brand";
+import {BRAND, EDITION, LEVELS, OWNER_FUNCTION_COUNT} from "./brand";
 
 /**
  * The rulebook, in one place.
@@ -62,7 +62,7 @@ export const RULEBOOK: Section[] = [
       },
       {
         kind: "p",
-        text: `${EDITION.buybackBps / 100}% of the treasury's share is spent buying the token on the open market, and everything bought is destroyed. Anyone can trigger it. This recycles revenue the protocol already earned — it does not create revenue, and it is not a return. What it does do is make the treasury's share a second route by which supply falls and can never rise.`,
+        text: `${EDITION.buybackBps / 100}% of the treasury's share is spent buying the token on the open market, and everything bought is destroyed. Whether anybody can trigger that, or only a named keeper, is set by the owner and readable onchain — a keeper exists because a buyback fired at a bad moment spends the treasury badly, and the same setting carries a ceiling per call and a cooldown between them. What is not adjustable is where the tokens go. That is fixed when the buyback contract is constructed and has no setter: this deployment fixes it to destroy everything bought, so there is no recipient it could be pointed at instead.`,
       },
     ],
   },
@@ -163,7 +163,7 @@ export const RULEBOOK: Section[] = [
       },
       {
         kind: "p",
-        text: `Every step is permissionless. No operator has to act for you to be paid, and no one can redirect a deposit once it is made. Steps can stall — a conversion may fail if liquidity is thin, and the funds simply wait until it succeeds.`,
+        text: `No one can redirect a deposit once it is made, and no operator has to act for you to be paid. Claiming the venue's fees, splitting them, releasing the stream and sweeping card royalties are open to anyone, always — those contracts have no owner and no pause. Allocating between ${quarters} and converting a ${quarter} into its asset are open to anyone while the vault is running, and to a named processor only while conversion is paused. Steps can stall — a conversion may fail if liquidity is thin, and the funds simply wait until it succeeds.`,
       },
       {
         kind: "p",
@@ -217,7 +217,15 @@ export const RULEBOOK: Section[] = [
       },
       {
         kind: "p",
-        text: `Administrative control is limited to pausing minting, upgrades, and conversion; swapping the metadata renderer, which is presentation only; replacing a conversion route, which can change how an asset is bought but never which asset you receive; adjusting the share of treasury revenue spent on buybacks, which cannot touch the rewards leg; and registering a new edition. Whether bought tokens are burned or kept is not on that list — it is fixed at deployment and readable from the verified source.`,
+        text: `Administrative control is the following list and nothing else. Pausing minting, upgrades, and conversion. Swapping the metadata renderer, which is presentation only. Replacing a conversion route, which can change how an asset is bought but never which asset you receive, because the route is checked against the edition's frozen asset list before it is accepted. Naming who may move the two vault stages while conversion is paused. Naming who may trigger the treasury buyback, setting a ceiling on what it spends per call and a cooldown between calls, and replacing the route it buys through. Adjusting the share of treasury revenue spent on buybacks, which cannot touch the rewards leg. And registering a new edition.`,
+      },
+      {
+        kind: "p",
+        text: `Two things that look like powers are not. The wiring functions that point each contract at the others can each be called once and then revert forever, so after deployment they are spent. And whether bought tokens are burned or kept is fixed when the buyback contract is constructed, with no setter at all.`,
+      },
+      {
+        kind: "p",
+        text: `That list is meant to be exhaustive, and it is checkable: every function carrying the owner modifier is visible in the verified source, and there are ${OWNER_FUNCTION_COUNT} of them. If you find one this rulebook does not account for, the rulebook is wrong.`,
       },
       {
         kind: "callout",

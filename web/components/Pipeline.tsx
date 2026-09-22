@@ -27,10 +27,12 @@ export function Pipeline() {
   return (
     <section>
       <SectionHead eyebrow="Open to anyone" heading="Move the pipeline.">
-        Rewards travel from trading fees to your card through the stages below. Every one is
-        open to anyone — no operator has to act for you to be paid, and nothing here can send
-        funds anywhere other than onward. If a stage has something waiting, you can move it
-        yourself, and you pay only the gas.
+        Rewards travel from trading fees to your card through the stages below, and nothing
+        here can send funds anywhere other than onward. The first two stages and the royalty
+        sweep have no owner and no pause: they are open to anyone, always. The two vault
+        stages are open to anyone while the vault runs, and to a named processor only while
+        conversion is paused. Where a stage is open and has something waiting, you can move
+        it yourself and pay only the gas.
       </SectionHead>
       <div className="h-8" />
 
@@ -81,6 +83,7 @@ function Stages({data}: {data: ProtocolStats}) {
         address={ADDRESSES.revenueVault}
         functionName="allocate"
         label="Allocate"
+        blockedReason={vaultBlockedReason(data)}
       />
 
       <ConvertStage data={data} />
@@ -97,6 +100,25 @@ function Stages({data}: {data: ProtocolStats}) {
       />
     </div>
   );
+}
+
+/**
+ * Why the two vault stages may be closed to a passer-by.
+ *
+ * `allocate` and `processQuarter` are open to everyone while the vault runs, and to the
+ * named processor only while it is paused. Without reading that, the interface would
+ * offer both to anybody and let the wallet deliver the refusal -- which is the same
+ * failure as an enabled mint button on a paused minter, and it is checked for the same
+ * reason.
+ */
+function vaultBlockedReason(data: ProtocolStats): string | undefined {
+  if (data.vaultPaused === undefined) {
+    return "The vault's pause state could not be read, so this stays disabled.";
+  }
+  if (data.vaultPaused) {
+    return "Conversion is paused onchain. While it is, only the named processor can move this stage.";
+  }
+  return undefined;
 }
 
 /** Conversion is per-quarter, so a failed route strands only its own quarter. */
@@ -154,9 +176,10 @@ function ConvertStage({data}: {data: ProtocolStats}) {
                   pendingLabel="Converting…"
                   variant="secondary"
                   disabledReason={
-                    nothingWaiting
+                    vaultBlockedReason(data) ??
+                    (nothingWaiting
                       ? `Nothing waiting in this ${BRAND.groupTerm.toLowerCase()}.`
-                      : undefined
+                      : undefined)
                   }
                 />
               </div>
@@ -180,6 +203,7 @@ function Stage({
   functionName,
   label,
   readPendingFrom,
+  blockedReason,
 }: {
   step: number;
   title: string;
@@ -190,6 +214,8 @@ function Stage({
   functionName: string;
   label: string;
   readPendingFrom?: `0x${string}` | undefined;
+  /** A reason this stage is closed regardless of what is waiting at it. */
+  blockedReason?: string | undefined;
 }) {
   // The royalty router is the one stage whose balance is not already in the stats read.
   const extra = useReadContract({
@@ -237,11 +263,12 @@ function Stage({
           pendingLabel="Sending…"
           variant="secondary"
           disabledReason={
-            unread
+            blockedReason ??
+            (unread
               ? "This stage's state could not be read, so it stays disabled."
               : nothingWaiting
                 ? "Nothing waiting at this stage."
-                : undefined
+                : undefined)
             }
           />
         </div>
