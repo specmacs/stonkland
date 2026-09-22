@@ -14,13 +14,13 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#080a0c",
+          background: "#14110a",
         }}
       >
         <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-          <path d="M4 4h10v2H6v8H4V4Z" fill="#c8a24a" />
-          <path d="M28 28H18v-2h8v-8h2v10Z" fill="#c8a24a" />
-          <rect x="11" y="11" width="10" height="10" rx="1" fill="#c8a24a" opacity="0.55" />
+          <path d="M4 4h10v2H6v8H4V4Z" fill="#e2a615" />
+          <path d="M28 28H18v-2h8v-8h2v10Z" fill="#e2a615" />
+          <rect x="11" y="11" width="10" height="10" rx="1" fill="#bb2018" />
         </svg>
       </div>
     ),
