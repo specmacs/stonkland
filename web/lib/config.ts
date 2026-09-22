@@ -164,20 +164,31 @@ export const WALLETCONNECT_PROJECT_ID =
 export const POOL_URL = process.env.NEXT_PUBLIC_POOL_URL?.trim() ?? "";
 
 /**
- * Where the launch is in its life.
+ * Where the launch is in its life, when that is actually known.
  *
- * `curve`      the token trades on a bonding curve; no pool exists yet, so the buyback
- *              has nothing to buy against and the interface should not imply otherwise
+ * `curve`      the token trades on a bonding curve; no pool exists yet
  * `graduated`  the curve has been bought out and the token trades in a pool
+ * `undefined`  nobody has said, so the interface says nothing
  *
- * Set deliberately rather than guessed. The interface could infer it from whether a pool
- * address is configured, but a wrong guess here would tell somebody the launch had
- * reached a stage it had not.
+ * There is deliberately no default. An earlier version fell back to `curve`, which meant
+ * an unset variable produced a confident statement about where the launch was -- a claim
+ * assembled out of nothing, on a site whose whole promise is that it does not do that.
+ * Silence is the honest reading of an unset variable.
+ *
+ * It is also not inferred. The interface could guess from whether a pool address is
+ * configured, and a wrong guess would tell somebody the launch had reached a stage it
+ * had not.
  */
 export type LaunchPhase = "curve" | "graduated";
 
-export const LAUNCH_PHASE: LaunchPhase =
-  process.env.NEXT_PUBLIC_LAUNCH_PHASE?.trim() === "graduated" ? "graduated" : "curve";
+function parsePhase(raw: string | undefined): LaunchPhase | undefined {
+  const value = raw?.trim();
+  return value === "curve" || value === "graduated" ? value : undefined;
+}
+
+export const LAUNCH_PHASE: LaunchPhase | undefined = parsePhase(
+  process.env.NEXT_PUBLIC_LAUNCH_PHASE,
+);
 export const X_URL = process.env.NEXT_PUBLIC_X_URL?.trim() ?? "";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.trim() ?? "";
 

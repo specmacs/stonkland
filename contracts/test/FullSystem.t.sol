@@ -426,6 +426,28 @@ contract FullSystemTest is Test {
         d.revenueVault.setAdapter(EDITION, 0, address(assets[0]), address(wrong));
     }
 
+    /// @dev A view that tells an interface an action has nothing to do, when it does, is
+    ///      worse than no view at all: the control gets disabled on the strength of it and
+    ///      the value sits there looking like it does not exist. `allocate` wraps native
+    ///      before dividing anything, so `unallocated` has to count it.
+    function test_unallocatedCountsNativeBecauseAllocateWrapsIt() public {
+        _mint(alice, 0);
+
+        vm.deal(address(d.revenueVault), 9 ether);
+
+        assertEq(
+            d.revenueVault.unallocated(),
+            9 ether,
+            "native value waiting reported as nothing waiting"
+        );
+
+        // And the action agrees with the view: it processes exactly what was reported.
+        uint256 assigned = d.revenueVault.allocate();
+        assertEq(assigned, 9 ether, "allocate moved a different amount than the view promised");
+        assertEq(d.revenueVault.unallocated(), 0, "nothing should be left unallocated");
+        assertEq(address(d.revenueVault).balance, 0, "native should have been wrapped");
+    }
+
     function _config() internal view returns (DeployConfig memory) {
         address[4] memory assetAddrs;
         for (uint8 q; q < 4; ++q) {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {ConnectButton} from "@rainbow-me/rainbowkit";
+import {useBlockNumber} from "wagmi";
 import {BRAND} from "@/lib/brand";
 import {CHAIN_NAME, CHAIN_CONFIGURED, POOL_URL} from "@/lib/config";
 import {Mark} from "./Mark";
@@ -64,20 +65,72 @@ export function Header() {
 
         <div className="ml-auto flex items-center gap-2">
           <BuyControl />
-          <span
-            className="hidden items-center gap-1.5 border-rule border-ink/30 px-2.5 py-1.5 font-mono text-[11px] text-inkMuted lg:inline-flex"
-            title={CHAIN_CONFIGURED ? undefined : "No chain is configured for this deployment."}
-          >
-            <span
-              aria-hidden
-              className={`h-1.5 w-1.5 rounded-full ${CHAIN_CONFIGURED ? "bg-quarter-3" : "bg-inkFaint"}`}
-            />
-            {CHAIN_CONFIGURED ? CHAIN_NAME : "No network configured"}
-          </span>
+          <NetworkStatus />
           <ConnectButton showBalance={false} chainStatus="none" accountStatus="address" />
         </div>
       </div>
     </header>
+  );
+}
+
+/**
+ * Whether the chain this deployment names is actually answering.
+ *
+ * A green dot beside a network name reads as "connected", so it has to mean that. It
+ * tracks the head block: configuration alone earns no dot, because every figure on this
+ * site depends on reads succeeding, and a reader deserves to know at a glance whether
+ * they can. A page full of "not read" beside a confident green light would be the
+ * interface contradicting itself.
+ */
+function NetworkStatus() {
+  // Not watched: this is a liveness check, not a feed, and a subscription re-rendering the
+  // header on every block buys nothing.
+  const {data: blockNumber, isPending, isError} = useBlockNumber({
+    query: {enabled: CHAIN_CONFIGURED, refetchInterval: 30_000},
+  });
+
+  if (!CHAIN_CONFIGURED) {
+    return (
+      <Status
+        dot="bg-inkFaint"
+        label="No network configured"
+        title="No chain is configured for this deployment."
+      />
+    );
+  }
+
+  if (isPending) {
+    return <Status dot="bg-inkFaint" label={CHAIN_NAME} title={`Reaching ${CHAIN_NAME}…`} />;
+  }
+
+  if (isError || blockNumber === undefined) {
+    return (
+      <Status
+        dot="bg-seal"
+        label={`${CHAIN_NAME} unreachable`}
+        title={`${CHAIN_NAME} is configured but did not answer. Figures that depend on reads will not be shown.`}
+      />
+    );
+  }
+
+  return (
+    <Status
+      dot="bg-quarter-3"
+      label={CHAIN_NAME}
+      title={`${CHAIN_NAME}, at block ${blockNumber.toString()}.`}
+    />
+  );
+}
+
+function Status({dot, label, title}: {dot: string; label: string; title: string}) {
+  return (
+    <span
+      className="hidden items-center gap-1.5 border-rule border-ink/30 px-2.5 py-1.5 font-mono text-[11px] text-inkMuted lg:inline-flex"
+      title={title}
+    >
+      <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+      {label}
+    </span>
   );
 }
 

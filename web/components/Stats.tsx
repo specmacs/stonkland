@@ -329,11 +329,11 @@ function PipelineState({data}: {data: ProtocolStats}) {
     <Block
       eyebrow="Reward pipeline"
       heading="Where value is sitting."
-      sub="Value moves through five holding places on its way to a claim. Each figure is what is resting at that step right now."
+      sub="Value moves through five holding places on its way to a claim. Each figure is what is resting at that step right now, counting ether and wrapped ether alike — the pipeline wraps as it goes, and a stage holding either is holding the same value."
       footnote={
         <>
           Each {BRAND.groupTerm.toLowerCase()} converts independently. A route that fails leaves
-          only that {BRAND.groupTerm.toLowerCase()}&apos;s WETH pending, and pending is a
+          only that {BRAND.groupTerm.toLowerCase()}&apos;s share pending, and pending is a
           comfortable resting state — sometimes for days, if the asset is thinly traded.
         </>
       }
@@ -355,7 +355,7 @@ function PipelineState({data}: {data: ProtocolStats}) {
                 ) : (
                   <>
                     {formatAssetAmount(s.value, 18)}
-                    <span className="ml-1.5 text-xs text-inkMuted">WETH</span>
+                    <span className="ml-1.5 text-xs text-inkMuted">ETH</span>
                   </>
                 )}
               </p>
@@ -388,7 +388,7 @@ function PipelineState({data}: {data: ProtocolStats}) {
                   ) : (
                     <>
                       {formatAssetAmount(pending, 18)}
-                      <span className="ml-1.5 text-xs text-inkMuted">WETH</span>
+                      <span className="ml-1.5 text-xs text-inkMuted">ETH</span>
                     </>
                   )}
                 </p>

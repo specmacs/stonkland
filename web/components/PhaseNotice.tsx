@@ -10,7 +10,9 @@ import {LAUNCH_PHASE} from "@/lib/config";
  * treasury has anything to buy it back against.
  */
 export function PhaseNotice({className = ""}: {className?: string}) {
-  if (LAUNCH_PHASE === "graduated") return null;
+  // Only "curve" has anything to say, and only when somebody has actually said it. An
+  // unset variable means nobody has, and the honest response to that is nothing at all.
+  if (LAUNCH_PHASE !== "curve") return null;
 
   return (
     <aside
@@ -33,10 +35,10 @@ export function PhaseNotice({className = ""}: {className?: string}) {
           holds the money rather than spending it badly.
         </p>
         <p className="mt-4 border-t border-ink/10 pt-3 font-mono text-[11px] leading-relaxed text-inkFaint">
-          Which phase this is comes from this deployment&apos;s configuration, not from a
-          reading. It is set deliberately: the interface could guess from whether a pool
-          address is present, and a wrong guess would tell you the launch had reached a stage
-          it had not.
+          Set in this deployment&apos;s configuration, not read from chain. It is stated
+          rather than inferred: the interface could guess from whether a pool address is
+          present, and a wrong guess would tell you the launch had reached a stage it had
+          not. When nobody has set it, nothing appears here.
         </p>
       </div>
     </aside>

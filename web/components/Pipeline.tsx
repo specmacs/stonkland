@@ -65,7 +65,7 @@ function Stages({data}: {data: ProtocolStats}) {
         waiting={data.streamReleasable}
         alsoWaiting={
           data.streamUnmatured !== undefined && data.streamUnmatured > 0n
-            ? `${formatAssetAmount(data.streamUnmatured, 18)} WETH still streaming`
+            ? `${formatAssetAmount(data.streamUnmatured, 18)} ETH still streaming`
             : undefined
         }
         address={ADDRESSES.streamVault}
@@ -76,7 +76,7 @@ function Stages({data}: {data: ProtocolStats}) {
       <Stage
         step={3}
         title={`Allocate across ${BRAND.groupTermPlural.toLowerCase()}`}
-        body={`Divides fresh WETH between editions by weight, then between the four ${BRAND.groupTermPlural.toLowerCase()} on the frozen allocation.`}
+        body={`Wraps whatever arrived as ether, then divides it between editions by weight and between the four ${BRAND.groupTermPlural.toLowerCase()} on the frozen allocation.`}
         waiting={data.vaultUnallocated}
         address={ADDRESSES.revenueVault}
         functionName="allocate"
@@ -134,7 +134,7 @@ function ConvertStage({data}: {data: ProtocolStats}) {
                 {pending === undefined ? (
                   <span className="text-inkFaint">not read</span>
                 ) : (
-                  `${formatAssetAmount(pending, 18)} WETH`
+                  `${formatAssetAmount(pending, 18)} ETH`
                 )}
               </p>
               <div className="mt-3">
@@ -216,7 +216,7 @@ function Stage({
             {unread ? (
               <span className="text-inkFaint">not read</span>
             ) : (
-              `${formatAssetAmount(amount, 18)} WETH`
+              `${formatAssetAmount(amount, 18)} ETH`
             )}
           </span>
           {alsoWaiting && (

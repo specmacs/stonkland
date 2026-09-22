@@ -273,11 +273,11 @@ export default function LandingPage() {
       >
         <Flow />
         <p className="mt-10 max-w-3xl text-sm leading-relaxed text-paperCard/75">
-          This launch sets a {EDITION.creatorTaxPercent}% tax on trades, fixed when the token was
-          created and unchangeable since. It reaches the protocol in full. Once it accrues, anyone
-          can trigger the claim — no operator stands between you and a deposit. The router splits
-          it on fixed terms, wraps the rewards portion, and funds short streams so a single sweep
-          does not land on one moment.
+          This launch sets a {EDITION.creatorTaxPercent}% tax on trades. It is fixed at the moment
+          the token is created and cannot be changed by anyone afterwards, and it reaches the
+          protocol in full. Once it accrues, anyone can trigger the claim — no operator stands
+          between you and a deposit. The router splits it on fixed terms, wraps the rewards
+          portion, and funds short streams so a single sweep does not land on one moment.
         </p>
         <VenueParameter className="mt-4 max-w-3xl" dark>
           The {EDITION.creatorTaxPercent}% is set on the launch venue when the token is created,

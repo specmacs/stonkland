@@ -113,11 +113,11 @@ read did not succeed, and never means zero.
 | `perQuarterWeight[q]` | `quarterWeight(edition, q)` | Distributor |
 | `editionWeight` | `editionWeight(edition)` | Distributor |
 | `protocolWeight` | `protocolWeight()` | Distributor |
-| `feeRouterPending` | `distributable()` | FeeRouter |
-| `treasuryLiability` | `treasuryLiability()` | FeeRouter |
+| `feeRouterPending` | `distributable()` | FeeRouter (ether **and** wrapped ether) |
+| `treasuryLiability` | `treasuryLiability()` | FeeRouter (ether) |
 | `streamReleasable` | `releasable()` | StreamVault |
 | `streamUnmatured` | `unmatured()` | StreamVault |
-| `vaultUnallocated` | `unallocated()` | RevenueVault |
+| `vaultUnallocated` | `unallocated()` | RevenueVault (ether **and** wrapped ether) |
 | `vaultPerQuarterPending[q]` | `quarterPending(edition, q)` | RevenueVault |
 | `depositedPerQuarter[q]` | `totalDeposited(edition, asset, q)` | Distributor |
 | `claimedPerQuarter[q]` | `totalClaimed(edition, asset, q)` | Distributor |
@@ -143,7 +143,15 @@ control is never enabled on the assumption that it is probably not paused.
 ### Royalty router pending — pipeline stage 5
 
 `pending()` on RoyaltyRouter, read separately because it is the one stage not already in
-the stats batch.
+the stats batch. Counts ether and wrapped ether alike.
+
+### A note on units
+
+The pipeline wraps as it goes, so different stages hold ether, wrapped ether, or both.
+Every stage figure is labelled **ETH** and the section says it counts both, because a
+stage holding either is holding the same value and labelling half the column WETH would
+imply a distinction that does not exist. Reward amounts after conversion are denominated
+in the reward asset, whose symbol is always read from that asset's own contract.
 
 ---
 

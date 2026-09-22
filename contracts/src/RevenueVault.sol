@@ -150,9 +150,15 @@ contract RevenueVault is Ownable, Pausable, ReentrancyGuard {
 
     // --- pipeline ---------------------------------------------------------------------
 
-    /// @notice WETH here that no quarter has claimed yet.
+    /// @notice Value here that no quarter has claimed yet.
+    /// @dev    Counts native balance as well as WETH, because `allocate` wraps whatever
+    ///         native is held before it divides anything. Reporting WETH alone made this
+    ///         view disagree with the function it describes: value paid in as ETH read as
+    ///         nothing waiting, while `allocate` would have processed it. A view that says
+    ///         an action has nothing to do, when it does, is worse than no view at all --
+    ///         an interface will disable the control on the strength of it.
     function unallocated() public view returns (uint256) {
-        uint256 balance = weth.balanceOf(address(this));
+        uint256 balance = weth.balanceOf(address(this)) + address(this).balance;
         return balance > totalPendingWeth ? balance - totalPendingWeth : 0;
     }
 

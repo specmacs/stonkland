@@ -54,7 +54,7 @@ export const RULEBOOK: Section[] = [
       },
       {
         kind: "p",
-        text: `This launch sets a ${EDITION.creatorTaxPercent}% tax on trades, and that ${EDITION.creatorTaxPercent}% reaches the protocol in full. It was set when the token was created and cannot be changed by anyone afterwards, including whoever holds the key.`,
+        text: `This launch sets a ${EDITION.creatorTaxPercent}% tax on trades, and that ${EDITION.creatorTaxPercent}% reaches the protocol in full. It is fixed at the moment the token is created and cannot be changed by anyone afterwards, including whoever holds the key. It lives on the launch venue rather than in these contracts, so it is checkable against the token itself.`,
       },
       {
         kind: "p",
