@@ -12,6 +12,7 @@ import {
   propertyNftAbi,
   revenueVaultAbi,
   streamVaultAbi,
+  treasuryBuybackAbi,
   tokenAbi,
 } from "./abis";
 import {ADDRESSES, EDITION_ID, REWARD_ASSETS, type ContractKey} from "./config";
@@ -787,6 +788,103 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
       },
     };
   }, [token, nft, distributor, feeRouter, streamVault, revenueVault, batch.isPending, batch.error, batch.results]);
+}
+
+export type BuybackState = {
+  /** Share of treasury revenue spent buying the token back. */
+  bps: number;
+  /** Whether what it buys is destroyed. Fixed at construction, no setter. */
+  burns: boolean;
+  /** Zero means anyone may trigger it. Any other address means only that one. */
+  keeper: Address;
+  /** Zero means no ceiling. */
+  maxSpendPerCall: bigint;
+  cooldown: bigint;
+  lastExecutedAt: bigint;
+  /** What is sitting here waiting to be spent, ether and wrapped ether alike. */
+  available: bigint;
+  /** Whether the connected wallet could trigger it right now. */
+  callerMayExecute: boolean | undefined;
+};
+
+/**
+ * The treasury buyback, read rather than described.
+ *
+ * The interface states a share, a destination for what is bought, and who may trigger it.
+ * Every one of those was copy with nothing behind it until this hook existed, and a claim
+ * the reader cannot check against the chain is one this interface should not be making.
+ */
+export function useBuybackState(): ReadState<BuybackState> {
+  const {address: wallet} = useAccount();
+  const buyback = addr("treasuryBuyback");
+
+  const calls: Call[] = buyback
+    ? [
+        {address: buyback, abi: treasuryBuybackAbi, functionName: "buybackBps"},
+        {address: buyback, abi: treasuryBuybackAbi, functionName: "burnsBought"},
+        {address: buyback, abi: treasuryBuybackAbi, functionName: "keeper"},
+        {address: buyback, abi: treasuryBuybackAbi, functionName: "maxSpendPerCall"},
+        {address: buyback, abi: treasuryBuybackAbi, functionName: "cooldown"},
+        {address: buyback, abi: treasuryBuybackAbi, functionName: "lastExecutedAt"},
+        {address: buyback, abi: treasuryBuybackAbi, functionName: "available"},
+        ...(wallet
+          ? [
+              {
+                address: buyback,
+                abi: treasuryBuybackAbi,
+                functionName: "canExecute",
+                args: [wallet],
+              },
+            ]
+          : []),
+      ]
+    : [];
+
+  const batch = useBatch(calls, Boolean(buyback));
+
+  return useMemo(() => {
+    if (!buyback) return unconfigured<BuybackState>(["NEXT_PUBLIC_TREASURY_BUYBACK_ADDRESS"]);
+    if (batch.isPending) return {status: "loading"};
+    if (batch.error) return {status: "error", error: batch.error};
+
+    const cursor = new Cursor(batch.results);
+    const bps = cursor.next<number>();
+    const burns = cursor.next<boolean>();
+    const keeper = cursor.next<Address>();
+    const maxSpendPerCall = cursor.nextBigint();
+    const cooldown = cursor.nextBigint();
+    const lastExecutedAt = cursor.nextBigint();
+    const available = cursor.nextBigint();
+    const callerMayExecute = wallet ? cursor.next<boolean>() : undefined;
+
+    // These describe the terms of the thing. A partial answer would let the page state
+    // some of them as fact while quietly omitting the rest.
+    if (
+      bps === undefined ||
+      burns === undefined ||
+      keeper === undefined ||
+      maxSpendPerCall === undefined ||
+      cooldown === undefined ||
+      lastExecutedAt === undefined ||
+      available === undefined
+    ) {
+      return {status: "error", error: new Error("The buyback's terms did not read back.")};
+    }
+
+    return {
+      status: "ready",
+      data: {
+        bps,
+        burns,
+        keeper,
+        maxSpendPerCall,
+        cooldown,
+        lastExecutedAt,
+        available,
+        callerMayExecute,
+      },
+    };
+  }, [buyback, wallet, batch.isPending, batch.error, batch.results]);
 }
 
 export type BuildState = {

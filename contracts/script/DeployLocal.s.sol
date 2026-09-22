@@ -130,6 +130,7 @@ contract DeployLocal is Script {
             "NEXT_PUBLIC_STREAM_VAULT_ADDRESS=", vm.toString(address(d.streamVault)), "\n",
             "NEXT_PUBLIC_FEE_ROUTER_ADDRESS=", vm.toString(address(d.feeRouter)), "\n",
             "NEXT_PUBLIC_ROYALTY_ROUTER_ADDRESS=", vm.toString(address(d.royaltyRouter)), "\n",
+            "NEXT_PUBLIC_TREASURY_BUYBACK_ADDRESS=", vm.toString(address(d.buyback)), "\n",
             "NEXT_PUBLIC_WETH_ADDRESS=", vm.toString(weth), "\n"
         );
         string memory rewardAssets = string.concat(

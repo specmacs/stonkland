@@ -21,6 +21,7 @@ const CONTRACT_KEYS = [
   "streamVault",
   "feeRouter",
   "royaltyRouter",
+  "treasuryBuyback",
   "weth",
 ] as const;
 
@@ -37,6 +38,7 @@ const ENV_NAMES: Record<ContractKey, string> = {
   streamVault: "NEXT_PUBLIC_STREAM_VAULT_ADDRESS",
   feeRouter: "NEXT_PUBLIC_FEE_ROUTER_ADDRESS",
   royaltyRouter: "NEXT_PUBLIC_ROYALTY_ROUTER_ADDRESS",
+  treasuryBuyback: "NEXT_PUBLIC_TREASURY_BUYBACK_ADDRESS",
   weth: "NEXT_PUBLIC_WETH_ADDRESS",
 };
 
@@ -55,6 +57,7 @@ const RAW: Record<ContractKey, string | undefined> = {
   streamVault: process.env.NEXT_PUBLIC_STREAM_VAULT_ADDRESS,
   feeRouter: process.env.NEXT_PUBLIC_FEE_ROUTER_ADDRESS,
   royaltyRouter: process.env.NEXT_PUBLIC_ROYALTY_ROUTER_ADDRESS,
+  treasuryBuyback: process.env.NEXT_PUBLIC_TREASURY_BUYBACK_ADDRESS,
   weth: process.env.NEXT_PUBLIC_WETH_ADDRESS,
 };
 

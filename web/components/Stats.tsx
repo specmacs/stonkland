@@ -9,6 +9,7 @@ import {SectionHead} from "./SectionHead";
 import {ReadGate} from "./ReadGate";
 import {NonAffiliation} from "./Disclaimer";
 import {Pipeline} from "./Pipeline";
+import {Buyback} from "./Buyback";
 
 export function Stats() {
   const stats = useProtocolStats();
@@ -44,6 +45,10 @@ export function Stats() {
 
         <div className="border-t-rule border-ink pt-14">
           <Pipeline />
+        </div>
+
+        <div className="border-t-rule border-ink pt-14">
+          <Buyback />
         </div>
 
         <NonAffiliation className="max-w-3xl" />

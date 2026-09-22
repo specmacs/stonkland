@@ -123,6 +123,21 @@ for (const l of levels) {
   }
 }
 
+// --- Pipeline constants ----------------------------------------------------------
+// These were once written off as deployment arguments. Four of them are compiled
+// constants and always were, so they are checkable and now checked.
+check("FeeRouter.TREASURY_BPS", solConst("FeeRouter.sol", "TREASURY_BPS"), tsNumber("brand.ts", "feeSplitTreasuryBps"));
+check("FeeRouter.REWARDS_BPS", solConst("FeeRouter.sol", "REWARDS_BPS"), tsNumber("brand.ts", "feeSplitRewardsBps"));
+check("StreamVault.EPOCH", solConst("StreamVault.sol", "EPOCH"), tsNumber("brand.ts", "streamEpochSeconds"));
+check("PropertyNFT.ROYALTY_BPS", solConst("PropertyNFT.sol", "ROYALTY_BPS"), tsNumber("brand.ts", "royaltyBps"));
+
+// The split has to be the whole of it, or the copy describes a leak that does not exist.
+{
+  const t = solConst("FeeRouter.sol", "TREASURY_BPS");
+  const r = solConst("FeeRouter.sol", "REWARDS_BPS");
+  if (t + r !== 10_000) failures.push(`fee split: ${t} + ${r} does not make 10000`);
+}
+
 // --- Administrative surface ------------------------------------------------------
 // The rulebook claims its list of owner powers is exhaustive and states the count. That
 // claim is only safe if something counts, so this does. An owner power added without a

@@ -149,7 +149,9 @@ contract TreasuryBuyback is Ownable, ReentrancyGuard {
         return weth.balanceOf(address(this)) + address(this).balance;
     }
 
-    /// @notice Spend the configured share on the token and forward the rest. Open to anyone.
+    /// @notice Spend the configured share on the token and forward the rest.
+    /// @dev    Open to anyone while no keeper is named, and to the keeper alone once one
+    ///         is. `canExecute` answers that question for a given caller.
     /// @param minOut the least this call will accept for what it spends. With no price
     ///        history behind the pool, this is the whole of the price protection.
     function execute(uint256 minOut, uint256 deadline)

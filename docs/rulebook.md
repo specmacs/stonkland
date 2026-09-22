@@ -86,7 +86,7 @@ This is the Founding Edition. It will not be the only one, and you should know h
 
 Later editions are separate collections, minted with the same token, each with its own card supply, its own mint cost, and its own fixed set of reward assets. Fees from trading land in one shared pot. That pot is divided between editions in proportion to each edition's total weight, and each edition's portion buys only that edition's own assets.
 
-> Every new edition adds weight to the shared pot, so every existing card's share of future fees falls. That is not a side effect, it is the mechanism. The Founding Edition carries a 1.25× weight multiplier, which makes its share fall 20% slower than an edition without one — it does not stop it falling.
+> Every new edition adds weight to the shared pot, so every existing card's share of future fees falls. That is not a side effect, it is the mechanism. The Founding Edition carries a 1.25× weight multiplier, so each of its cards counts for 1.25 times what the same card would count for in an edition without one. That softens the fall; it does not stop it, and there is no single percentage that describes it, because how far your share falls depends entirely on how much weight the new edition brings.
 
 You will never be paid in another edition's asset, and another edition's asset going bad cannot reach into yours. An edition's asset set is fixed when it is deployed and has no setter; adding an asset means registering a new edition, which everyone can see onchain.
 

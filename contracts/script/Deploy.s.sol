@@ -49,8 +49,13 @@ contract Deploy is Script {
         c.weth = vm.envAddress("WETH");
         c.feeEscrow = vm.envOr("FEE_ESCROW", address(0));
 
-        c.buybackBps = uint16(vm.envOr("BUYBACK_BPS", uint256(0)));
-        c.weightMultiplierBps = uint16(vm.envOr("WEIGHT_MULTIPLIER_BPS", uint256(12_500)));
+        // Required, not defaulted. These two are published figures: the interface states
+        // the buyback share and the edition multiplier in its rulebook. A deploy that
+        // silently fell back to a different number would leave that copy describing a
+        // system nobody deployed, and the failure would be invisible until somebody
+        // checked the chain against the website. Set them explicitly, including zero.
+        c.buybackBps = uint16(vm.envUint("BUYBACK_BPS"));
+        c.weightMultiplierBps = uint16(vm.envUint("WEIGHT_MULTIPLIER_BPS"));
 
         c.rewardAssets[0] = vm.envAddress("REWARD_ASSET_Q1");
         c.rewardAssets[1] = vm.envAddress("REWARD_ASSET_Q2");

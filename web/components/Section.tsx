@@ -110,4 +110,3 @@ export function PageHeader({
   );
 }
 
-export {DARK as SECTION_TONE_IS_DARK};

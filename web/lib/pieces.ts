@@ -3,6 +3,10 @@ import {LEVELS, formName} from "./brand";
 /**
  * The commissioned render for each level, where one exists.
  *
+ * The 1024px masters live beside these at `/pieces/<slug>.png` for marketplaces and
+ * social cards that cannot render the page. Nothing in the interface loads them; token
+ * metadata points at them by URL.
+ *
  * Four of the five were delivered. They are mapped by how much building stands on the
  * plot, not by the signage baked into two of the renders: a sign reading "THE RESIDENCE"
  * on a six-storey block is that render's own flavour text, and this ladder's level names
@@ -23,12 +27,6 @@ const ART: Record<number, string | undefined> = {
 
 export function pieceArtSlug(level: number): string | undefined {
   return ART[level];
-}
-
-/** The 1024px master, for marketplaces and social cards that cannot render the page. */
-export function pieceMasterPath(level: number): string | undefined {
-  const slug = ART[level];
-  return slug ? `/pieces/${slug}.png` : undefined;
 }
 
 /** What the site loads: 512px, which covers the largest on-page use at 2x. */

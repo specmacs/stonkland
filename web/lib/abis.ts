@@ -327,3 +327,36 @@ export const erc20MetadataAbi = [
   {type: "function", name: "symbol", inputs: [], outputs: [{type: "string"}], stateMutability: "view"},
   {type: "function", name: "decimals", inputs: [], outputs: [{type: "uint8"}], stateMutability: "view"},
 ] as const;
+
+/**
+ * The treasury buyback.
+ *
+ * Surfaced because the interface makes claims about it -- the share spent, that what it
+ * buys is destroyed, who may trigger it, the ceiling and the cooldown -- and every one of
+ * those was copy with nothing behind it until this contract could be read. A claim the
+ * reader cannot check against the chain is a claim this interface should not be making.
+ */
+export const treasuryBuybackAbi = [
+  {type: "function", name: "buybackBps", inputs: [], outputs: [{type: "uint16"}], stateMutability: "view"},
+  {type: "function", name: "burnsBought", inputs: [], outputs: [{type: "bool"}], stateMutability: "view"},
+  {type: "function", name: "keeper", inputs: [], outputs: [{type: "address"}], stateMutability: "view"},
+  {type: "function", name: "maxSpendPerCall", inputs: [], outputs: [{type: "uint256"}], stateMutability: "view"},
+  {type: "function", name: "cooldown", inputs: [], outputs: [{type: "uint256"}], stateMutability: "view"},
+  {type: "function", name: "lastExecutedAt", inputs: [], outputs: [{type: "uint256"}], stateMutability: "view"},
+  {type: "function", name: "available", inputs: [], outputs: [{type: "uint256"}], stateMutability: "view"},
+  {type: "function", name: "adapter", inputs: [], outputs: [{type: "address"}], stateMutability: "view"},
+  {
+    type: "function",
+    name: "canExecute",
+    inputs: [{name: "caller", type: "address"}],
+    outputs: [{type: "bool"}],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "execute",
+    inputs: [{name: "minOut", type: "uint256"}, {name: "deadline", type: "uint256"}],
+    outputs: [{type: "uint256"}],
+    stateMutability: "nonpayable",
+  },
+] as const;

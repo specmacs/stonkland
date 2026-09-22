@@ -296,10 +296,13 @@ function CardPreview({quarter}: {quarter: number}) {
           <p className="font-display text-xl font-bold text-ink">{house?.form}</p>
           <p className="font-mono text-xl font-semibold tabular-nums text-seal">{house?.weight}</p>
         </div>
-        <p className="rule-label mt-1">{BRAND.scoreTerm} at mint</p>
+        <p className="rule-label mt-1">
+          {BRAND.scoreTerm} at mint <span className="text-inkFaint">· from the schedule</span>
+        </p>
         <p className="mt-3 border-t border-ink/10 pt-2.5 text-[11px] leading-relaxed text-inkMuted">
-          The number on the card is assigned by the contract when it is minted. Nothing shows one
-          before then, because there is nothing yet to show.
+          This is the level-one entry in the fixed schedule, not a reading — a card that does
+          not exist yet has no onchain weight to read. Its number is assigned by the contract
+          at mint, which is why none is shown above.
         </p>
       </div>
     </div>

@@ -127,6 +127,23 @@ any of the five fails, the whole page reports the failure rather than rendering 
 picture as though it were whole. The pipeline figures are individually optional and each
 shows "not read" on its own.
 
+### `useBuybackState` — the treasury buyback panel
+
+| Field | Call | Contract |
+| --- | --- | --- |
+| `bps` | `buybackBps()` | TreasuryBuyback |
+| `burns` | `burnsBought()` | TreasuryBuyback |
+| `keeper` | `keeper()` | TreasuryBuyback |
+| `maxSpendPerCall`, `cooldown` | `maxSpendPerCall()`, `cooldown()` | TreasuryBuyback |
+| `lastExecutedAt` | `lastExecutedAt()` | TreasuryBuyback |
+| `available` | `available()` | TreasuryBuyback |
+| `callerMayExecute` | `canExecute(wallet)` | TreasuryBuyback |
+
+The interface makes claims about the buyback — the share spent, that what it buys is
+destroyed, who may trigger it — and until this hook existed every one of them was copy
+with nothing behind it. A claim the reader cannot check against the chain is one this
+interface should not be making.
+
 ### `useBuildState` — the build control
 
 | Field | Call | Contract |
@@ -233,16 +250,27 @@ Mirrored in `web/lib/brand.ts`, checked against the Solidity by
 | Build burns | `ProgressionLib.burnToReach` |
 | Form names | `ProgressionLib.formName` |
 
-Not covered by the check, because they are deployment arguments rather than compiled
-constants — they are set by `SystemDeployer` and are verifiable against the deployed
-contracts:
+Also checked, and previously miscategorised here as deployment arguments when they are
+compiled constants:
 
-- Fee split, 1/3 treasury and 2/3 rewards
-- Stream epoch, 300 seconds
+| Parameter | Contract constant |
+| --- | --- |
+| Fee split, treasury leg | `FeeRouter.TREASURY_BPS` |
+| Fee split, rewards leg | `FeeRouter.REWARDS_BPS` (and the two must total 10,000) |
+| Stream epoch | `StreamVault.EPOCH` |
+| Card resale royalty | `PropertyNFT.ROYALTY_BPS` |
+| Owner-restricted function count | counted across all of `src/` |
+
+Genuinely deployment arguments, set by `SystemDeployer` from required environment
+variables and verifiable against the deployed contracts:
+
 - Quarter allocation, 25% each
-- Card resale royalty, 5%
-- Treasury buyback share, 20%
+- Treasury buyback share — **read live** on the protocol page
 - Edition weight multiplier, 1.25×
+
+`BUYBACK_BPS` and `WEIGHT_MULTIPLIER_BPS` have no defaults in the deploy script. Both are
+figures the interface publishes, and a deploy that silently fell back to a different
+number would leave the copy describing a system nobody deployed.
 
 ## Configuration that is not a figure
 

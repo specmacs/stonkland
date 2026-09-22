@@ -199,7 +199,7 @@ export const RULEBOOK: Section[] = [
       },
       {
         kind: "callout",
-        text: `Every new edition adds weight to the shared pot, so every existing card's share of future fees falls. That is not a side effect, it is the mechanism. The ${BRAND.editionName} carries a ${EDITION.weightMultiplier}× weight multiplier, which makes its share fall ${Math.round((1 - 1 / EDITION.weightMultiplier) * 100)}% slower than an edition without one — it does not stop it falling.`,
+        text: `Every new edition adds weight to the shared pot, so every existing card's share of future fees falls. That is not a side effect, it is the mechanism. The ${BRAND.editionName} carries a ${EDITION.weightMultiplier}× weight multiplier, so each of its cards counts for ${EDITION.weightMultiplier} times what the same card would count for in an edition without one. That softens the fall; it does not stop it, and there is no single percentage that describes it, because how far your share falls depends entirely on how much weight the new edition brings.`,
       },
       {
         kind: "p",
