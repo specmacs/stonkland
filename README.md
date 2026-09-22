@@ -118,3 +118,9 @@ From the handoff's list: an independent audit, terms and privacy published, moni
 oracle staleness and stalled pipeline stages, and a written incident procedure saying who
 pauses what. `/terms` and `/privacy` currently say plainly that they are not yet in
 force.
+
+## Deploying
+
+- The site: [`docs/deploying-the-site.md`](docs/deploying-the-site.md). It can ship before anything is onchain.
+- The contracts and the launch order: [`docs/chain-notes.md`](docs/chain-notes.md).
+- Where every figure on the site comes from: [`docs/data-sources.md`](docs/data-sources.md).
