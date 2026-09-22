@@ -1,8 +1,8 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import {useMemo, useState, type ReactNode} from "react";
 import {useAccount} from "wagmi";
-import {BRAND, EDITION, QUARTERS, formName} from "@/lib/brand";
+import {BRAND, EDITION, QUARTERS, formName, type Quarter} from "@/lib/brand";
 import {formatCompactTokens, formatCount, shortAddress} from "@/lib/format";
 import {useBoardCounts, useQuarterCards, type CardState} from "@/lib/reads";
 import {PageHeader} from "./Section";
@@ -23,12 +23,13 @@ export function BoardView() {
   return (
     <>
       <PageHeader
-        eyebrow={`THE COMPLETE ${EDITION.cardSupply}-CARD REGISTER`}
+        eyebrow={`The complete ${EDITION.cardSupply}-card register`}
         heading="Enter the board."
         sub={`Four ${BRAND.groupTermPlural.toLowerCase()}, one finite city. Minted cards show their real onchain level, weight, and owner.`}
+        tone="cream"
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 pb-20 pt-12 sm:px-6">
         <ReadGate
           state={counts}
           loadingLabel="Reading card state…"
@@ -36,32 +37,32 @@ export function BoardView() {
         >
           {(data) => (
             <>
-              <div className="panel mb-6 flex flex-wrap items-center gap-x-8 gap-y-3 p-5">
-                <div>
-                  <p className="rule-label">Claimed</p>
-                  <p className="mt-1 font-mono text-2xl text-ink">
+              <div className="card-row mb-8 grid bg-ink sm:grid-cols-2 lg:grid-cols-5">
+                <div className="bg-ink px-5 py-5 text-paperCard">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-field-sun">
+                    Claimed
+                  </p>
+                  <p className="mt-2 font-mono text-3xl font-semibold tabular-nums leading-none">
                     {formatCount(data.total)}
-                    <span className="text-inkFaint"> / {EDITION.cardSupply}</span>
+                    <span className="text-paperCard/40"> / {EDITION.cardSupply}</span>
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-x-6 gap-y-2">
-                  {QUARTERS.map((q) => (
-                    <div key={q.index}>
-                      <p className="rule-label flex items-center gap-1.5">
-                        <span
-                          aria-hidden
-                          className="h-1.5 w-1.5 rounded-full"
-                          style={{backgroundColor: `var(${q.colorVar})`}}
-                        />
-                        {q.short}
-                      </p>
-                      <p className="mt-1 font-mono text-sm text-inkMuted">
+                {QUARTERS.map((q) => (
+                  <div key={q.index} className="bg-paperCard">
+                    <div
+                      aria-hidden
+                      className="tile-cap"
+                      style={{backgroundColor: `var(${q.colorVar})`}}
+                    />
+                    <div className="px-5 py-4">
+                      <p className="rule-label">{q.label}</p>
+                      <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums text-ink">
                         {formatCount(data.perQuarter[q.index] ?? 0n)}
                         <span className="text-inkFaint"> / {EDITION.quarterCap}</span>
                       </p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
 
               <Filters
@@ -122,16 +123,24 @@ function Filters({
               type="button"
               onClick={() => onQuarter(q.index)}
               aria-pressed={quarter === q.index}
-              className={`flex items-center gap-1.5 border-rule px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 border-rule border-ink px-3 py-1.5 text-sm font-medium transition-transform ${
                 quarter === q.index
-                  ? "border-ink bg-ink text-paper"
-                  : "border-ink text-inkMuted hover:text-ink"
+                  ? "text-paperCard shadow-cardSm"
+                  : "bg-paperCard text-inkMuted hover:-translate-y-px hover:text-ink"
               }`}
+              style={
+                quarter === q.index
+                  ? {backgroundColor: `var(${q.colorVar})`}
+                  : undefined
+              }
             >
               <span
                 aria-hidden
-                className="h-2 w-2 rounded-full"
-                style={{backgroundColor: `var(${q.colorVar})`}}
+                className="h-2.5 w-2.5 border border-ink"
+                style={{
+                  backgroundColor:
+                    quarter === q.index ? "#fffdf6" : `var(${q.colorVar})`,
+                }}
               />
               {q.label}
             </button>
@@ -148,10 +157,10 @@ function Filters({
               type="button"
               onClick={() => onOwnership(o)}
               aria-pressed={ownership === o}
-              className={`border-rule px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
+              className={`border-rule border-ink px-3 py-1.5 text-sm font-medium capitalize transition-transform ${
                 ownership === o
-                  ? "border-ink bg-ink text-paper"
-                  : "border-ink text-inkMuted hover:text-ink"
+                  ? "bg-ink text-paperCard shadow-cardSm"
+                  : "bg-paperCard text-inkMuted hover:-translate-y-px hover:text-ink"
               }`}
             >
               {o}
@@ -169,10 +178,10 @@ function Filters({
               type="button"
               onClick={() => onLevel(l)}
               aria-pressed={levelFilter === l}
-              className={`border-rule px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`border-rule border-ink px-3 py-1.5 text-sm font-medium transition-transform ${
                 levelFilter === l
-                  ? "border-ink bg-ink text-paper"
-                  : "border-ink text-inkMuted hover:text-ink"
+                  ? "bg-ink text-paperCard shadow-cardSm"
+                  : "bg-paperCard text-inkMuted hover:-translate-y-px hover:text-ink"
               }`}
             >
               {l === "all" ? "All" : `${l}★`}
@@ -221,20 +230,24 @@ function QuarterGrid({
       {() => {
         if (mintedCount === 0) {
           return (
-            <div className="panel p-8 text-center">
-              <p className="text-sm text-inkMuted">
-                No cards minted in this {BRAND.groupTerm.toLowerCase()} yet.
-              </p>
-              <p className="mt-2 text-xs text-inkMuted">
-                All {EDITION.quarterCap} plots are open capacity.
-              </p>
-            </div>
+            <Plate quarter={quarterMeta}>
+              <div className="px-6 py-16 text-center">
+                <p className="font-display text-2xl font-bold text-ink">
+                  Nothing claimed here yet.
+                </p>
+                <p className="mt-3 text-sm text-inkMuted">
+                  All {EDITION.quarterCap} plots in this {BRAND.groupTerm.toLowerCase()} are open
+                  capacity.
+                </p>
+              </div>
+            </Plate>
           );
         }
 
         return (
+          <Plate quarter={quarterMeta}>
           <div
-            className="grid gap-1.5"
+            className="grid gap-1.5 p-4"
             style={{gridTemplateColumns: `repeat(${EDITION.gridSize}, minmax(0, 1fr))`}}
             role="grid"
             aria-label={`${quarterMeta?.label ?? "Quarter"} plots`}
@@ -260,7 +273,7 @@ function QuarterGrid({
                     key={tokenId.toString()}
                     role="gridcell"
                     aria-label="Open plot"
-                    className="aspect-square border border-dashed border-ink/25 bg-paperShade/50"
+                    className="aspect-square border border-dashed border-ink/25 bg-paper"
                   />
                 );
               }
@@ -273,31 +286,66 @@ function QuarterGrid({
                   role="gridcell"
                   onClick={() => onSelect(card)}
                   title={`#${card.tokenId} · ${formName(card.level)} · ${BRAND.scoreTerm} ${card.weight}`}
-                  className={`group relative aspect-square border-rule bg-paper transition-transform hover:-translate-y-0.5 ${
-                    isYours ? "border-seal" : "border-ink"
+                  className={`group relative aspect-square border-rule text-paperCard transition-transform hover:-translate-x-px hover:-translate-y-px hover:shadow-cardSm ${
+                    isYours ? "border-gold" : "border-ink"
                   }`}
-                  style={{
-                    boxShadow: `inset 0 -2px 0 0 var(${quarterMeta?.colorVar ?? "--quarter-1"})`,
-                  }}
+                  style={{backgroundColor: `var(${quarterMeta?.colorVar ?? "--quarter-1"})`}}
                 >
-                  <span className="absolute inset-x-0 top-1 font-mono text-[9px] leading-none text-inkFaint">
+                  <span className="absolute inset-x-0 top-1 font-mono text-[9px] leading-none opacity-70">
                     {card.tokenId.toString()}
                   </span>
-                  <span className="absolute inset-x-0 bottom-2 font-mono text-[11px] font-semibold leading-none text-ink">
+                  <span className="absolute inset-x-0 bottom-1.5 font-mono text-xs font-semibold leading-none">
                     {card.level}★
                   </span>
+                  {isYours && (
+                    <span
+                      aria-hidden
+                      className="absolute right-1 top-1 h-1.5 w-1.5 bg-gold"
+                    />
+                  )}
                 </button>
               );
             })}
           </div>
+          </Plate>
         );
       }}
     </ReadGate>
   );
 }
 
+/**
+ * The grid sits on card stock under a band of its own colour, so switching
+ * {BRAND.groupTermPlural.toLowerCase()} is visible at a glance rather than only in the
+ * pressed tab above it.
+ */
+function Plate({
+  quarter,
+  children,
+}: {
+  quarter: Quarter | undefined;
+  children: ReactNode;
+}) {
+  return (
+    <div className="border-rule border-ink bg-paperCard shadow-cardLg">
+      <div
+        className="flex flex-wrap items-center justify-between gap-2 border-b-rule border-ink px-5 py-3 text-paperCard"
+        style={{backgroundColor: `var(${quarter?.colorVar ?? "--quarter-1"})`}}
+      >
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em]">
+          {quarter?.label ?? BRAND.groupTerm}
+        </p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] opacity-80">
+          {EDITION.gridSize} × {EDITION.gridSize} · {EDITION.quarterCap} plots
+        </p>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function Hidden() {
-  return <div aria-hidden className="aspect-square rounded border-rule border-ink/15 opacity-25" />;
+  return <div aria-hidden className="aspect-square border border-dashed border-ink/10" />;
 }
 
 export function CardSummaryLine({card}: {card: CardState}) {

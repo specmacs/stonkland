@@ -26,14 +26,21 @@ export function GroundRent() {
   return (
     <>
       <PageHeader
+        eyebrow="Your share of what arrived"
         heading={`Collect ${BRAND.rewardsPageTerm.toLowerCase()}.`}
         sub={`${BRAND.scoreTerm} is your score inside a ${BRAND.groupTerm.toLowerCase()}. More weight means a larger share of what was actually deposited — not a rate.`}
+        tone="cream"
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 pb-20 pt-12 sm:px-6">
         {!isConnected ? (
-          <div className="panel p-8 text-center text-sm text-inkMuted">
-            Connect a wallet to open your scoreboard.
+          <div className="border-rule border-ink bg-paperCard px-6 py-16 text-center shadow-cardLg">
+            <p className="font-display text-2xl font-bold text-ink">
+              Connect a wallet to open your scoreboard.
+            </p>
+            <p className="mt-3 text-sm text-inkMuted">
+              Nothing is read until one is connected, and nothing is stored when it is.
+            </p>
           </div>
         ) : (
           <ReadGate
@@ -60,16 +67,20 @@ export function GroundRent() {
           </ReadGate>
         )}
 
-        <div className="panel mt-8 border-seal p-5">
-          <h2 className="text-sm font-medium text-ink">Before you sell</h2>
-          <p className="mt-2 text-sm leading-relaxed text-inkMuted">
+        <div className="mt-10 border-rule border-ink bg-paperCard shadow-cardSeal">
+          <h2 className="border-b-rule border-ink bg-seal px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-paperCard">
+            Before you sell
+          </h2>
+          <div className="px-5 py-5">
+          <p className="text-body-lg leading-relaxed text-ink">
             Credited amounts stay with this wallet and do not transfer with a card. Pending
             amounts settle to you when a card is sold.
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-inkMuted">
+          <p className="mt-3 text-sm leading-relaxed text-inkMuted">
             A marketplace will not explain this to either party. The buyer begins accruing from
             the moment of the sale and shares only in deposits that arrive afterwards.
           </p>
+          </div>
         </div>
 
         <NonAffiliation className="mt-6 max-w-3xl" />
@@ -92,18 +103,23 @@ function QuarterRow({
   const hasClaimable = row.pendingOnCards > 0n || row.creditedToWallet > 0n;
 
   return (
-    <section className="panel p-5">
+    <section className="border-rule border-ink bg-paperCard shadow-card">
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 border-b-rule border-ink px-5 py-3 text-paperCard"
+        style={{backgroundColor: `var(${quarter?.colorVar ?? "--quarter-1"})`}}
+      >
+        <p className="font-display text-xl font-bold">{quarter?.label}</p>
+        {asset && (
+          <span className="border border-paperCard/50 px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.12em]">
+            {asset.symbol}
+          </span>
+        )}
+      </div>
+
+      <div className="px-5 py-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="rule-label flex items-center gap-1.5">
-            <span
-              aria-hidden
-              className="h-1.5 w-1.5 rounded-full"
-              style={{backgroundColor: `var(${quarter?.colorVar ?? "--quarter-1"})`}}
-            />
-            {quarter?.label}
-          </p>
-          <p className="mt-1 text-sm text-inkMuted">
+          <p className="text-sm text-inkMuted">
             {cardsHeld === undefined
               ? "—"
               : `${cardsHeld} card${cardsHeld === 1 ? "" : "s"} held`}
@@ -124,11 +140,6 @@ function QuarterRow({
           </p>
         </div>
 
-        {asset && (
-          <span className="rounded-full border-rule border-ink px-3 py-1 font-mono text-xs text-inkMuted">
-            {asset.symbol}
-          </span>
-        )}
       </div>
 
       {row.incomplete && (
@@ -148,28 +159,32 @@ function QuarterRow({
         </p>
       ) : (
         <>
-          <dl className="mt-4 grid gap-px overflow-hidden rounded-md border-rule border-ink bg-ink sm:grid-cols-3">
+          <dl className="card-row mt-5 grid bg-ink sm:grid-cols-3">
             <Figure
+              cap="bg-tint-sun"
               label="Pending on cards"
               value={formatAssetAmount(row.pendingOnCards, asset.decimals)}
               symbol={asset.symbol}
               note="Accruing on the cards themselves. Settles to you if you sell."
             />
             <Figure
+              cap="bg-tint-mint"
               label="Credited to wallet"
               value={formatAssetAmount(row.creditedToWallet, asset.decimals)}
               symbol={asset.symbol}
               note="Already yours. Stays with this wallet, whatever happens to the cards."
             />
             <Figure
+              cap="bg-tint-sky"
               label="Claimed to date"
+              last
               value={formatAssetAmount(row.totalClaimed, asset.decimals)}
               symbol={asset.symbol}
               note={`Paid out of this ${BRAND.groupTerm.toLowerCase()} to all holders.`}
             />
           </dl>
 
-          <p className="mt-3 font-mono text-xs text-inkMuted">
+          <p className="mt-4 font-mono text-xs text-inkMuted">
             Deposited to this {BRAND.groupTerm.toLowerCase()}:{" "}
             {formatAssetAmount(row.totalDeposited, asset.decimals)} {asset.symbol}
             {row.reserve > 0n && (
@@ -179,7 +194,7 @@ function QuarterRow({
             )}
           </p>
 
-          <div className="mt-4">
+          <div className="mt-5">
             <TxButton
               address={ADDRESSES.distributor}
               abi={distributorAbi}
@@ -196,28 +211,40 @@ function QuarterRow({
           </div>
         </>
       )}
+      </div>
     </section>
   );
 }
 
 function Figure({
+  cap,
   label,
   value,
   symbol,
   note,
+  last = false,
 }: {
+  cap: string;
   label: string;
   value: string;
   symbol: string;
   note: string;
+  last?: boolean;
 }) {
   return (
-    <div className="bg-tabletop p-4">
-      <dt className="rule-label">{label}</dt>
-      <dd className="mt-1.5 font-mono text-lg text-ink">
-        {value} <span className="text-sm text-inkMuted">{symbol}</span>
-      </dd>
-      <p className="mt-2 text-xs leading-relaxed text-inkMuted">{note}</p>
+    <div
+      className={`bg-paperCard ${
+        last ? "" : "border-b-rule border-ink sm:border-b-0 sm:border-r-rule"
+      }`}
+    >
+      <div aria-hidden className={`tile-cap ${cap}`} />
+      <div className="p-4">
+        <dt className="rule-label">{label}</dt>
+        <dd className="mt-2 font-mono text-xl font-semibold tabular-nums text-ink">
+          {value} <span className="text-sm font-normal text-inkMuted">{symbol}</span>
+        </dd>
+        <p className="mt-2.5 text-xs leading-relaxed text-inkMuted">{note}</p>
+      </div>
     </div>
   );
 }

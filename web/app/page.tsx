@@ -2,63 +2,107 @@ import Link from "next/link";
 import {BRAND, EDITION, LEVELS, QUARTERS, REWARD_ASSET_EXPLAINER} from "@/lib/brand";
 import {formatBps} from "@/lib/format";
 import {Section} from "@/components/Section";
-import {LevelLadder} from "@/components/LevelLadder";
-import {NonAffiliation} from "@/components/Disclaimer";
+import {LevelCards} from "@/components/LevelCards";
 import {PieceArt} from "@/components/PieceArt";
 import {WeightComparison} from "@/components/WeightComparison";
 import {PhaseNotice} from "@/components/PhaseNotice";
 
+/** The four opening beats, tinted across rather than left as five identical panels. */
+const BEATS = [
+  ["Acquire", `Buy ${BRAND.tokenTicker}.`, "bg-tint-sun"],
+  ["Claim", `One of only ${EDITION.cardSupply}.`, "bg-tint-peach"],
+  ["Build", "Five levels, one direction.", "bg-tint-sky"],
+  ["Collect", "A share of what arrived.", "bg-tint-mint"],
+] as const;
+
 export default function LandingPage() {
+  const landmark = LEVELS[4];
+
   return (
     <>
       {/* Hero */}
-      <div className="mx-auto max-w-7xl px-4 pb-4 pt-16 sm:px-6">
-        <p className="rule-label">
-          {BRAND.projectName} · {BRAND.editionName.toUpperCase()}
-        </p>
-        <p className="rule-label mt-1">
-          {EDITION.cardSupply} CARDS · FOUR {BRAND.groupTermPlural.toUpperCase()}
-        </p>
-
-        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-          <div>
-            <p className="text-sm uppercase tracking-[0.14em] text-seal">{BRAND.strapline}</p>
-            <h1 className="mt-4 text-5xl font-semibold tracking-tight text-ink sm:text-6xl">
-              Build the block.
-            </h1>
-            <p className="mt-5 max-w-2xl text-body-lg text-inkMuted">
-              {EDITION.cardSupply} {BRAND.itemName.toLowerCase()}s, and never more. Burn to claim
-              one, burn again to build it, and take a larger share of what your{" "}
-              {BRAND.groupTerm.toLowerCase()} actually collects.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/board" className="btn-primary">
-                Enter the board
-              </Link>
-              <Link href="/rulebook" className="btn-secondary">
-                Read the rulebook
-              </Link>
-            </div>
-
-            <div className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-4">
-              {["ACQUIRE", "CLAIM A CARD", "BUILD 1 → 5", "COLLECT RENT"].map((beat, i) => (
-                <div key={beat} className="bg-tabletop px-4 py-4">
-                  <span className="font-mono text-[11px] text-inkFaint">0{i + 1}</span>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-inkMuted">{beat}</p>
-                </div>
-              ))}
-            </div>
+      <div className="band-cream">
+        <div className="mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 lg:pb-20 lg:pt-16">
+          <div className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 border-rule border-ink bg-ink px-3 py-1.5 text-paper shadow-cardSm">
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em]">
+              {BRAND.editionName}
+            </span>
+            <span aria-hidden className="text-field-sun">·</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em]">
+              {EDITION.cardSupply} cards
+            </span>
+            <span aria-hidden className="text-field-sun">·</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em]">
+              four {BRAND.groupTermPlural.toLowerCase()}
+            </span>
           </div>
 
-          <div className="panel p-6">
-            <PieceArt level={5} className="mx-auto h-44 w-44" />
-            <p className="mt-4 text-center text-sm text-inkMuted">
-              {LEVELS[4]?.form} · {BRAND.scoreTerm} {LEVELS[4]?.weight}
-            </p>
-            <p className="mt-3 text-center text-xs text-inkMuted">
-              No fixed rate. No guaranteed return.
-            </p>
+          <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-seal">
+                {BRAND.strapline}
+              </p>
+              <h1 className="mt-5 font-display text-display-xl font-bold text-ink">
+                Build
+                <br />
+                the block.
+              </h1>
+              <p className="mt-7 max-w-xl text-body-lg text-inkMuted">
+                {EDITION.cardSupply} {BRAND.itemNamePlural.toLowerCase()}, and never more. Burn to
+                claim one, burn again to build it, and take a larger share of what your{" "}
+                {BRAND.groupTerm.toLowerCase()} actually collects.
+              </p>
+
+              <div className="mt-9 flex flex-wrap gap-3">
+                <Link href="/board" className="btn-primary">
+                  Enter the board
+                </Link>
+                <Link href="/rulebook" className="btn-secondary">
+                  Read the rulebook
+                </Link>
+              </div>
+
+              <ol className="card-row mt-14 grid grid-cols-2 bg-ink lg:grid-cols-4">
+                {BEATS.map(([title, body, tint], i) => (
+                  <li
+                    key={title}
+                    className={`${tint} px-4 py-5 [&:nth-child(-n+2)]:border-b-rule [&:nth-child(-n+2)]:border-ink [&:nth-child(odd)]:border-r-rule [&:nth-child(odd)]:border-ink lg:border-b-0 lg:[&:not(:last-child)]:border-r-rule lg:[&:not(:last-child)]:border-ink`}
+                  >
+                    <span className="pip bg-paperCard text-ink">{i + 1}</span>
+                    <h2 className="mt-3 font-display text-lg font-bold text-ink">{title}</h2>
+                    <p className="mt-1 text-sm leading-snug text-ink/70">{body}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* The top of the ladder, stamped in seal red so the eye lands on it. */}
+            <div className="border-rule border-ink bg-seal shadow-cardLg">
+              <div className="flex items-center justify-between gap-2 border-b-rule border-ink bg-paperCard px-5 py-3">
+                <p className="rule-label">The top of the ladder</p>
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-seal">
+                  Lv 5
+                </span>
+              </div>
+              <div className="px-6 py-10">
+                <PieceArt level={5} className="mx-auto h-52 w-52" />
+              </div>
+              <div className="border-t-rule border-ink bg-paperCard px-5 py-5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="font-display text-3xl font-bold text-ink">{landmark?.form}</p>
+                  <p className="font-mono text-2xl font-semibold tabular-nums text-seal">
+                    {landmark?.weight}
+                  </p>
+                </div>
+                <p className="rule-label mt-1">
+                  {landmark?.cumulativeBurn.toLocaleString("en-US")} {BRAND.tokenTicker} destroyed
+                  to reach it
+                </p>
+                <p className="mt-4 border-t border-ink/15 pt-3 text-xs leading-relaxed text-inkMuted">
+                  No fixed rate. No guaranteed return.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -68,19 +112,39 @@ export default function LandingPage() {
       </div>
 
       {/* How it works */}
-      <Section heading="Five moves. One loop.">
-        <ol className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-2 lg:grid-cols-5">
+      <Section
+        eyebrow="The loop"
+        heading={
+          <>
+            Five moves.
+            <br />
+            One loop.
+          </>
+        }
+        sub="Each move is a transaction anyone can send. There is no queue, no allowlist, and no operator whose attention any of it waits on."
+        tone="ink"
+      >
+        <ol className="card-row grid bg-ink sm:grid-cols-2 lg:grid-cols-5">
           {[
-            ["Acquire tokens", `Buy ${BRAND.tokenTicker} on the launch venue.`],
-            ["Claim a card", `Mint one of only ${EDITION.cardSupply}.`],
-            ["Burn to build", "Climb five levels with permanent burns."],
-            ["Raise your weight", `Every level increases the card's ${BRAND.scoreTerm}.`],
-            ["Collect rent", `Claim your relative share of what the ${BRAND.groupTerm.toLowerCase()} received.`],
-          ].map(([title, body], i) => (
-            <li key={title} className="bg-tabletop p-5">
-              <span className="font-mono text-xs text-seal">{i + 1}</span>
-              <h3 className="mt-2 text-sm font-medium text-ink">{title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-inkMuted">{body}</p>
+            ["Acquire tokens", `Buy ${BRAND.tokenTicker} on the launch venue.`, "bg-tint-cream"],
+            ["Claim a card", `Mint one of only ${EDITION.cardSupply}.`, "bg-tint-sun"],
+            ["Burn to build", "Climb five levels with permanent burns.", "bg-tint-peach"],
+            ["Raise your weight", `Every level raises the card's ${BRAND.scoreTerm}.`, "bg-tint-sky"],
+            [
+              "Collect rent",
+              `Claim your share of what the ${BRAND.groupTerm.toLowerCase()} received.`,
+              "bg-tint-mint",
+            ],
+          ].map(([title, body, tint], i) => (
+            <li
+              key={title}
+              className={`${tint} p-5 [&:not(:last-child)]:border-b-rule [&:not(:last-child)]:border-ink lg:[&:not(:last-child)]:border-b-0 lg:[&:not(:last-child)]:border-r-rule`}
+            >
+              <span className="pip bg-paperCard text-ink">{i + 1}</span>
+              <h3 className="mt-3 font-display text-lg font-bold leading-tight text-ink">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink/70">{body}</p>
             </li>
           ))}
         </ol>
@@ -88,94 +152,117 @@ export default function LandingPage() {
 
       {/* Levels */}
       <Section
-        heading="Five forms. One direction."
-        sub="Each build permanently changes the card and raises its weight. Nothing reverses."
+        eyebrow="Levels one to five"
+        heading={
+          <>
+            Five forms.
+            <br />
+            One direction.
+          </>
+        }
+        sub="Each build permanently changes the card and raises its weight. Nothing reverses, and nothing decays."
+        tone="cream"
       >
-        <div className="mb-10 grid grid-cols-5 gap-3">
-          {LEVELS.map((l) => (
-            <figure key={l.level} className="text-center">
-              <PieceArt level={l.level} className="mx-auto h-20 w-20 sm:h-24 sm:w-24" />
-              <figcaption className="mt-2">
-                <span className="block text-xs text-ink">{l.form}</span>
-                <span className="block font-mono text-[11px] text-inkMuted">{l.weight}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-        <div className="panel p-5">
-          <LevelLadder />
-          <p className="mt-4 text-xs text-inkMuted">
-            Taking a card from {LEVELS[0]?.form} to {LEVELS[4]?.form} destroys{" "}
-            {LEVELS[4]?.cumulativeBurn.toLocaleString("en-US")} {BRAND.tokenTicker} in total,
-            the mint included. Reaching the top is rare by design: if every card were built
-            to {LEVELS[4]?.form}, it would take more tokens than exist.
-          </p>
-        </div>
+        <LevelCards />
+        <p className="mt-8 max-w-3xl text-sm leading-relaxed text-inkMuted">
+          Taking a card from {LEVELS[0]?.form} to {landmark?.form} destroys{" "}
+          {landmark?.cumulativeBurn.toLocaleString("en-US")} {BRAND.tokenTicker} in total, the
+          mint included. Reaching the top is rare by design: if every card were built to{" "}
+          {landmark?.form}, it would take more tokens than exist.
+        </p>
       </Section>
 
       {/* Quarters */}
       <Section
-        heading={`Four ${BRAND.groupTermPlural.toLowerCase()}. Four pools.`}
-        sub={`Every card belongs to one ${BRAND.groupTerm.toLowerCase()} and shares only in that ${BRAND.groupTerm.toLowerCase()}'s rewards.`}
+        eyebrow={`${EDITION.quarterCount} ${BRAND.groupTermPlural.toLowerCase()}`}
+        heading={
+          <>
+            Four {BRAND.groupTermPlural.toLowerCase()}.
+            <br />
+            Four pools.
+          </>
+        }
+        sub={`Every card belongs to one ${BRAND.groupTerm.toLowerCase()} and shares only in that ${BRAND.groupTerm.toLowerCase()}'s rewards. Nothing crosses between them.`}
+        tone="felt"
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {QUARTERS.map((q) => (
-            <div key={q.index} className="panel p-5">
-              <span
-                aria-hidden
-                className="block h-1 w-10 rounded-full"
+            <article key={q.index} className="border-rule border-ink bg-paperCard shadow-cardLg">
+              <div
+                className="border-b-rule border-ink px-5 py-6 text-paperCard"
                 style={{backgroundColor: `var(${q.colorVar})`}}
-              />
-              <h3 className="mt-3 text-sm font-medium text-ink">{q.label}</h3>
-              <p className="mt-1 text-sm text-inkMuted">
-                Pays in a token tracking {q.assetName}
-              </p>
-              <p className="mt-3 font-mono text-xs text-inkMuted">
-                {EDITION.quarterCap} cards · {EDITION.gridSize}×{EDITION.gridSize} ·{" "}
-                {formatBps(EDITION.quarterAllocationBps)} of the reward share
-              </p>
-            </div>
+              >
+                <p className="font-mono text-[11px] uppercase tracking-[0.16em] opacity-80">
+                  {q.label}
+                </p>
+                <p className="mt-4 font-display text-3xl font-bold leading-none">{q.assetName}</p>
+                <p className="mt-2.5 text-sm opacity-85">is what this quarter pays in</p>
+              </div>
+              <dl className="divide-y divide-ink/10 px-5">
+                <div className="flex items-baseline justify-between gap-2 py-3">
+                  <dt className="rule-label">Cards</dt>
+                  <dd className="font-mono text-lg font-semibold tabular-nums text-ink">
+                    {EDITION.quarterCap}
+                  </dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-2 py-3">
+                  <dt className="rule-label">Reward share</dt>
+                  <dd className="font-mono text-lg font-semibold tabular-nums text-ink">
+                    {formatBps(EDITION.quarterAllocationBps)}
+                  </dd>
+                </div>
+              </dl>
+            </article>
           ))}
         </div>
-        <p className="mt-6 max-w-3xl text-sm leading-relaxed text-inkMuted">
-          {REWARD_ASSET_EXPLAINER}
-        </p>
-        <NonAffiliation className="mt-3 max-w-3xl" />
+        <div className="mt-10 max-w-3xl border-l-4 border-field-sun pl-5">
+          <p className="text-body-lg text-paperCard/90">{REWARD_ASSET_EXPLAINER}</p>
+          <p className="mt-3 text-xs leading-relaxed text-paperCard/60">
+            Rewards are not guaranteed in availability or amount. The reward asset grants no
+            legal or beneficial ownership of any underlying security. {BRAND.projectName} is not
+            affiliated with, endorsed by, or sponsored by any company named here.
+          </p>
+        </div>
       </Section>
 
       {/* Weight */}
       <Section
-        eyebrow="MORE LEVELS = MORE RELATIVE WEIGHT"
-        heading={`Your score inside the ${BRAND.groupTerm.toLowerCase()}.`}
+        eyebrow="More levels, more relative weight"
+        heading={
+          <>
+            Your score inside
+            <br />
+            the {BRAND.groupTerm.toLowerCase()}.
+          </>
+        }
+        sub={`${BRAND.scoreTerm} sets a card's relative share of rewards actually deposited into its ${BRAND.groupTerm.toLowerCase()}. More weight means a larger slice of the same deposit — not a rate, and not a promise.`}
+        tone="sun"
       >
-        <p className="max-w-3xl text-inkMuted">
-          {BRAND.scoreTerm} sets a card&apos;s relative share of rewards actually deposited into
-          its {BRAND.groupTerm.toLowerCase()}. More weight means a larger slice of the same
-          deposit — not a rate, and not a promise.
-        </p>
-        <div className="mt-8 max-w-4xl">
+        <div className="max-w-4xl">
           <WeightComparison />
         </div>
-
-        <p className="mt-6 max-w-3xl text-sm text-inkMuted">
+        <p className="mt-8 max-w-3xl text-sm leading-relaxed text-ink/75">
           Weight only matters against the other cards in the same {BRAND.groupTerm.toLowerCase()}.
-          As other owners build, your share of each deposit falls even though your weight has
-          not changed. That is the central tension of the game, and it is intentional.
+          As other owners build, your share of each deposit falls even though your weight has not
+          changed. That is the central tension of the game, and it is intentional.
         </p>
       </Section>
 
       {/* Reward flow */}
-      <Section heading="How rent reaches your card.">
-        <ol className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-5">
-          {["Trades", "Fee claim", "Fixed split", `${EDITION.streamEpochSeconds}-second streams`, "Rent to claims"].map(
-            (stage) => (
-              <li key={stage} className="bg-tabletop px-4 py-5 text-sm text-ink">
-                {stage}
-              </li>
-            ),
-          )}
-        </ol>
-        <p className="mt-6 max-w-3xl text-inkMuted">
+      <Section
+        eyebrow="From a trade to a claim"
+        heading={
+          <>
+            How rent reaches
+            <br />
+            your card.
+          </>
+        }
+        sub={`Five hops, each one a public function. Once value enters the first, no permission is needed to move it to the last.`}
+        tone="night"
+      >
+        <Flow />
+        <p className="mt-10 max-w-3xl text-sm leading-relaxed text-paperCard/75">
           This launch sets a {EDITION.creatorTaxPercent}% tax on trades, fixed when the token was
           created and unchangeable since. It reaches the protocol in full. Once it accrues, anyone
           can trigger the claim — no operator stands between you and a deposit. The router splits
@@ -185,32 +272,103 @@ export default function LandingPage() {
       </Section>
 
       {/* Rule card */}
-      <Section heading="The rules that cannot move.">
-        <dl className="grid gap-px overflow-hidden rounded-lg border-rule border-ink bg-ink sm:grid-cols-2 lg:grid-cols-5">
-          {[
-            ["Fixed supply", "1,000,000,000"],
-            ["Cards, ever", EDITION.cardSupply.toLocaleString("en-US")],
-            ["Mint burn", EDITION.mintBurn.toLocaleString("en-US")],
-            ["Build burns", "500k → 2M"],
-            ["Primary mints per wallet", String(EDITION.mintsPerWallet)],
-          ].map(([label, value]) => (
-            <div key={label} className="bg-tabletop p-5">
-              <dt className="rule-label">{label}</dt>
-              <dd className="mt-2 font-mono text-lg text-ink">{value}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className="mt-5 text-sm text-inkMuted">
-          Every burn is permanent. Supply can only fall.
+      <Section
+        eyebrow="Fixed at deployment"
+        heading={
+          <>
+            The rules
+            <br />
+            that cannot move.
+          </>
+        }
+        sub="No function exists to change any of these. Not by the owner, not by a vote, not by an upgrade."
+        tone="sky"
+      >
+        <div className="border-rule border-ink bg-paperCard shadow-cardSeal">
+          <dl className="grid sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              ["Fixed supply", "1,000,000,000", BRAND.tokenTicker],
+              ["Cards, ever", EDITION.cardSupply.toLocaleString("en-US"), "across four quarters"],
+              ["Mint burn", EDITION.mintBurn.toLocaleString("en-US"), `${BRAND.tokenTicker} per card`],
+              ["Build burns", "500k → 2M", "per level, rising"],
+              ["Primary mints", String(EDITION.mintsPerWallet), "per wallet"],
+            ].map(([label, value, unit]) => (
+              <div
+                key={label}
+                className="border-ink/15 p-6 [&:not(:last-child)]:border-b lg:[&:not(:last-child)]:border-b-0 lg:[&:not(:last-child)]:border-r"
+              >
+                <dt className="rule-label">{label}</dt>
+                <dd className="mt-3 font-mono text-2xl font-semibold tabular-nums leading-none text-ink">
+                  {value}
+                </dd>
+                <p className="mt-2 text-xs text-inkMuted">{unit}</p>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <p className="mt-10 font-display text-display-md font-bold text-ink">
+          Every burn is permanent.
+          <br />
+          Supply can only fall.
         </p>
       </Section>
 
       {/* Final CTA */}
-      <Section heading="Take a corner of the board.">
-        <Link href="/mint" className="btn-primary">
-          Claim a card
-        </Link>
-      </Section>
+      <section className="band-seal">
+        <div className="mx-auto flex max-w-7xl flex-col items-start gap-8 px-4 py-20 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:py-24">
+          <h2 className="font-display text-display-lg font-bold text-paperCard">
+            Take a corner
+            <br />
+            of the board.
+          </h2>
+          <Link
+            href="/mint"
+            className="btn shrink-0 border-ink bg-field-sun text-ink shadow-card hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          >
+            Claim a card
+          </Link>
+        </div>
+      </section>
     </>
+  );
+}
+
+/**
+ * The reward path as a chain of pips.
+ *
+ * Numbered rather than arrowed, because the hops are not all the same kind of motion —
+ * one is a claim, one is a split, one is a wait — and an arrow between them would imply
+ * they happen as one movement.
+ */
+function Flow() {
+  const stages: [string, string][] = [
+    ["Trades", `Every trade pays the ${EDITION.creatorTaxPercent}% tax.`],
+    ["Fee claim", "Anyone pulls the accrued fees to the router."],
+    [
+      "Fixed split",
+      `${formatBps(EDITION.feeSplitTreasuryBps)} treasury, ${formatBps(EDITION.feeSplitRewardsBps)} rewards.`,
+    ],
+    [
+      `${EDITION.streamEpochSeconds}-second streams`,
+      "Released gradually rather than in one sweep.",
+    ],
+    ["Rent to claims", `Converted, split by ${BRAND.groupTerm.toLowerCase()}, then by weight.`],
+  ];
+
+  return (
+    <ol className="grid gap-px border-rule border-ink bg-ink sm:grid-cols-2 lg:grid-cols-5">
+      {stages.map(([title, body], i) => (
+        <li key={title} className="bg-field-night p-5">
+          <div className="flex items-center gap-3">
+            <span className="pip border-field-sun bg-field-sun text-ink">{i + 1}</span>
+            {i < stages.length - 1 && (
+              <span aria-hidden className="h-px grow bg-paperCard/25" />
+            )}
+          </div>
+          <h3 className="mt-4 font-display text-base font-bold text-paperCard">{title}</h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-paperCard/65">{body}</p>
+        </li>
+      ))}
+    </ol>
   );
 }

@@ -20,15 +20,23 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 border-b-rule border-ink bg-tabletop/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b-rule border-ink bg-paperCard/95 backdrop-blur">
+      {/* A hairline of the four quarter colours, so the palette is stated before the page
+          is scrolled and the header has an edge rather than a fade. */}
+      <div aria-hidden className="flex h-1">
+        <span className="flex-1 bg-quarter-1" />
+        <span className="flex-1 bg-quarter-2" />
+        <span className="flex-1 bg-quarter-3" />
+        <span className="flex-1 bg-quarter-4" />
+      </div>
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5" aria-label={`${BRAND.projectName}, home`}>
-          <Mark className="h-7 w-7 text-seal" />
+          <Mark className="h-8 w-8 text-seal" />
           <span className="flex flex-col leading-none">
-            <span className="text-sm font-semibold tracking-wide text-ink">
+            <span className="font-display text-base font-bold tracking-tight text-ink">
               {BRAND.projectName}
             </span>
-            <span className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-inkMuted">
+            <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-inkMuted">
               {BRAND.editionName}
             </span>
           </span>
@@ -42,8 +50,10 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`whitespace-nowrap px-2.5 py-1.5 text-sm font-medium transition-colors ${
-                  active ? "bg-ink text-paper" : "text-inkMuted hover:text-ink"
+                className={`whitespace-nowrap border-rule px-2.5 py-1.5 text-sm font-medium transition-colors ${
+                  active
+                    ? "border-ink bg-ink text-paperCard"
+                    : "border-transparent text-inkMuted hover:border-ink hover:text-ink"
                 }`}
               >
                 {item.label}
@@ -55,7 +65,7 @@ export function Header() {
         <div className="ml-auto flex items-center gap-2">
           <BuyControl />
           <span
-            className="hidden items-center gap-1.5 rounded-md border-rule border-ink px-2.5 py-1.5 text-xs text-inkMuted lg:inline-flex"
+            className="hidden items-center gap-1.5 border-rule border-ink/30 px-2.5 py-1.5 font-mono text-[11px] text-inkMuted lg:inline-flex"
             title={CHAIN_CONFIGURED ? undefined : "No chain is configured for this deployment."}
           >
             <span
@@ -76,7 +86,7 @@ function BuyControl() {
   if (!POOL_URL) {
     return (
       <span
-        className="hidden cursor-not-allowed rounded-md border-rule border-ink px-2.5 py-1.5 text-xs text-inkFaint sm:inline-flex"
+        className="hidden cursor-not-allowed border-rule border-ink/30 px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide text-inkFaint sm:inline-flex"
         title="No market has been configured for this deployment yet."
         aria-disabled="true"
       >
@@ -89,7 +99,7 @@ function BuyControl() {
       href={POOL_URL}
       target="_blank"
       rel="noreferrer noopener"
-      className="hidden rounded-md border-rule border-ink px-2.5 py-1.5 text-xs text-ink hover:border-ink sm:inline-flex"
+      className="hidden border-rule border-ink bg-field-sun px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide text-ink shadow-cardSm transition-transform hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-none sm:inline-flex"
     >
       Buy {BRAND.tokenTicker}
     </a>

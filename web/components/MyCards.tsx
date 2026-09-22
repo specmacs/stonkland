@@ -8,6 +8,7 @@ import {progressionManagerAbi, tokenAbi} from "@/lib/abis";
 import {formatAssetAmount, formatWholeTokens} from "@/lib/format";
 import {useBuildPaused, useOwnedCards, useRewardAssets, type OwnedCard} from "@/lib/reads";
 import {PageHeader} from "./Section";
+import {Stars} from "./SectionHead";
 import {ReadGate} from "./ReadGate";
 import {PieceArt} from "./PieceArt";
 import {TxButton} from "./TxButton";
@@ -21,14 +22,21 @@ export function MyCards() {
   return (
     <>
       <PageHeader
+        eyebrow="Held by the connected wallet"
         heading="Your cards."
         sub={`Every card you hold, with its level, weight, lifetime burn, and pending ${BRAND.rewardsPageTerm.toLowerCase()}.`}
+        tone="cream"
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 pb-20 pt-12 sm:px-6">
         {!isConnected ? (
-          <div className="panel p-8 text-center text-sm text-inkMuted">
-            Connect a wallet to read its cards from the configured network.
+          <div className="border-rule border-ink bg-paperCard px-6 py-16 text-center shadow-cardLg">
+            <p className="font-display text-2xl font-bold text-ink">
+              Connect a wallet to read its cards.
+            </p>
+            <p className="mt-3 text-sm text-inkMuted">
+              Cards are read from the configured network. Nothing is stored here.
+            </p>
           </div>
         ) : (
           <ReadGate
@@ -38,8 +46,13 @@ export function MyCards() {
           >
             {(cards) =>
               cards.length === 0 ? (
-                <div className="panel p-8 text-center text-sm text-inkMuted">
-                  No cards in this wallet yet.
+                <div className="border-rule border-ink bg-paperCard px-6 py-16 text-center shadow-cardLg">
+                  <p className="font-display text-2xl font-bold text-ink">
+                    No cards in this wallet yet.
+                  </p>
+                  <p className="mt-3 text-sm text-inkMuted">
+                    Claim one on the mint page, or acquire one from a holder.
+                  </p>
                 </div>
               ) : (
                 <div className="grid gap-4 lg:grid-cols-2">
@@ -91,35 +104,43 @@ function CardRow({
   } else if (buildPaused) disabledReason = "Building is paused onchain right now.";
 
   return (
-    <article className="panel p-5">
+    <article className="border-rule border-ink bg-paperCard shadow-cardLg">
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 border-b-rule border-ink px-5 py-3 text-paperCard"
+        style={{backgroundColor: `var(${quarter?.colorVar ?? "--quarter-1"})`}}
+      >
+        <p className="font-display text-lg font-bold">
+          #{card.tokenId.toString()} · {formName(card.level)}
+        </p>
+        <span className="font-mono text-[11px] uppercase tracking-[0.16em] opacity-85">
+          {quarter?.label}
+        </span>
+      </div>
+
+      <div className="p-5">
       <div className="flex gap-5">
-        <PieceArt level={card.level} className="h-24 w-24 shrink-0" />
+        <div className="shrink-0 text-center">
+          <PieceArt level={card.level} className="h-24 w-24" />
+          <Stars level={card.level} className="mt-2" size="sm" />
+        </div>
 
         <div className="min-w-0 flex-1">
-          <p className="rule-label flex items-center gap-1.5">
-            <span
-              aria-hidden
-              className="h-1.5 w-1.5 rounded-full"
-              style={{backgroundColor: `var(${quarter?.colorVar ?? "--quarter-1"})`}}
-            />
-            {quarter?.label}
-          </p>
-          <h2 className="mt-1 truncate text-base font-medium text-ink">
-            #{card.tokenId.toString()} · {formName(card.level)}
-          </h2>
-
-          <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <div>
               <dt className="rule-label">{BRAND.scoreTerm}</dt>
-              <dd className="mt-0.5 font-mono text-seal">{card.weight}</dd>
+              <dd className="mt-1 font-mono text-2xl font-semibold tabular-nums text-seal">
+                {card.weight}
+              </dd>
             </div>
             <div>
               <dt className="rule-label">Lifetime burn</dt>
-              <dd className="mt-0.5 font-mono text-ink">{formatWholeTokens(card.burned)}</dd>
+              <dd className="mt-1 font-mono text-2xl font-semibold tabular-nums text-ink">
+                {formatWholeTokens(card.burned)}
+              </dd>
             </div>
-            <div className="col-span-2">
+            <div className="col-span-2 border-t border-ink/10 pt-3">
               <dt className="rule-label">Pending on this card</dt>
-              <dd className="mt-0.5 font-mono text-ink">
+              <dd className="mt-1 font-mono text-ink">
                 {card.pending === undefined ? (
                   <span className="text-inkMuted">Could not be read</span>
                 ) : assetSymbol && assetDecimals !== undefined ? (
@@ -143,6 +164,7 @@ function CardRow({
         ) : (
           <BuildControl card={card} disabledReason={disabledReason} />
         )}
+      </div>
       </div>
     </article>
   );

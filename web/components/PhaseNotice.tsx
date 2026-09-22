@@ -14,21 +14,25 @@ export function PhaseNotice({className = ""}: {className?: string}) {
 
   return (
     <aside
-      className={`panel border-seal p-5 ${className}`}
+      className={`border-rule border-ink bg-paperCard shadow-card ${className}`}
       aria-label="Launch phase"
     >
-      <p className="rule-label">Where the launch is</p>
-      <p className="mt-2 text-sm leading-relaxed text-ink">
-        {BRAND.tokenTicker} is still on its bonding curve. It trades against the curve
-        rather than a pool, and the curve has to be bought out before a pool exists.
+      <p className="border-b-rule border-ink bg-seal px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-paperCard">
+        Where the launch is
       </p>
-      <p className="mt-3 text-sm leading-relaxed text-inkMuted">
-        Everything about the cards works now and works the same afterwards: minting,
-        building, transferring, and claiming whatever a {BRAND.groupTerm.toLowerCase()}{" "}
-        has received. The {EDITION.buybackBps / 100}% treasury buyback is the one part that
-        waits, because until a pool exists there is nothing to buy the token against. It
-        holds the money rather than spending it badly.
-      </p>
+      <div className="px-5 py-5">
+        <p className="text-body-lg leading-relaxed text-ink">
+          {BRAND.tokenTicker} is still on its bonding curve. It trades against the curve
+          rather than a pool, and the curve has to be bought out before a pool exists.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-inkMuted">
+          Everything about the cards works now and works the same afterwards: minting,
+          building, transferring, and claiming whatever a {BRAND.groupTerm.toLowerCase()}{" "}
+          has received. The {EDITION.buybackBps / 100}% treasury buyback is the one part that
+          waits, because until a pool exists there is nothing to buy the token against. It
+          holds the money rather than spending it badly.
+        </p>
+      </div>
     </aside>
   );
 }

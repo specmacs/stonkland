@@ -8,6 +8,7 @@ import {formatAssetAmount} from "@/lib/format";
 import {useProtocolStats, type ProtocolStats} from "@/lib/reads";
 import {ReadGate} from "./ReadGate";
 import {TxButton} from "./TxButton";
+import {SectionHead} from "./SectionHead";
 
 /**
  * Every stage of the reward pipeline, with the control that advances it.
@@ -25,13 +26,13 @@ export function Pipeline() {
 
   return (
     <section>
-      <h2 className="rule-label mb-3">Move the pipeline</h2>
-      <p className="mb-5 max-w-3xl text-sm leading-relaxed text-inkMuted">
+      <SectionHead eyebrow="Open to anyone" heading="Move the pipeline.">
         Rewards travel from trading fees to your card through the stages below. Every one is
         open to anyone — no operator has to act for you to be paid, and nothing here can send
         funds anywhere other than onward. If a stage has something waiting, you can move it
         yourself, and you pay only the gas.
-      </p>
+      </SectionHead>
+      <div className="h-8" />
 
       <ReadGate
         state={stats}
@@ -46,7 +47,7 @@ export function Pipeline() {
 
 function Stages({data}: {data: ProtocolStats}) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Stage
         step={1}
         title="Claim and split trading fees"
@@ -101,27 +102,34 @@ function Stages({data}: {data: ProtocolStats}) {
 /** Conversion is per-quarter, so a failed route strands only its own quarter. */
 function ConvertStage({data}: {data: ProtocolStats}) {
   return (
-    <article className="panel p-5">
-      <StageHeader
-        step={4}
-        title={`Convert each ${BRAND.groupTerm.toLowerCase()} into its reward asset`}
-        body={`Each ${BRAND.groupTerm.toLowerCase()} converts on its own, so a route that fails strands only that one. The route checks its own thirty-minute average before and after the trade and refuses a bad fill, which is why this is safe to leave open to anyone.`}
-      />
+    <article className="border-rule border-ink bg-paperCard shadow-card">
+      <div className="flex items-center gap-3 border-b-rule border-ink bg-tint-cream px-5 py-3">
+        <span className="pip bg-field-sun text-ink">4</span>
+        <span className="font-display text-base font-bold text-ink">
+          Convert each {BRAND.groupTerm.toLowerCase()} into its reward asset
+        </span>
+      </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="px-5 py-5">
+      <p className="max-w-2xl text-sm leading-relaxed text-inkMuted">
+        Each {BRAND.groupTerm.toLowerCase()} converts on its own, so a route that fails strands
+        only that one. The route checks its own thirty-minute average before and after the trade
+        and refuses a bad fill, which is why this is safe to leave open to anyone.
+      </p>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {QUARTERS.map((q) => {
           const pending = data.vaultPerQuarterPending[q.index];
           const nothingWaiting = pending === undefined || pending === 0n;
           return (
-            <div key={q.index} className="rounded-md border-rule border-ink p-3">
-              <p className="rule-label flex items-center gap-1.5">
-                <span
-                  aria-hidden
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{backgroundColor: `var(${q.colorVar})`}}
-                />
-                {q.label}
-              </p>
+            <div key={q.index} className="border-rule border-ink bg-paperCard">
+              <div
+                aria-hidden
+                className="tile-cap"
+                style={{backgroundColor: `var(${q.colorVar})`}}
+              />
+              <div className="p-3">
+              <p className="rule-label">{q.label}</p>
               <p className="mt-1.5 font-mono text-sm text-ink">
                 {pending === undefined ? (
                   <span className="text-inkFaint">not read</span>
@@ -152,9 +160,11 @@ function ConvertStage({data}: {data: ProtocolStats}) {
                   }
                 />
               </div>
+              </div>
             </div>
           );
         })}
+      </div>
       </div>
     </article>
   );
@@ -194,24 +204,30 @@ function Stage({
   const nothingWaiting = !unread && amount === 0n;
 
   return (
-    <article className="panel p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <StageHeader step={step} title={title} body={body} />
-
-        <div className="shrink-0 text-right">
-          <p className="rule-label">Waiting</p>
-          <p className="mt-1 font-mono text-base text-ink">
+    <article className="border-rule border-ink bg-paperCard shadow-card">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-rule border-ink bg-tint-cream px-5 py-3">
+        <p className="flex items-center gap-3">
+          <span className="pip bg-field-sun text-ink">{step}</span>
+          <span className="font-display text-base font-bold text-ink">{title}</span>
+        </p>
+        <p className="text-right">
+          <span className="rule-label block">Waiting</span>
+          <span className="mt-0.5 block font-mono text-base tabular-nums text-ink">
             {unread ? (
               <span className="text-inkFaint">not read</span>
             ) : (
               `${formatAssetAmount(amount, 18)} WETH`
             )}
-          </p>
-          {alsoWaiting && <p className="mt-1 text-xs text-inkMuted">{alsoWaiting}</p>}
-        </div>
+          </span>
+          {alsoWaiting && (
+            <span className="mt-0.5 block text-xs text-inkMuted">{alsoWaiting}</span>
+          )}
+        </p>
       </div>
 
-      <div className="mt-4">
+      <div className="px-5 py-5">
+        <p className="max-w-2xl text-sm leading-relaxed text-inkMuted">{body}</p>
+        <div className="mt-4">
         <TxButton
           address={address}
           abi={pipelineAbi}
@@ -226,21 +242,10 @@ function Stage({
               : nothingWaiting
                 ? "Nothing waiting at this stage."
                 : undefined
-          }
-        />
+            }
+          />
+        </div>
       </div>
     </article>
-  );
-}
-
-function StageHeader({step, title, body}: {step: number; title: string; body: string}) {
-  return (
-    <div className="min-w-0 max-w-2xl">
-      <p className="flex items-center gap-2">
-        <span className="font-mono text-xs text-seal">{step}</span>
-        <span className="text-sm font-medium text-ink">{title}</span>
-      </p>
-      <p className="mt-1.5 text-sm leading-relaxed text-inkMuted">{body}</p>
-    </div>
   );
 }

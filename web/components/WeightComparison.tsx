@@ -20,9 +20,11 @@ export function WeightComparison() {
   const landmarkPct = (landmark.weight / total) * 100;
 
   return (
-    <div className="panel overflow-hidden">
-      <div className="border-b-rule border-ink px-6 py-4">
-        <p className="rule-label">If these two cards shared one {BRAND.groupTerm.toLowerCase()}</p>
+    <div className="border-rule border-ink bg-paperCard shadow-cardLg">
+      <div className="border-b-rule border-ink bg-ink px-6 py-3.5">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-field-sun">
+          If these two cards shared one {BRAND.groupTerm.toLowerCase()}
+        </p>
       </div>
 
       <div className="grid sm:grid-cols-2">
@@ -33,7 +35,7 @@ export function WeightComparison() {
           share={housePct}
           note="One burn. The cheapest place on the board."
         />
-        <div className="border-t-rule border-ink sm:border-l sm:border-t-0">
+        <div className="border-t-rule border-ink sm:border-l-rule sm:border-t-0">
           <Side
             level={landmark.level}
             form={landmark.form}
@@ -45,7 +47,7 @@ export function WeightComparison() {
         </div>
       </div>
 
-      <div className="border-t-rule border-ink px-6 py-5">
+      <div className="border-t-rule border-ink bg-paperCard px-6 py-6">
         <p className="text-sm leading-relaxed text-inkMuted">
           The {landmark.form} takes {landmark.weight / house.weight} times the{" "}
           {house.form}&apos;s share of the same deposit, because its weight is{" "}
@@ -77,11 +79,11 @@ function Side({
   emphasis?: boolean;
 }) {
   return (
-    <div className="px-6 py-6">
+    <div className={`px-6 py-7 ${emphasis ? "bg-tint-sun" : "bg-tint-cream"}`}>
       <div className="flex items-center gap-4">
         <PieceArt level={level} className="h-16 w-16 shrink-0" />
         <div>
-          <p className="text-sm font-medium text-ink">{form}</p>
+          <p className="font-display text-xl font-bold text-ink">{form}</p>
           <p className="rule-label mt-1">
             {BRAND.scoreTerm} {weight}
           </p>
@@ -95,12 +97,12 @@ function Side({
       <p className="rule-label mt-1.5">of that deposit</p>
 
       <div
-        className="mt-4 h-3 w-full overflow-hidden border-rule border-ink bg-paperShade"
+        className="mt-4 h-4 w-full overflow-hidden border-rule border-ink bg-paperCard"
         role="img"
         aria-label={`${form} takes ${share.toFixed(1)} percent`}
       >
         <div
-          className={`h-full ${emphasis ? "bg-seal" : "bg-inkFaint"}`}
+          className={`h-full ${emphasis ? "bg-seal" : "bg-ink"}`}
           style={{width: `${share}%`}}
         />
       </div>

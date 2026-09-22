@@ -3,21 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --quarter-1: #1c63c9;
-  --quarter-2: #d96a0b;
-  --quarter-3: #15803d;
-  --quarter-4: #8b3fb5;
+  --quarter-1: #164a9e;
+  --quarter-2: #b04a06;
+  --quarter-3: #146138;
+  --quarter-4: #63278c;
+  --ink: #14110a;
 }
 
 html {
   color-scheme: light;
-  background-color: #c9ddd4;
+  background-color: #f6efdd;
 }
 
 body {
-  background-color: #c9ddd4;
-  color: #15120c;
+  background-color: #f6efdd;
+  color: #14110a;
   -webkit-font-smoothing: antialiased;
+  /* A faint printed grid, the way a plot map is ruled. Fixed so it reads as the stock
+     the page is printed on rather than something scrolling past. */
+  background-image:
+    linear-gradient(to right, rgba(20, 17, 10, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 17, 10, 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
 }
 
 :focus-visible {
@@ -33,7 +41,62 @@ body {
 
   /* Card stock, bounded by a rule rather than a hairline. */
   .panel {
-    @apply border-rule border-ink bg-paper;
+    @apply border-rule border-ink bg-paperCard;
+  }
+
+  /* A full-bleed field of flat colour. The page is broken up by these rather than by
+     whitespace, which is what stops a rulebook reading as a spreadsheet. */
+  .band {
+    @apply border-y-rule border-ink;
+  }
+
+  /* A row of cards lifted off the page as one block, not card by card. */
+  .card-row {
+    @apply border-rule border-ink shadow-card;
+  }
+
+  .band-ink {
+    @apply band bg-ink text-paper;
+  }
+
+  .band-felt {
+    @apply band bg-felt text-paper;
+  }
+
+  .band-seal {
+    @apply band bg-seal text-paper;
+  }
+
+  .band-sky {
+    @apply band bg-field-sky text-ink;
+  }
+
+  .band-sun {
+    @apply band bg-field-sun text-ink;
+  }
+
+  .band-cream {
+    @apply band bg-field-cream text-ink;
+  }
+
+  .band-night {
+    @apply band bg-field-night text-paper;
+  }
+
+  /* A numbered marker in a flow: a hard circle carrying one figure. */
+  .pip {
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-rule
+           border-ink font-mono text-sm font-semibold;
+  }
+
+  /* A tile whose top edge is a band of colour, so a grid of figures reads as a set of
+     cards rather than a table with the lines removed. */
+  .tile {
+    @apply border-rule border-ink bg-paperCard;
+  }
+
+  .tile-cap {
+    @apply h-2.5 w-full border-b-rule border-ink;
   }
 
   .panel-raised {
@@ -52,13 +115,13 @@ body {
 
   /* Buttons sit proud of the page and press down when used. */
   .btn-primary {
-    @apply btn bg-ink text-paper shadow-cardSm hover:-translate-x-px hover:-translate-y-px
+    @apply btn bg-seal text-paperCard shadow-cardSm hover:-translate-x-px hover:-translate-y-px
            active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
            disabled:translate-x-0 disabled:translate-y-0;
   }
 
   .btn-secondary {
-    @apply btn bg-paper text-ink shadow-cardSm hover:-translate-x-px hover:-translate-y-px
+    @apply btn bg-paperCard text-ink shadow-cardSm hover:-translate-x-px hover:-translate-y-px
            active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
            disabled:translate-x-0 disabled:translate-y-0;
   }

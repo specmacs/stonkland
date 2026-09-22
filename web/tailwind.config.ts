@@ -12,28 +12,55 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        /** The surface the board is laid out on. */
-        tabletop: "#c9ddd4",
-        tabletopDeep: "#a8c4b8",
-        /** Card and panel stock. */
-        paper: "#fdfaf2",
-        paperShade: "#f3ecdc",
-        paperEdge: "#e4d9c2",
+        /** The page. A rulebook is printed on stock, not displayed on a screen. */
+        paper: "#f6efdd",
+        paperCard: "#fffdf6",
+        paperShade: "#eadfc4",
         /** Printed ink. */
-        ink: "#15120c",
-        inkMuted: "#6b6356",
-        inkFaint: "#9a9183",
-        /** Four quarter hues. Separated on lightness as well as hue, so they survive
-         *  greyscale and the common forms of colour blindness on a cream ground. */
+        ink: "#14110a",
+        inkMuted: "#5f574a",
+        inkFaint: "#8f8675",
+        /**
+         * Four quarter hues, dark enough to carry white type at body size and separated
+         * on lightness as well as hue, so they survive greyscale and the common forms of
+         * colour blindness. These are meant to be used as whole fields, not as dots.
+         */
         quarter: {
-          1: "#1c63c9",
-          2: "#d96a0b",
-          3: "#15803d",
-          4: "#8b3fb5",
+          1: "#164a9e",
+          2: "#b04a06",
+          3: "#146138",
+          4: "#63278c",
         },
-        /** The one accent that is not a quarter. */
-        seal: "#c8161d",
-        gold: "#e0a92b",
+        /** The stamp. Used sparingly and always to mean something. */
+        seal: "#bb2018",
+        /** Flat fields the page is broken up with. */
+        felt: "#1d5c4a",
+        gold: "#e2a615",
+        /**
+         * Full-bleed section fields. The page changes colour between sections rather
+         * than relying on whitespace to separate them.
+         */
+        field: {
+          cream: "#f7f2e6",
+          sky: "#bfe4ec",
+          sun: "#f5c937",
+          night: "#141414",
+        },
+        /**
+         * Card tints. A row of cards is tinted across, which is what stops a grid of
+         * panels reading as a spreadsheet.
+         *
+         * All six carry ink at body size with room to spare, so any of them can be used
+         * as a card face without a second thought about contrast.
+         */
+        tint: {
+          cream: "#fdf8ec",
+          sun: "#fdf0c4",
+          peach: "#fbdcc8",
+          sky: "#d8e4fb",
+          mint: "#cfeedd",
+          lilac: "#e6dcf7",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "system-ui", "sans-serif"],
@@ -55,6 +82,10 @@ const config: Config = {
         /* A card lifted off the table, not a glow. */
         card: "4px 4px 0 0 #15120c",
         cardSm: "2px 2px 0 0 #15120c",
+        cardLg: "8px 8px 0 0 #15120c",
+        /* The same lift struck in colour, for a plate that has to carry a section. */
+        cardSeal: "8px 8px 0 0 #bb2018",
+        cardGold: "8px 8px 0 0 #e2a615",
       },
     },
   },
