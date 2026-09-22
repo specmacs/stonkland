@@ -85,16 +85,21 @@ export default function LandingPage() {
               </ol>
             </div>
 
-            {/* The top of the ladder, stamped in seal red so the eye lands on it. */}
-            <div className="border-rule border-ink bg-seal shadow-cardLg">
-              <div className="flex items-center justify-between gap-2 border-b-rule border-ink bg-paperCard px-5 py-3">
-                <p className="rule-label">The top of the ladder</p>
-                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-seal">
+            {/* The top of the ladder.
+                On the ink field rather than the seal one: the renders are night scenes
+                lit from inside, so they glow against dark and fight with red, which
+                competed with the warm windows instead of setting them off. */}
+            <div className="border-rule border-ink bg-field-night shadow-cardLg">
+              <div className="flex items-center justify-between gap-2 border-b-rule border-ink bg-seal px-5 py-3">
+                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paperCard">
+                  The top of the ladder
+                </p>
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-field-sun">
                   Lv 5
                 </span>
               </div>
-              <div className="px-6 py-10">
-                <PieceArt level={5} priority className="mx-auto h-52 w-52" />
+              <div className="px-5 py-8">
+                <PieceArt level={5} priority className="mx-auto h-64 w-64" />
               </div>
               <div className="border-t-rule border-ink bg-paperCard px-5 py-5">
                 <div className="flex items-baseline justify-between gap-3">
