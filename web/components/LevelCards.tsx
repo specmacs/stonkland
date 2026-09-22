@@ -36,10 +36,9 @@ function LevelCard({level: l}: {level: LevelInfo}) {
         </span>
       </header>
 
-      <PieceArt level={l.level} className="aspect-square w-full border-b-rule border-ink" />
-
-      <div className={`flex grow flex-col items-center px-4 pb-5 pt-4 ${style.field}`}>
-        <h3 className="font-display text-xl font-bold leading-none text-ink">{l.form}</h3>
+      <div className={`flex grow flex-col items-center pb-5 ${style.field}`}>
+        <PieceArt level={l.level} className="aspect-square w-full" />
+        <h3 className="-mt-1 font-display text-xl font-bold leading-none text-ink">{l.form}</h3>
         <Stars level={l.level} size="sm" className="mt-2.5" />
       </div>
 

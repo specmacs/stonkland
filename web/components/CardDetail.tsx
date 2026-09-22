@@ -61,7 +61,7 @@ export function CardDetail({card, onClose}: {card: CardState; onClose: () => voi
 
         <div className="flex gap-5 p-6">
           <div className="shrink-0 text-center">
-            <PieceArt level={card.level} className="h-28 w-28 border-rule border-ink" />
+            <PieceArt level={card.level} className="h-28 w-28" />
             <Stars level={card.level} className="mt-2" size="sm" />
           </div>
           <dl className="grid flex-1 grid-cols-2 gap-x-4 gap-y-3 text-sm">

@@ -133,7 +133,7 @@ function CardRow({
       <div className="p-5">
       <div className="flex gap-5">
         <div className="shrink-0 text-center">
-          <PieceArt level={card.level} className="h-28 w-28 border-rule border-ink" />
+          <PieceArt level={card.level} className="h-28 w-28" />
           <Stars level={card.level} className="mt-2" size="sm" />
         </div>
 

@@ -3,13 +3,12 @@ import {formName} from "@/lib/brand";
 import {pieceAlt, pieceWebPath} from "@/lib/pieces";
 
 /**
- * A level's piece, framed rather than floated.
+ * A level's piece.
  *
- * The renders carry their own vignetted night backdrop, so there is no clean key and
- * nothing to float on a coloured field. Filling the panel edge to edge is the honest
- * reading of that: the art becomes the card's image panel, bounded by the same ink rule
- * as everything else, and no seam has to be hidden. They are square and so are the
- * panels, so `object-cover` crops nothing.
+ * The renders are transparent cut-outs, so the piece sits on whatever field the caller
+ * puts it on and the level's own tint shows through around it. They are already squared
+ * and share a ground line, so `object-contain` in a square box needs no further
+ * alignment: the five stand on one floor wherever they appear together.
  *
  * Where a render does not exist it shows a marked placeholder rather than a substitute
  * drawing -- an empty state stays empty here as everywhere else.
@@ -29,14 +28,14 @@ export function PieceArt({
   if (!src) return <PiecePending level={level} className={className} />;
 
   return (
-    <span className={`relative block overflow-hidden bg-field-night ${className}`}>
+    <span className={`relative block ${className}`}>
       <Image
         src={src}
         alt={pieceAlt(level)}
         fill
         sizes="(max-width: 640px) 60vw, 320px"
         priority={priority}
-        className="object-cover"
+        className="object-contain"
       />
     </span>
   );

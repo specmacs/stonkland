@@ -3,23 +3,26 @@ import {LEVELS, formName} from "./brand";
 /**
  * The commissioned render for each level.
  *
- * The 1024px masters live beside these at `/pieces/<slug>.png` for marketplaces and
+ * The 1024px masters live beside these at `/pieces/<slug>-v2.png` for marketplaces and
  * social cards that cannot render the page. Nothing in the interface loads them; token
  * metadata points at them by URL.
  *
- * All five are square night scenes on their own dark backdrop, lit from inside, shot on
- * one isometric angle at a consistent scale. They are not cut-outs: each one's backdrop
- * is vignetted rather than flat, so there is no clean key and no honest way to float the
- * building on a coloured field. The interface frames them instead -- the render fills its
- * panel edge to edge behind the same ink rule as everything else, which is what a card's
- * art does anyway.
+ * All five are transparent cut-outs on a straight (unpremultiplied) alpha channel, so
+ * they float on any field the interface puts them on. Each has been trimmed to the
+ * building and re-centred on a square canvas with the same margin and the same ground
+ * line, so the five sit at one scale and the ladder climbs by silhouette: a low wide
+ * house, a gabled one standing taller, then three, five and nine storeys.
+ *
+ * The `-v2` suffix is not decoration. Next's image optimiser caches by URL, so replacing
+ * art under a name it has already served hands readers the old pieces; renaming is what
+ * guarantees the new set is the set that ships.
  */
 const ART: Record<number, string | undefined> = {
-  1: "house",
-  2: "residence",
-  3: "building",
-  4: "tower",
-  5: "landmark",
+  1: "house-v2",
+  2: "residence-v2",
+  3: "building-v2",
+  4: "tower-v2",
+  5: "landmark-v2",
 };
 
 export function pieceArtSlug(level: number): string | undefined {

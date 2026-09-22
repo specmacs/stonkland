@@ -80,9 +80,10 @@ export function LevelCarousel({className = ""}: {className?: string}) {
         </p>
       </header>
 
-      {/* The render fills the panel. It carries its own night backdrop, so cropping it
-          into a field of some other colour would leave a seam no framing could hide. */}
-      <div className="relative">
+      {/* The field takes the level's colour and changes with it as the card turns
+          over, so the colour is doing the same work as the header rather than just
+          repeating it. */}
+      <div className={`relative transition-colors duration-300 ${style.field}`}>
         <PieceArt
           key={level.level}
           level={level.level}

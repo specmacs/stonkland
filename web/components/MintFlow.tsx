@@ -282,9 +282,9 @@ function CardPreview({quarter}: {quarter: number}) {
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] opacity-80">Lv 1</span>
       </div>
 
-      <PieceArt level={1} priority className="aspect-square w-full" />
-      <div className="flex flex-col items-center border-t-rule border-ink bg-tint-cream px-4 py-3">
-        <Stars level={1} />
+      <div className="flex flex-col items-center bg-tint-cream pb-4">
+        <PieceArt level={1} priority className="aspect-[4/3] w-full" />
+        <Stars level={1} className="-mt-1" />
       </div>
 
       <div className="border-t-rule border-ink px-4 py-3.5">
