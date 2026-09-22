@@ -254,9 +254,9 @@ function Stat({label, value, unit}: {label: string; value: string; unit?: string
   return (
     <div className="bg-ink-950 p-5">
       <dt className="rule-label">{label}</dt>
-      <dd className="mt-1.5 font-mono text-xl text-ink-100">
+      <dd className="figure mt-2">
         {value}
-        {unit && <span className="ml-1.5 text-sm text-ink-500">{unit}</span>}
+        {unit && <span className="ml-2 font-sans text-sm text-ink-500">{unit}</span>}
       </dd>
     </div>
   );

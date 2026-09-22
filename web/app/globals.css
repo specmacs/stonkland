@@ -14,8 +14,8 @@ html {
 }
 
 body {
-  background-color: #080a0c;
-  color: #d8e0e8;
+  background-color: #000000;
+  color: #c6d1dc;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -29,6 +29,12 @@ body {
 @layer components {
   .rule-label {
     @apply text-[11px] uppercase tracking-[0.18em] text-ink-500;
+  }
+
+  /* Numbers carry the argument on most of these pages, so they get display sizes
+     rather than body sizes. */
+  .figure {
+    @apply font-mono text-3xl leading-none text-ink-100 sm:text-4xl;
   }
 
   .panel {

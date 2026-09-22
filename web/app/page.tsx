@@ -5,6 +5,7 @@ import {Section} from "@/components/Section";
 import {LevelLadder} from "@/components/LevelLadder";
 import {NonAffiliation} from "@/components/Disclaimer";
 import {PieceArt} from "@/components/PieceArt";
+import {WeightComparison} from "@/components/WeightComparison";
 
 export default function LandingPage() {
   return (
@@ -144,7 +145,11 @@ export default function LandingPage() {
           its {BRAND.groupTerm.toLowerCase()}. More weight means a larger slice of the same
           deposit — not a rate, and not a promise.
         </p>
-        <p className="mt-4 max-w-3xl text-sm text-ink-500">
+        <div className="mt-8 max-w-4xl">
+          <WeightComparison />
+        </div>
+
+        <p className="mt-6 max-w-3xl text-sm text-ink-500">
           Weight only matters against the other cards in the same {BRAND.groupTerm.toLowerCase()}.
           As other owners build, your share of each deposit falls even though your weight has
           not changed. That is the central tension of the game, and it is intentional.
