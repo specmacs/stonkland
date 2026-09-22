@@ -71,13 +71,13 @@ export function Header() {
   );
 }
 
-/** Disabled until a canonical pool exists. It never guesses at a URL. */
+/** Disabled until a market exists to point at. It never guesses at a URL. */
 function BuyControl() {
   if (!POOL_URL) {
     return (
       <span
         className="hidden cursor-not-allowed rounded-md border border-ink-800 px-2.5 py-1.5 text-xs text-ink-600 sm:inline-flex"
-        title="No canonical pool has been configured for this deployment yet."
+        title="No market has been configured for this deployment yet."
         aria-disabled="true"
       >
         Buy {BRAND.tokenTicker}

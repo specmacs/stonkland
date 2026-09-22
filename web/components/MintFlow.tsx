@@ -9,6 +9,7 @@ import {minterAbi, tokenAbi} from "@/lib/abis";
 import {formatWholeTokens} from "@/lib/format";
 import {useBoardCounts, useMintState} from "@/lib/reads";
 import {PageHeader} from "./Section";
+import {PhaseNotice} from "./PhaseNotice";
 import {ReadGate} from "./ReadGate";
 import {PieceArt} from "./PieceArt";
 import {TxButton} from "./TxButton";
@@ -29,6 +30,8 @@ export function MintFlow() {
       />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <PhaseNotice className="mb-8 max-w-3xl" />
+
         <ol className="mb-8 flex flex-wrap gap-x-6 gap-y-2">
           {STEPS.map((step, i) => (
             <li key={step} className="flex items-center gap-2 text-sm text-ink-400">

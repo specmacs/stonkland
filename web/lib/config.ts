@@ -160,8 +160,24 @@ export const CHAIN_CONFIGURED = Boolean(CHAIN && RPC_TRANSPORT_URL);
 export const WALLETCONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() ?? "";
 
-/** The canonical pool. Absent until one exists, which disables the Buy control. */
+/** Where to buy the token. Absent until a market exists, which disables the Buy control. */
 export const POOL_URL = process.env.NEXT_PUBLIC_POOL_URL?.trim() ?? "";
+
+/**
+ * Where the launch is in its life.
+ *
+ * `curve`      the token trades on a bonding curve; no pool exists yet, so the buyback
+ *              has nothing to buy against and the interface should not imply otherwise
+ * `graduated`  the curve has been bought out and the token trades in a pool
+ *
+ * Set deliberately rather than guessed. The interface could infer it from whether a pool
+ * address is configured, but a wrong guess here would tell somebody the launch had
+ * reached a stage it had not.
+ */
+export type LaunchPhase = "curve" | "graduated";
+
+export const LAUNCH_PHASE: LaunchPhase =
+  process.env.NEXT_PUBLIC_LAUNCH_PHASE?.trim() === "graduated" ? "graduated" : "curve";
 export const X_URL = process.env.NEXT_PUBLIC_X_URL?.trim() ?? "";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.trim() ?? "";
 

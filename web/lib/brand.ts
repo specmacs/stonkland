@@ -114,14 +114,31 @@ export function formName(level: number): string {
 
 /**
  * Quarters are zero-indexed on chain and one-indexed everywhere a person reads them.
- * Names are placeholders until the art and the reward assets are settled.
+ *
+ * `assetName` is what this deployment intends each quarter to pay in. It is written here,
+ * not read from a contract, so it may only be used in explanatory copy about the design.
+ * Anywhere a live figure is shown, the asset's symbol is read from chain and that read is
+ * what is displayed -- a name in this file is a statement of intent, and an interface that
+ * dressed it up as chain state would be lying about the one thing it promises not to.
  */
 export const QUARTERS = [
-  {index: 0, label: "Quarter One", short: "Q1", colorVar: "--quarter-1"},
-  {index: 1, label: "Quarter Two", short: "Q2", colorVar: "--quarter-2"},
-  {index: 2, label: "Quarter Three", short: "Q3", colorVar: "--quarter-3"},
-  {index: 3, label: "Quarter Four", short: "Q4", colorVar: "--quarter-4"},
+  {index: 0, label: "Quarter One", short: "Q1", colorVar: "--quarter-1", assetName: "NVIDIA"},
+  {index: 1, label: "Quarter Two", short: "Q2", colorVar: "--quarter-2", assetName: "Alphabet"},
+  {index: 2, label: "Quarter Three", short: "Q3", colorVar: "--quarter-3", assetName: "Apple"},
+  {index: 3, label: "Quarter Four", short: "Q4", colorVar: "--quarter-4", assetName: "Meta"},
 ] as const;
+
+/**
+ * What the reward assets are, in one sentence, wherever they are first mentioned.
+ *
+ * The distinction this has to carry: these are tokens that track a share price, not
+ * shares. Holding one is not owning any part of the company, and the copy is not allowed
+ * to blur that however much shorter the blurred version reads.
+ */
+export const REWARD_ASSET_EXPLAINER =
+  "Each quarter pays in a token that tracks one company's share price. A token is not a " +
+  "share: holding one gives you no ownership, no dividend and no vote in the company it " +
+  "tracks.";
 
 export type Quarter = (typeof QUARTERS)[number];
 

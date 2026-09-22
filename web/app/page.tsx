@@ -1,11 +1,12 @@
 import Link from "next/link";
-import {BRAND, EDITION, LEVELS, QUARTERS} from "@/lib/brand";
+import {BRAND, EDITION, LEVELS, QUARTERS, REWARD_ASSET_EXPLAINER} from "@/lib/brand";
 import {formatBps} from "@/lib/format";
 import {Section} from "@/components/Section";
 import {LevelLadder} from "@/components/LevelLadder";
 import {NonAffiliation} from "@/components/Disclaimer";
 import {PieceArt} from "@/components/PieceArt";
 import {WeightComparison} from "@/components/WeightComparison";
+import {PhaseNotice} from "@/components/PhaseNotice";
 
 export default function LandingPage() {
   return (
@@ -62,11 +63,15 @@ export default function LandingPage() {
         </div>
       </div>
 
+      <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6">
+        <PhaseNotice className="max-w-3xl" />
+      </div>
+
       {/* How it works */}
       <Section heading="Five moves. One loop.">
         <ol className="grid gap-px overflow-hidden rounded-lg border border-ink-800 bg-ink-800 sm:grid-cols-2 lg:grid-cols-5">
           {[
-            ["Acquire tokens", "Trade through the canonical pool."],
+            ["Acquire tokens", `Buy ${BRAND.tokenTicker} on the launch venue.`],
             ["Claim a card", `Mint one of only ${EDITION.cardSupply}.`],
             ["Burn to build", "Climb five levels with permanent burns."],
             ["Raise your weight", `Every level increases the card's ${BRAND.scoreTerm}.`],
@@ -122,17 +127,20 @@ export default function LandingPage() {
                 style={{backgroundColor: `var(${q.colorVar})`}}
               />
               <h3 className="mt-3 text-sm font-medium text-ink-100">{q.label}</h3>
-              <p className="mt-1 font-mono text-xs text-ink-500">
-                {EDITION.quarterCap} cards · {EDITION.gridSize}×{EDITION.gridSize}
+              <p className="mt-1 text-sm text-ink-300">
+                Pays in a token tracking {q.assetName}
               </p>
-              <p className="mt-3 text-sm text-ink-400">
-                {formatBps(EDITION.quarterAllocationBps)} of the edition&apos;s reward share,
-                frozen at deployment.
+              <p className="mt-3 font-mono text-xs text-ink-500">
+                {EDITION.quarterCap} cards · {EDITION.gridSize}×{EDITION.gridSize} ·{" "}
+                {formatBps(EDITION.quarterAllocationBps)} of the reward share
               </p>
             </div>
           ))}
         </div>
-        <NonAffiliation className="mt-6 max-w-3xl" />
+        <p className="mt-6 max-w-3xl text-sm leading-relaxed text-ink-400">
+          {REWARD_ASSET_EXPLAINER}
+        </p>
+        <NonAffiliation className="mt-3 max-w-3xl" />
       </Section>
 
       {/* Weight */}
