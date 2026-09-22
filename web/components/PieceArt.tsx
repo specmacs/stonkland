@@ -3,13 +3,16 @@ import {formName} from "@/lib/brand";
 import {pieceAlt, pieceWebPath} from "@/lib/pieces";
 
 /**
- * A level's piece.
+ * A level's piece, framed rather than floated.
  *
- * Shows the commissioned render where one exists. Where one does not, it shows a marked
- * placeholder rather than falling back to the flat drawing: mixing a vector sketch into a
- * row of photographic renders reads as a broken image, while a plate that says what is
- * missing reads as a decision. The same instinct as everywhere else here -- an empty
- * state stays empty rather than being dressed up.
+ * The renders carry their own vignetted night backdrop, so there is no clean key and
+ * nothing to float on a coloured field. Filling the panel edge to edge is the honest
+ * reading of that: the art becomes the card's image panel, bounded by the same ink rule
+ * as everything else, and no seam has to be hidden. They are square and so are the
+ * panels, so `object-cover` crops nothing.
+ *
+ * Where a render does not exist it shows a marked placeholder rather than a substitute
+ * drawing -- an empty state stays empty here as everywhere else.
  */
 export function PieceArt({
   level,
@@ -26,14 +29,14 @@ export function PieceArt({
   if (!src) return <PiecePending level={level} className={className} />;
 
   return (
-    <span className={`relative block ${className}`}>
+    <span className={`relative block overflow-hidden bg-field-night ${className}`}>
       <Image
         src={src}
         alt={pieceAlt(level)}
         fill
-        sizes="(max-width: 640px) 40vw, 320px"
+        sizes="(max-width: 640px) 60vw, 320px"
         priority={priority}
-        className="object-contain"
+        className="object-cover"
       />
     </span>
   );

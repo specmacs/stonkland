@@ -92,7 +92,7 @@ function Side({
   const style = levelStyle(level);
   return (
     <div className={`flex h-full flex-col px-6 py-7 ${style.field}`}>
-      <PieceArt level={level} className="mx-auto h-28 w-28" />
+      <PieceArt level={level} className="mx-auto h-32 w-32 border-rule border-ink" />
       <Stars level={level} size="sm" className="mx-auto mt-4" />
 
       <p className="mt-5 text-center font-mono text-[3.25rem] font-semibold leading-none tabular-nums text-ink">

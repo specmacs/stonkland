@@ -75,9 +75,9 @@ function Minted({card}: {card: CardState}) {
             Lv {card.level}
           </p>
         </div>
-        <div className="flex flex-col items-center bg-tint-cream px-6 py-8">
-          <PieceArt level={card.level} priority className="h-56 w-56" />
-          <Stars level={card.level} className="mt-5" />
+        <PieceArt level={card.level} priority className="aspect-square w-full" />
+        <div className="flex flex-col items-center border-t-rule border-ink bg-tint-cream px-6 py-4">
+          <Stars level={card.level} />
         </div>
         <div className="border-t-rule border-ink px-5 py-4">
           <div className="flex items-baseline justify-between gap-3">

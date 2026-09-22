@@ -80,15 +80,14 @@ export function LevelCarousel({className = ""}: {className?: string}) {
         </p>
       </header>
 
-      {/* The renders are night scenes lit from inside, so they sit on the dark field
-          whatever colour the header is. Tinting the field per level would fight the
-          warm windows, which is what made the red version of this plate look wrong. */}
-      <div className="relative bg-field-night px-5 py-8">
+      {/* The render fills the panel. It carries its own night backdrop, so cropping it
+          into a field of some other colour would leave a seam no framing could hide. */}
+      <div className="relative">
         <PieceArt
           key={level.level}
           level={level.level}
           priority={level.level === 1}
-          className="mx-auto h-56 w-56 sm:h-64 sm:w-64"
+          className="aspect-square w-full"
         />
         <span
           aria-hidden
