@@ -10,7 +10,7 @@
  */
 export const BRAND = {
   /** Working name. */
-  projectName: "Stocktown",
+  projectName: "StonkTown",
   /** Working ticker. */
   tokenTicker: "TOWN",
   /** This edition's name. */

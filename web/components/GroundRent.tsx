@@ -28,7 +28,7 @@ export function GroundRent() {
       <PageHeader
         eyebrow="Your share of what arrived"
         heading={`Collect ${BRAND.rewardsPageTerm.toLowerCase()}.`}
-        sub={`${BRAND.scoreTerm} is your score inside a ${BRAND.groupTerm.toLowerCase()}. More weight means a larger share of what was actually deposited — not a rate.`}
+        sub={`Rewards are pushed out to card owners, so you are not required to do anything to be paid. The claim below is a backstop, not a chore: it exists so that being paid never depends on anybody else running anything.`}
         tone="cream"
       />
 
@@ -211,7 +211,7 @@ function QuarterRow({
               // A scan bound of 0 means "all of this wallet's cards". The contract
               // reports how far it got, so a bounded run can be resumed.
               args={[EDITION_ID, row.quarter, 0n, 0n]}
-              label={`Claim ${quarter?.short ?? ""}`}
+              label={`Claim ${quarter?.short ?? ""} now`}
               pendingLabel="Claiming…"
               disabledReason={
                 claimableUnknown

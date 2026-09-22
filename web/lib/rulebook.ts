@@ -32,7 +32,7 @@ export const RULEBOOK: Section[] = [
     blocks: [
       {
         kind: "p",
-        text: `A board game that settles onchain. There are ${n(EDITION.cardSupply)} ${card}s and there will never be more. Each belongs to one of four ${quarters} of the city, ${n(EDITION.quarterCap)} to a ${quarter}. You acquire a card by destroying tokens, and you improve it by destroying more. An improved card carries more weight, and weight decides how the ${quarter}'s incoming rewards are divided among the cards inside it.`,
+        text: `A board game that settles onchain. The ${BRAND.editionName} contains ${n(EDITION.cardSupply)} ${card}s. That cap is fixed in the contract and cannot be raised by anyone, so no card beyond it can ever exist in this edition -- but later editions are a deliberate part of the design, and each is its own collection with its own cap. What that does to your share is set out further down, and it is worth reading before you buy. Each belongs to one of four ${quarters} of the city, ${n(EDITION.quarterCap)} to a ${quarter}. You acquire a card by destroying tokens, and you improve it by destroying more. An improved card carries more weight, and weight decides how the ${quarter}'s incoming rewards are divided among the cards inside it.`,
       },
       {
         kind: "p",
@@ -177,7 +177,15 @@ export const RULEBOOK: Section[] = [
     blocks: [
       {
         kind: "p",
-        text: `Rewards accrue to the card, but they are settled to a wallet. Whenever a card is transferred, upgraded, or claimed against, the protocol settles what has accrued so far and credits it to the current owner.`,
+        text: `Rewards accrue to the card, but they are settled to a wallet. Whenever a card is transferred, upgraded, claimed against, or paid out by a push, the protocol settles what has accrued so far and credits it to the current owner.`,
+      },
+      {
+        kind: "p",
+        text: `You are not required to claim. Anyone can call a function that settles and pays every card in a ${quarter}, and in practice that is run on a schedule, so rewards arrive without you doing anything. It is bounded and resumable, because paying a whole ${quarter} is more work than one transaction should carry, and an owner whose transfer fails is skipped rather than blocking everyone behind them — their credit is untouched and waiting.`,
+      },
+      {
+        kind: "p",
+        text: `The claim is still there, and it always will be. A reward that only arrives when somebody remembers to run something is a reward with an operator standing in front of it. Nothing you are owed expires, and nothing you are owed is ever swept anywhere else.`,
       },
       {
         kind: "callout",

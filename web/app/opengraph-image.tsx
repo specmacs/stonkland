@@ -76,7 +76,7 @@ export default function OpengraphImage() {
               Build the block.
             </span>
             <span style={{color: "#5f574a", fontSize: 26, marginTop: 22, maxWidth: 900}}>
-              {EDITION.cardSupply} {BRAND.itemNamePlural.toLowerCase()}, and never more.
+              {EDITION.cardSupply} {BRAND.itemNamePlural.toLowerCase()} in the {BRAND.editionName}.
             </span>
           </div>
 

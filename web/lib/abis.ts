@@ -320,6 +320,18 @@ export const pipelineAbi = [
     stateMutability: "nonpayable",
   },
   {type: "function", name: "forward", inputs: [], outputs: [{type: "uint256"}], stateMutability: "nonpayable"},
+  {
+    type: "function",
+    name: "pushQuarter",
+    inputs: [
+      {name: "edition", type: "uint256"},
+      {name: "quarter", type: "uint8"},
+      {name: "fromId", type: "uint256"},
+      {name: "limit", type: "uint256"},
+    ],
+    outputs: [{type: "uint256"}, {type: "bool"}],
+    stateMutability: "nonpayable",
+  },
   {type: "function", name: "pending", inputs: [], outputs: [{type: "uint256"}], stateMutability: "view"},
 ] as const;
 

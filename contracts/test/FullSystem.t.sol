@@ -12,6 +12,7 @@ import {UniswapV3Adapter} from "../src/adapters/UniswapV3Adapter.sol";
 import {OracleGuard} from "../src/libraries/OracleGuard.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
 import {MockWETH, MockAggregator, MockSwapRouter, RefusingTreasury} from "./mocks/MockVenue.sol";
+import {RejectingHolder} from "./mocks/RejectingHolder.sol";
 
 /// @notice Trades in, rewards out, through the deployment the runbook actually produces.
 contract FullSystemTest is Test {
@@ -22,6 +23,7 @@ contract FullSystemTest is Test {
     address internal treasurySink = makeAddr("treasurySink");
     address internal alice = makeAddr("alice");
     address internal bob = makeAddr("bob");
+    address internal carol = makeAddr("carol");
 
     Deployment internal d;
     MockWETH internal weth;
@@ -45,10 +47,10 @@ contract FullSystemTest is Test {
 
         d = SystemDeployer.deploy(
             DeployConfig({
-                tokenName: "Stocktown",
+                tokenName: "StonkTown",
                 tokenSymbol: "TOWN",
                 tokenRecipient: address(this),
-                nftName: "Stocktown Property Card",
+                nftName: "StonkTown Property Card",
                 nftSymbol: "CARD",
                 owner: owner,
                 treasurySink: treasurySink,
@@ -448,16 +450,108 @@ contract FullSystemTest is Test {
         assertEq(address(d.revenueVault).balance, 0, "native should have been wrapped");
     }
 
+    /// @dev Everything up to the point where a quarter's asset is sitting in the
+    ///      distributor waiting for its owners. Returns what was deposited.
+    function _depositInto(uint8 quarter) internal returns (uint256 deposited) {
+        vm.deal(address(d.feeRouter), 100 ether);
+        d.feeRouter.distribute();
+        vm.warp(block.timestamp + 300);
+        d.streamVault.release();
+        d.revenueVault.allocate();
+        uint256[] memory minOuts = new uint256[](1);
+        d.revenueVault.processQuarter(EDITION, quarter, minOuts, block.timestamp + 60);
+        return d.distributor.totalDeposited(EDITION, address(assets[quarter]), quarter);
+    }
+
+    /// @dev Nobody should have to ask to be paid. This is the whole point of the push.
+    function test_pushPaysEveryOwnerWithoutThemAsking() public {
+        _mint(alice, 0);
+        _mint(bob, 0);
+        uint256 deposited = _depositInto(0);
+        assertGt(deposited, 0, "nothing to push");
+
+        assertEq(assets[0].balanceOf(alice), 0);
+        assertEq(assets[0].balanceOf(bob), 0);
+
+        vm.prank(makeAddr("a passer-by"));
+        (uint256 nextId, bool complete) = d.distributor.pushQuarter(EDITION, 0, 0, 0);
+
+        assertTrue(complete, "one call should finish a two-card quarter");
+        assertEq(nextId, 3, "two cards start at id 1");
+        assertApproxEqAbs(assets[0].balanceOf(alice), deposited / 2, 2, "alice paid without claiming");
+        assertApproxEqAbs(assets[0].balanceOf(bob), deposited / 2, 2, "bob paid without claiming");
+    }
+
+    /// @dev A push must be resumable, or a full quarter could not be paid within a block.
+    function test_pushIsBoundedAndResumable() public {
+        _mint(alice, 0);
+        _mint(bob, 0);
+        _mint(carol, 0);
+        _depositInto(0);
+
+        (uint256 nextId, bool complete) = d.distributor.pushQuarter(EDITION, 0, 0, 1);
+        assertFalse(complete, "one of three is not finished");
+        assertEq(nextId, 2);
+        assertGt(assets[0].balanceOf(alice), 0, "first card paid");
+        assertEq(assets[0].balanceOf(bob), 0, "second card not reached yet");
+
+        (nextId, complete) = d.distributor.pushQuarter(EDITION, 0, nextId, 0);
+        assertTrue(complete);
+        assertGt(assets[0].balanceOf(bob), 0, "second card paid on resume");
+        assertGt(assets[0].balanceOf(carol), 0, "third card paid on resume");
+    }
+
+    /// @dev One owner who cannot receive must not stop the rest being paid. Their credit
+    ///      survives untouched and the ordinary claim still works for them afterwards.
+    function test_aRecipientThatCannotReceiveDoesNotBlockThePush() public {
+        RejectingHolder bad = new RejectingHolder();
+        _mint(address(bad), 0);
+        _mint(bob, 0);
+        uint256 deposited = _depositInto(0);
+
+        assets[0].setReject(address(bad), true);
+
+        d.distributor.pushQuarter(EDITION, 0, 0, 0);
+
+        assertEq(assets[0].balanceOf(address(bad)), 0, "the bad recipient was skipped");
+        assertApproxEqAbs(assets[0].balanceOf(bob), deposited / 2, 2, "everyone else was paid");
+        assertApproxEqAbs(
+            d.distributor.creditedOf(EDITION, address(assets[0]), 0, address(bad)),
+            deposited / 2,
+            2,
+            "the skipped credit is still owed, not lost"
+        );
+
+        // And once the obstruction clears, the ordinary claim pays them.
+        assets[0].setReject(address(bad), false);
+        vm.prank(address(bad));
+        d.distributor.claimQuarter(EDITION, 0, 0, 0);
+        assertApproxEqAbs(assets[0].balanceOf(address(bad)), deposited / 2, 2, "paid on claim");
+    }
+
+    /// @dev Pushing twice must not pay twice.
+    function test_pushingAnAlreadyPushedQuarterPaysNothingMore() public {
+        _mint(alice, 0);
+        _depositInto(0);
+
+        d.distributor.pushQuarter(EDITION, 0, 0, 0);
+        uint256 afterFirst = assets[0].balanceOf(alice);
+        assertGt(afterFirst, 0);
+
+        d.distributor.pushQuarter(EDITION, 0, 0, 0);
+        assertEq(assets[0].balanceOf(alice), afterFirst, "a second push pays nothing again");
+    }
+
     function _config() internal view returns (DeployConfig memory) {
         address[4] memory assetAddrs;
         for (uint8 q; q < 4; ++q) {
             assetAddrs[q] = address(assets[q]);
         }
         return DeployConfig({
-            tokenName: "Stocktown",
+            tokenName: "StonkTown",
             tokenSymbol: "TOWN",
             tokenRecipient: address(this),
-            nftName: "Stocktown Property Card",
+            nftName: "StonkTown Property Card",
             nftSymbol: "CARD",
             owner: owner,
             treasurySink: treasurySink,

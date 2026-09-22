@@ -5,6 +5,21 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @dev Local test double only. Never deployed to any public network.
 contract MockERC20 is ERC20 {
+    /// @notice Addresses this token refuses to pay, so a push can be tested against one.
+    /// @dev    Real assets do this for real reasons -- blocklists, contracts that cannot
+    ///         hold them. The behaviour under test is that one such holder cannot stop
+    ///         everybody else from being paid.
+    mapping(address => bool) public rejected;
+
+    function setReject(address who, bool on) external {
+        rejected[who] = on;
+    }
+
+    function _update(address from, address to, uint256 value) internal override {
+        require(!rejected[to], "recipient refuses this token");
+        super._update(from, to, value);
+    }
+
     uint8 private immutable _decimals;
 
     constructor(string memory n, string memory s, uint8 d) ERC20(n, s) {

@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     default: `${BRAND.projectName} · ${BRAND.strapline}`,
     template: `%s · ${BRAND.projectName}`,
   },
-  description: `${EDITION.cardSupply} ${BRAND.itemName.toLowerCase()}s, and never more. ${GLOBAL_DISCLAIMER}`,
+  description: `${EDITION.cardSupply} ${BRAND.itemName.toLowerCase()}s in the ${BRAND.editionName}. ${GLOBAL_DISCLAIMER}`,
   openGraph: {
     title: BRAND.projectName,
     description: BRAND.strapline,

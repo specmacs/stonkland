@@ -139,7 +139,7 @@ function Cards({data}: {data: ProtocolStats}) {
   return (
     <Block
       eyebrow="Cards"
-      heading={`${formatCount(data.cardSupply)} cards, and no more.`}
+      heading={`${formatCount(data.cardSupply)} cards in this edition.`}
       sub={`Every card belongs to one ${BRAND.groupTerm.toLowerCase()}, and each ${BRAND.groupTerm.toLowerCase()} is capped independently.`}
       footnote={
         <>

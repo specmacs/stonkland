@@ -34,9 +34,9 @@ contract Deploy is Script {
     }
 
     function _config() internal view returns (DeployConfig memory c) {
-        c.tokenName = vm.envOr("TOKEN_NAME", string("Stocktown"));
+        c.tokenName = vm.envOr("TOKEN_NAME", string("StonkTown"));
         c.tokenSymbol = vm.envOr("TOKEN_SYMBOL", string("TOWN"));
-        c.nftName = vm.envOr("NFT_NAME", string("Stocktown Property Card"));
+        c.nftName = vm.envOr("NFT_NAME", string("StonkTown Property Card"));
         c.nftSymbol = vm.envOr("NFT_SYMBOL", string("CARD"));
 
         c.owner = vm.envAddress("OWNER");

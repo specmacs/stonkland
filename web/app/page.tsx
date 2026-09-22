@@ -18,9 +18,9 @@ import {Parameters, VenueParameter} from "@/components/Provenance";
 /** The four opening beats, tinted across rather than left as five identical panels. */
 const BEATS = [
   ["Acquire", `Buy ${BRAND.tokenTicker}.`, "bg-tint-sun"],
-  ["Claim", `One of only ${EDITION.cardSupply}.`, "bg-tint-peach"],
+  ["Claim", `One of ${EDITION.cardSupply} in this edition.`, "bg-tint-peach"],
   ["Build", "Five levels, one direction.", "bg-tint-sky"],
-  ["Collect", "A share of what arrived.", "bg-tint-mint"],
+  ["Get paid", "A share of what arrived.", "bg-tint-mint"],
 ] as const;
 
 export default function LandingPage() {
@@ -56,7 +56,8 @@ export default function LandingPage() {
                 the block.
               </h1>
               <p className="mt-7 max-w-xl text-body-lg text-inkMuted">
-                {EDITION.cardSupply} {BRAND.itemNamePlural.toLowerCase()}, and never more. Burn to
+                {EDITION.cardSupply} {BRAND.itemNamePlural.toLowerCase()} in the {BRAND.editionName}, a number
+                fixed in the contract and unchangeable. Burn to
                 claim one, burn again to build it, and take a larger share of what your{" "}
                 {BRAND.groupTerm.toLowerCase()} actually collects.
               </p>
@@ -135,12 +136,12 @@ export default function LandingPage() {
         <ol className="card-row grid bg-ink sm:grid-cols-2 lg:grid-cols-5">
           {[
             ["Acquire tokens", `Buy ${BRAND.tokenTicker} on the launch venue.`, "bg-tint-cream"],
-            ["Claim a card", `Mint one of only ${EDITION.cardSupply}.`, "bg-tint-sun"],
+            ["Claim a card", `Mint one of this edition's ${EDITION.cardSupply}.`, "bg-tint-sun"],
             ["Burn to build", "Climb five levels with permanent burns.", "bg-tint-peach"],
             ["Raise your weight", `Every level raises the card's ${BRAND.scoreTerm}.`, "bg-tint-sky"],
             [
-              "Collect rent",
-              `Claim your share of what the ${BRAND.groupTerm.toLowerCase()} received.`,
+              "Get paid",
+              `Your share is pushed out to you. You can also take it yourself, any time.`,
               "bg-tint-mint",
             ],
           ].map(([title, body, tint], i) => (
@@ -308,7 +309,7 @@ export default function LandingPage() {
                 EDITION.tokenMaxSupply.toLocaleString("en-US"),
                 BRAND.tokenTicker,
               ],
-              ["Cards, ever", EDITION.cardSupply.toLocaleString("en-US"), "across four quarters"],
+              ["Cards in this edition", EDITION.cardSupply.toLocaleString("en-US"), "across four quarters"],
               ["Mint burn", EDITION.mintBurn.toLocaleString("en-US"), `${BRAND.tokenTicker} per card`],
               ["Build burns", BUILD_BURN_RANGE, "per level, rising"],
               ["Primary mints", String(EDITION.mintsPerWallet), "per wallet"],
@@ -374,7 +375,7 @@ function Flow() {
       `${EDITION.streamEpochSeconds}-second streams`,
       "Released gradually rather than in one sweep.",
     ],
-    ["Rent to claims", `Converted, split by ${BRAND.groupTerm.toLowerCase()}, then by weight.`],
+    ["Paid out", `Converted, split by ${BRAND.groupTerm.toLowerCase()}, then by weight, then sent.`],
   ];
 
   return (

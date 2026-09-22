@@ -68,6 +68,14 @@ contract Distributor is IDistributor, ReentrancyGuard {
     event Claimed(
         uint256 indexed edition, address indexed asset, uint8 indexed quarter, address wallet, uint256 amount
     );
+    /// @notice A range of a quarter was settled and paid without its owners asking.
+    event QuarterPushed(
+        uint256 indexed edition, uint8 indexed quarter, uint256 fromId, uint256 toId, bool complete
+    );
+    /// @notice One recipient could not be paid during a push. Their credit is untouched.
+    event PushSkipped(
+        uint256 indexed edition, address indexed asset, uint8 indexed quarter, address wallet, uint256 owed
+    );
     event WeightChanged(uint256 indexed edition, uint8 indexed quarter, uint256 quarterTotal, uint256 editionTotal);
     event RegistrySet(address registry);
 
@@ -230,6 +238,62 @@ contract Distributor is IDistributor, ReentrancyGuard {
     /// @notice Pay out only what is already on the caller's ledger, settling nothing.
     /// @dev    Named for what it does. Anything still accruing on a card is untouched by
     ///         this call; `claimQuarter` is the one that sweeps.
+    /// @notice Settle and pay every card in `quarter`, so owners are not required to act.
+    /// @dev    Walks token ids directly rather than an owner's enumeration, which is what
+    ///         makes this possible at all: a quarter's ids are contiguous and assigned in
+    ///         order, so the set that exists is known without iterating anything.
+    ///
+    ///         Bounded and resumable. `limit` caps the work per call and `nextId` carries
+    ///         the position forward, so a quarter can be pushed in as many transactions as
+    ///         the gas limit requires and nothing is ever half-settled.
+    ///
+    ///         A recipient whose transfer fails is skipped rather than reverting the batch.
+    ///         One address that cannot receive an asset -- a contract with no fallback, a
+    ///         holder a token has blocklisted -- must not be able to stop everyone else
+    ///         being paid. The credit stays theirs and `claimQuarter` still works for them.
+    ///
+    ///         Open to anyone. Whoever calls it pays the gas to pay other people, which is
+    ///         expected to be the project itself on a schedule; the point is that nobody
+    ///         has to wait for that to happen, and nobody's rewards depend on it happening.
+    function pushQuarter(uint256 edition, uint8 quarter, uint256 fromId, uint256 limit)
+        external
+        nonReentrant
+        returns (uint256 nextId, bool complete)
+    {
+        IPropertyNFT nft = IPropertyNFT(_requireEdition(edition));
+        uint256 start;
+        uint256 endId;
+        {
+            // Ids are handed out in order, so everything minted in this quarter sits in
+            // [firstId, firstId + minted).
+            uint256 firstId = uint256(quarter) * nft.QUARTER_CAP() + 1;
+            endId = firstId + nft.mintedInQuarter(quarter);
+            start = fromId < firstId ? firstId : fromId;
+        }
+
+        uint256 stop = (limit == 0) ? endId : start + limit;
+        if (stop > endId) stop = endId;
+
+        for (uint256 tokenId = start; tokenId < stop; ++tokenId) {
+            _pushOne(edition, quarter, tokenId, nft);
+        }
+
+        nextId = stop;
+        complete = stop >= endId;
+        emit QuarterPushed(edition, quarter, start, stop, complete);
+    }
+
+    /// @dev One card's share of the push, in its own frame so the caller keeps its stack.
+    function _pushOne(uint256 edition, uint8 quarter, uint256 tokenId, IPropertyNFT nft) private {
+        address owner = nft.ownerOf(tokenId);
+        _settle(edition, tokenId, quarter, nft.propertyOf(tokenId).weight, owner);
+
+        address[] memory assets = registry.quarterAssets(edition, quarter);
+        for (uint256 i; i < assets.length; ++i) {
+            _tryPayout(edition, assets[i], quarter, owner);
+        }
+    }
+
     function claimCredited(uint256 edition, uint8 quarter)
         external
         nonReentrant
@@ -321,6 +385,35 @@ contract Distributor is IDistributor, ReentrancyGuard {
                 _credited[edition][asset][quarter][owner] += owed;
                 emit Settled(edition, tokenId, owner, asset, owed);
             }
+        }
+    }
+
+    /// @dev `_payout` with the transfer's failure caught instead of propagated. Used only
+    ///      by the push, where one recipient reverting would deny payment to everyone
+    ///      after them in the batch. The credit is restored on failure, so nothing is lost
+    ///      -- the owner is simply not paid this round and can claim whenever they like.
+    function _tryPayout(uint256 edition, address asset, uint8 quarter, address to) private {
+        uint256 owed = _credited[edition][asset][quarter][to];
+        if (owed == 0) return;
+
+        _credited[edition][asset][quarter][to] = 0;
+
+        uint256 balanceBefore = IERC20(asset).balanceOf(address(this));
+        try IERC20(asset).transfer(to, owed) {
+            uint256 sent = balanceBefore - IERC20(asset).balanceOf(address(this));
+            if (sent < owed) {
+                unchecked {
+                    _credited[edition][asset][quarter][to] = owed - sent;
+                }
+            }
+            if (sent != 0) {
+                _pool[edition][asset][quarter].claimed += sent;
+                emit Claimed(edition, asset, quarter, to, sent);
+            }
+        } catch {
+            // Put it back exactly as it was. This owner is skipped, not charged.
+            _credited[edition][asset][quarter][to] = owed;
+            emit PushSkipped(edition, asset, quarter, to, owed);
         }
     }
 

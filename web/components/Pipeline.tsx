@@ -3,7 +3,7 @@
 import {useReadContract} from "wagmi";
 import {BRAND, EDITION, QUARTERS} from "@/lib/brand";
 import {ADDRESSES, EDITION_ID} from "@/lib/config";
-import {pipelineAbi} from "@/lib/abis";
+import {distributorAbi, pipelineAbi} from "@/lib/abis";
 import {formatAssetAmount} from "@/lib/format";
 import {useProtocolStats, type ProtocolStats} from "@/lib/reads";
 import {ReadGate} from "./ReadGate";
@@ -88,8 +88,10 @@ function Stages({data}: {data: ProtocolStats}) {
 
       <ConvertStage data={data} />
 
+      <PushStage data={data} />
+
       <Stage
-        step={5}
+        step={6}
         title="Forward card royalties"
         body={`The ${EDITION.royaltyBps / 100}% resale royalty on cards, pushed into the same pipeline. Independent of trading volume.`}
         waiting={undefined}
@@ -119,6 +121,76 @@ function vaultBlockedReason(data: ProtocolStats): string | undefined {
     return "Conversion is paused onchain. While it is, only the named processor can move this stage.";
   }
   return undefined;
+}
+
+/**
+ * Paying owners without them asking.
+ *
+ * The distributor's accounting is pull-based, which is what makes it safe and cheap: it
+ * never iterates the collection, so nothing it does grows with the number of cards. This
+ * pushes anyway. A quarter's ids are contiguous, so a bounded range of them can be settled
+ * and paid in one transaction, and whoever calls it pays the gas to pay other people.
+ *
+ * In practice this is a scheduled job. It is here because a reward that only arrives when
+ * somebody remembers to run a script is a reward with an operator in front of it, and
+ * anyone should be able to run it themselves.
+ */
+function PushStage({data}: {data: ProtocolStats}) {
+  return (
+    <article className="border-rule border-ink bg-paperCard shadow-card">
+      <div className="flex items-center gap-3 border-b-rule border-ink bg-tint-mint px-5 py-3">
+        <span className="pip bg-field-sun text-ink">5</span>
+        <span className="font-display text-base font-bold text-ink">
+          Pay owners without them asking
+        </span>
+      </div>
+
+      <div className="px-5 py-5">
+        <p className="max-w-2xl text-sm leading-relaxed text-inkMuted">
+          Settles and pays every card in a {BRAND.groupTerm.toLowerCase()}, so owners are not
+          required to do anything to be paid. Bounded per call and resumable, because a full{" "}
+          {BRAND.groupTerm.toLowerCase()} is more work than one transaction should carry. An
+          owner whose transfer fails is skipped rather than blocking the rest, and their
+          credit stays theirs.
+        </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {QUARTERS.map((q) => (
+            <div key={q.index} className="border-rule border-ink bg-paperCard">
+              <div
+                aria-hidden
+                className="tile-cap"
+                style={{backgroundColor: `var(${q.colorVar})`}}
+              />
+              <div className="p-3">
+                <p className="rule-label">{q.label}</p>
+                <div className="mt-3">
+                  <TxButton
+                    address={ADDRESSES.distributor}
+                    abi={distributorAbi}
+                    functionName="pushQuarter"
+                    // From the start of the quarter, forty cards at a time. Enough to be
+                    // worth a transaction, few enough to fit comfortably in a block.
+                    args={[EDITION_ID, q.index, 0n, 40n]}
+                    label="Pay owners"
+                    pendingLabel="Paying…"
+                    variant="secondary"
+                    disabledReason={
+                      data.perQuarterMinted[q.index] === undefined
+                        ? "This quarter's card count could not be read."
+                        : (data.perQuarterMinted[q.index] ?? 0n) === 0n
+                          ? "No cards in this quarter yet."
+                          : undefined
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  );
 }
 
 /** Conversion is per-quarter, so a failed route strands only its own quarter. */
