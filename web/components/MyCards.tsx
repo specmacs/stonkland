@@ -6,7 +6,7 @@ import {BRAND, QUARTERS, formName} from "@/lib/brand";
 import {ADDRESSES} from "@/lib/config";
 import {progressionManagerAbi, tokenAbi} from "@/lib/abis";
 import {formatAssetAmount, formatWholeTokens} from "@/lib/format";
-import {useBuildPaused, useOwnedCards, useRewardAssets, type OwnedCard} from "@/lib/reads";
+import {useBuildState, useOwnedCards, useRewardAssets, type BuildState, type OwnedCard} from "@/lib/reads";
 import {PageHeader} from "./Section";
 import {Stars} from "./SectionHead";
 import {ReadGate} from "./ReadGate";
@@ -17,7 +17,7 @@ export function MyCards() {
   const {isConnected} = useAccount();
   const owned = useOwnedCards();
   const assets = useRewardAssets();
-  const buildPaused = useBuildPaused();
+  const build = useBuildState();
 
   return (
     <>
@@ -70,7 +70,7 @@ export function MyCards() {
                           ? assets.data[card.quarter]?.decimals
                           : undefined
                       }
-                      buildPaused={buildPaused.status === "ready" ? buildPaused.data : undefined}
+                      build={build.status === "ready" ? build.data : undefined}
                     />
                   ))}
                 </div>
@@ -87,21 +87,34 @@ function CardRow({
   card,
   assetSymbol,
   assetDecimals,
-  buildPaused,
+  build,
 }: {
   card: OwnedCard;
   assetSymbol: string | undefined;
   assetDecimals: number | undefined;
-  buildPaused: boolean | undefined;
+  build: BuildState | undefined;
 }) {
   const quarter = QUARTERS[card.quarter];
   const maxed = card.nextLevel === undefined;
+  const burn = card.nextBurn;
+
+  // Every reason the button cannot be pressed, checked here rather than discovered in the
+  // wallet. Ordered by what the owner would have to do about it first.
+  const needsApproval =
+    build?.allowance !== undefined && burn !== undefined && build.allowance < burn;
+  const shortBalance =
+    build?.walletBalance !== undefined && burn !== undefined && build.walletBalance < burn;
 
   let disabledReason: string | undefined;
   if (maxed) disabledReason = `This card is a ${formName(card.level)}. There is nothing above it.`;
-  else if (buildPaused === undefined) {
+  else if (build === undefined) {
     disabledReason = "Pause state could not be verified onchain, so building stays disabled.";
-  } else if (buildPaused) disabledReason = "Building is paused onchain right now.";
+  } else if (build.paused) disabledReason = "Building is paused onchain right now.";
+  else if (shortBalance && burn !== undefined) {
+    disabledReason = `Not enough ${BRAND.tokenTicker}. This build destroys ${formatWholeTokens(burn)}.`;
+  } else if (needsApproval) {
+    disabledReason = `Approve ${BRAND.tokenTicker} first.`;
+  }
 
   return (
     <article className="border-rule border-ink bg-paperCard shadow-cardLg">
@@ -120,7 +133,7 @@ function CardRow({
       <div className="p-5">
       <div className="flex gap-5">
         <div className="shrink-0 text-center">
-          <PieceArt level={card.level} className="h-24 w-24" />
+          <PieceArt level={card.level} className="h-28 w-28" />
           <Stars level={card.level} className="mt-2" size="sm" />
         </div>
 
@@ -162,7 +175,7 @@ function CardRow({
             At the top of the ladder. This card cannot be built further, reduced, or reset.
           </p>
         ) : (
-          <BuildControl card={card} disabledReason={disabledReason} />
+          <BuildControl card={card} disabledReason={disabledReason} needsApproval={needsApproval} />
         )}
       </div>
       </div>
@@ -173,9 +186,12 @@ function CardRow({
 function BuildControl({
   card,
   disabledReason,
+  needsApproval,
 }: {
   card: OwnedCard;
   disabledReason: string | undefined;
+  /** The approve control appears only while it is actually needed. */
+  needsApproval: boolean;
 }) {
   const nextLevel = card.nextLevel;
   const nextWeight = card.nextWeight;
@@ -192,18 +208,20 @@ function BuildControl({
       </p>
 
       <div className="flex flex-wrap gap-2">
-        <TxButton
-          address={ADDRESSES.token}
-          abi={tokenAbi}
-          functionName="approve"
-          args={[ADDRESSES.progressionManager, maxUint256]}
-          label="Approve"
-          pendingLabel="Approving…"
-          variant="secondary"
-          disabledReason={
-            ADDRESSES.progressionManager ? undefined : "Manager address is not configured."
-          }
-        />
+        {needsApproval && (
+          <TxButton
+            address={ADDRESSES.token}
+            abi={tokenAbi}
+            functionName="approve"
+            args={[ADDRESSES.progressionManager, maxUint256]}
+            label={`Approve ${BRAND.tokenTicker}`}
+            pendingLabel="Approving…"
+            variant="secondary"
+            disabledReason={
+              ADDRESSES.progressionManager ? undefined : "Manager address is not configured."
+            }
+          />
+        )}
         <TxButton
           address={ADDRESSES.progressionManager}
           abi={progressionManagerAbi}

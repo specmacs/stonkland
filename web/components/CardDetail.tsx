@@ -4,7 +4,9 @@ import {useEffect, useRef} from "react";
 import {BRAND, QUARTERS, formName, levelInfo} from "@/lib/brand";
 import {formatWholeTokens, shortAddress} from "@/lib/format";
 import type {CardState} from "@/lib/reads";
+import Link from "next/link";
 import {PieceArt} from "./PieceArt";
+import {Stars} from "./SectionHead";
 
 /** Detail for one minted card. Everything shown here came from a read of that card. */
 export function CardDetail({card, onClose}: {card: CardState; onClose: () => void}) {
@@ -34,33 +36,34 @@ export function CardDetail({card, onClose}: {card: CardState; onClose: () => voi
         aria-modal="true"
         aria-label={`Card ${card.tokenId}`}
         onClick={(e) => e.stopPropagation()}
-        className="panel w-full max-w-lg bg-paper p-6"
+        className="w-full max-w-lg border-rule border-ink bg-paperCard shadow-cardLg"
       >
-        <div className="flex items-start justify-between gap-4">
+        <div
+          className="flex items-center justify-between gap-4 border-b-rule border-ink px-5 py-3 text-paperCard"
+          style={{backgroundColor: `var(${quarter?.colorVar ?? "--quarter-1"})`}}
+        >
           <div>
-            <p className="rule-label flex items-center gap-1.5">
-              <span
-                aria-hidden
-                className="h-1.5 w-1.5 rounded-full"
-                style={{backgroundColor: `var(${quarter?.colorVar ?? "--quarter-1"})`}}
-              />
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] opacity-85">
               {quarter?.label}
             </p>
-            <h2 className="mt-1 text-xl font-semibold text-ink">
+            <h2 className="mt-1 font-display text-xl font-bold">
               {BRAND.itemName} #{card.tokenId.toString()}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border-rule border-ink px-2.5 py-1 text-sm text-inkMuted hover:text-ink"
+            className="shrink-0 border border-paperCard/60 px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.12em] hover:bg-paperCard/15"
           >
             Close
           </button>
         </div>
 
-        <div className="mt-5 flex gap-5">
-          <PieceArt level={card.level} className="h-28 w-28 shrink-0" />
+        <div className="flex gap-5 p-6">
+          <div className="shrink-0 text-center">
+            <PieceArt level={card.level} className="h-28 w-28" />
+            <Stars level={card.level} className="mt-2" size="sm" />
+          </div>
           <dl className="grid flex-1 grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <div>
               <dt className="rule-label">Form</dt>
@@ -85,12 +88,22 @@ export function CardDetail({card, onClose}: {card: CardState; onClose: () => voi
           </dl>
         </div>
 
-        <p className="mt-5 border-t-rule border-ink pt-4 text-xs leading-relaxed text-inkMuted">
+        </div>
+
+        <div className="border-t-rule border-ink px-6 py-5">
+        <p className="text-xs leading-relaxed text-inkMuted">
           {next
             ? `Next level is ${next.form} at ${BRAND.scoreTerm} ${next.weight}, reached by burning ${next.burnToReach.toLocaleString("en-US")} ${BRAND.tokenTicker}. Only the current owner can build.`
             : `This card is at ${formName(card.level)}, the top of the ladder. It cannot be built further, reduced, or reset.`}
         </p>
-      </div>
+        <Link
+          href={`/board/${card.tokenId.toString()}`}
+          className="btn-secondary mt-4"
+          onClick={onClose}
+        >
+          Open this card
+        </Link>
+        </div>
     </div>
   );
 }

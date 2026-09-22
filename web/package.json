@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "gen:rulebook": "node --experimental-strip-types scripts/gen-rulebook.mjs"
+    "gen:rulebook": "node --experimental-strip-types scripts/gen-rulebook.mjs",
+    "check:parameters": "node scripts/check-parameters.mjs",
+    "prebuild": "node scripts/check-parameters.mjs"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.4",

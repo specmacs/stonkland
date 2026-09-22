@@ -44,7 +44,7 @@ export function BoardView() {
                   </p>
                   <p className="mt-2 font-mono text-3xl font-semibold tabular-nums leading-none">
                     {formatCount(data.total)}
-                    <span className="text-paperCard/40"> / {EDITION.cardSupply}</span>
+                    <span className="text-paperCard/40"> / {formatCount(data.cardSupply)}</span>
                   </p>
                 </div>
                 {QUARTERS.map((q) => (
@@ -58,7 +58,7 @@ export function BoardView() {
                       <p className="rule-label">{q.label}</p>
                       <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums text-ink">
                         {formatCount(data.perQuarter[q.index] ?? 0n)}
-                        <span className="text-inkFaint"> / {EDITION.quarterCap}</span>
+                        <span className="text-inkFaint"> / {formatCount(data.quarterCap)}</span>
                       </p>
                     </div>
                   </div>
@@ -77,6 +77,7 @@ export function BoardView() {
               <QuarterGrid
                 quarter={quarter}
                 mintedCount={Number(data.perQuarter[quarter] ?? 0n)}
+                quarterCap={Number(data.quarterCap)}
                 ownership={ownership}
                 levelFilter={levelFilter}
                 onSelect={setSelected}
@@ -196,12 +197,15 @@ function Filters({
 function QuarterGrid({
   quarter,
   mintedCount,
+  quarterCap,
   ownership,
   levelFilter,
   onSelect,
 }: {
   quarter: number;
   mintedCount: number;
+  /** Read from the collection, so the grid draws exactly the capacity that exists. */
+  quarterCap: number;
   ownership: Ownership;
   levelFilter: LevelFilter;
   onSelect: (c: CardState) => void;
@@ -218,8 +222,8 @@ function QuarterGrid({
     return map;
   }, [cards]);
 
-  const firstId = BigInt(quarter) * BigInt(EDITION.quarterCap) + 1n;
-  const cells = Array.from({length: EDITION.quarterCap}, (_, i) => firstId + BigInt(i));
+  const firstId = BigInt(quarter) * BigInt(quarterCap) + 1n;
+  const cells = Array.from({length: quarterCap}, (_, i) => firstId + BigInt(i));
 
   return (
     <ReadGate
@@ -230,13 +234,13 @@ function QuarterGrid({
       {() => {
         if (mintedCount === 0) {
           return (
-            <Plate quarter={quarterMeta}>
+            <Plate quarter={quarterMeta} cap={quarterCap}>
               <div className="px-6 py-16 text-center">
                 <p className="font-display text-2xl font-bold text-ink">
                   Nothing claimed here yet.
                 </p>
                 <p className="mt-3 text-sm text-inkMuted">
-                  All {EDITION.quarterCap} plots in this {BRAND.groupTerm.toLowerCase()} are open
+                  All {quarterCap} plots in this {BRAND.groupTerm.toLowerCase()} are open
                   capacity.
                 </p>
               </div>
@@ -245,7 +249,7 @@ function QuarterGrid({
         }
 
         return (
-          <Plate quarter={quarterMeta}>
+          <Plate quarter={quarterMeta} cap={quarterCap}>
           <div
             className="grid gap-1.5 p-4"
             style={{gridTemplateColumns: `repeat(${EDITION.gridSize}, minmax(0, 1fr))`}}
@@ -321,9 +325,11 @@ function QuarterGrid({
  */
 function Plate({
   quarter,
+  cap,
   children,
 }: {
   quarter: Quarter | undefined;
+  cap: number;
   children: ReactNode;
 }) {
   return (
@@ -336,7 +342,7 @@ function Plate({
           {quarter?.label ?? BRAND.groupTerm}
         </p>
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] opacity-80">
-          {EDITION.gridSize} × {EDITION.gridSize} · {EDITION.quarterCap} plots
+          {EDITION.gridSize} × {EDITION.gridSize} · {cap} plots
         </p>
       </div>
       {children}

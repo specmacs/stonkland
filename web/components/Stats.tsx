@@ -134,7 +134,7 @@ function Cards({data}: {data: ProtocolStats}) {
   return (
     <Block
       eyebrow="Cards"
-      heading="Four hundred, and no more."
+      heading={`${formatCount(data.cardSupply)} cards, and no more.`}
       sub={`Every card belongs to one ${BRAND.groupTerm.toLowerCase()}, and each ${BRAND.groupTerm.toLowerCase()} is capped independently.`}
       footnote={
         <>
@@ -150,7 +150,7 @@ function Cards({data}: {data: ProtocolStats}) {
           cap="bg-seal"
           label="Minted"
           value={formatCount(data.cardsMinted)}
-          unit={`of ${EDITION.cardSupply}`}
+          unit={`of ${formatCount(data.cardSupply)}`}
         />
         <Tile
           cap="bg-field-sun"
@@ -173,8 +173,10 @@ function Cards({data}: {data: ProtocolStats}) {
 
       <div className="card-row mt-6 grid bg-ink sm:grid-cols-2 lg:grid-cols-4">
         {QUARTERS.map((q, i) => {
-          const minted = data.perQuarterMinted[q.index] ?? 0n;
-          const full = minted >= BigInt(EDITION.quarterCap);
+          const minted = data.perQuarterMinted[q.index];
+          const weight = data.perQuarterWeight[q.index];
+          // "Full" is a claim about a count. Without the count there is no claim to make.
+          const full = minted !== undefined && minted >= data.quarterCap;
           return (
             <div
               key={q.index}
@@ -189,17 +191,28 @@ function Cards({data}: {data: ProtocolStats}) {
                 <span className="font-mono text-[11px] uppercase tracking-[0.16em]">
                   {q.label}
                 </span>
-                <span className="border border-paperCard/50 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em]">
-                  {full ? "Full" : "Open"}
-                </span>
+                {minted !== undefined && (
+                  <span className="border border-paperCard/50 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em]">
+                    {full ? "Full" : "Open"}
+                  </span>
+                )}
               </div>
               <div className="px-4 py-5">
                 <p className="font-mono text-3xl font-semibold tabular-nums leading-none text-ink">
-                  {formatCount(minted)}
-                  <span className="text-lg text-inkFaint"> / {EDITION.quarterCap}</span>
+                  {minted === undefined ? (
+                    <span className="text-inkFaint">—</span>
+                  ) : (
+                    formatCount(minted)
+                  )}
+                  <span className="text-lg text-inkFaint"> / {formatCount(data.quarterCap)}</span>
                 </p>
                 <p className="rule-label mt-2.5">
-                  {BRAND.scoreTerm} {formatCount(data.perQuarterWeight[q.index] ?? 0n)}
+                  {BRAND.scoreTerm}{" "}
+                  {weight === undefined ? (
+                    <span className="text-inkFaint">not read</span>
+                  ) : (
+                    formatCount(weight)
+                  )}
                 </p>
               </div>
             </div>

@@ -1,11 +1,19 @@
 import Link from "next/link";
-import {BRAND, EDITION, LEVELS, QUARTERS, REWARD_ASSET_EXPLAINER} from "@/lib/brand";
+import {
+  BRAND,
+  BUILD_BURN_RANGE,
+  EDITION,
+  LEVELS,
+  QUARTERS,
+  REWARD_ASSET_EXPLAINER,
+} from "@/lib/brand";
 import {formatBps} from "@/lib/format";
 import {Section} from "@/components/Section";
 import {LevelCards} from "@/components/LevelCards";
 import {PieceArt} from "@/components/PieceArt";
 import {WeightComparison} from "@/components/WeightComparison";
 import {PhaseNotice} from "@/components/PhaseNotice";
+import {Parameters, VenueParameter} from "@/components/Provenance";
 
 /** The four opening beats, tinted across rather than left as five identical panels. */
 const BEATS = [
@@ -85,7 +93,7 @@ export default function LandingPage() {
                 </span>
               </div>
               <div className="px-6 py-10">
-                <PieceArt level={5} className="mx-auto h-52 w-52" />
+                <PieceArt level={5} priority className="mx-auto h-52 w-52" />
               </div>
               <div className="border-t-rule border-ink bg-paperCard px-5 py-5">
                 <div className="flex items-baseline justify-between gap-3">
@@ -170,6 +178,7 @@ export default function LandingPage() {
           mint included. Reaching the top is rare by design: if every card were built to{" "}
           {landmark?.form}, it would take more tokens than exist.
         </p>
+        <Parameters className="mt-5" />
       </Section>
 
       {/* Quarters */}
@@ -215,6 +224,7 @@ export default function LandingPage() {
             </article>
           ))}
         </div>
+        <Parameters className="mt-6" dark />
         <div className="mt-10 max-w-3xl border-l-4 border-field-sun pl-5">
           <p className="text-body-lg text-paperCard/90">{REWARD_ASSET_EXPLAINER}</p>
           <p className="mt-3 text-xs leading-relaxed text-paperCard/60">
@@ -269,6 +279,12 @@ export default function LandingPage() {
           it on fixed terms, wraps the rewards portion, and funds short streams so a single sweep
           does not land on one moment.
         </p>
+        <VenueParameter className="mt-4 max-w-3xl" dark>
+          The {EDITION.creatorTaxPercent}% is set on the launch venue when the token is created,
+          not in the contracts in this repository. It is checkable against the token itself once
+          it exists. Everything downstream of it — the split, the streams, the conversion, the
+          claim — is in these contracts and is read live on the protocol page.
+        </VenueParameter>
       </Section>
 
       {/* Rule card */}
@@ -287,10 +303,14 @@ export default function LandingPage() {
         <div className="border-rule border-ink bg-paperCard shadow-cardSeal">
           <dl className="grid sm:grid-cols-2 lg:grid-cols-5">
             {[
-              ["Fixed supply", "1,000,000,000", BRAND.tokenTicker],
+              [
+                "Fixed supply",
+                EDITION.tokenMaxSupply.toLocaleString("en-US"),
+                BRAND.tokenTicker,
+              ],
               ["Cards, ever", EDITION.cardSupply.toLocaleString("en-US"), "across four quarters"],
               ["Mint burn", EDITION.mintBurn.toLocaleString("en-US"), `${BRAND.tokenTicker} per card`],
-              ["Build burns", "500k → 2M", "per level, rising"],
+              ["Build burns", BUILD_BURN_RANGE, "per level, rising"],
               ["Primary mints", String(EDITION.mintsPerWallet), "per wallet"],
             ].map(([label, value, unit]) => (
               <div
@@ -306,6 +326,8 @@ export default function LandingPage() {
             ))}
           </dl>
         </div>
+        <Parameters className="mt-5" />
+
         <p className="mt-10 font-display text-display-md font-bold text-ink">
           Every burn is permanent.
           <br />

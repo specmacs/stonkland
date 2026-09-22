@@ -32,6 +32,12 @@ export function PhaseNotice({className = ""}: {className?: string}) {
           waits, because until a pool exists there is nothing to buy the token against. It
           holds the money rather than spending it badly.
         </p>
+        <p className="mt-4 border-t border-ink/10 pt-3 font-mono text-[11px] leading-relaxed text-inkFaint">
+          Which phase this is comes from this deployment&apos;s configuration, not from a
+          reading. It is set deliberately: the interface could guess from whether a pool
+          address is present, and a wrong guess would tell you the launch had reached a stage
+          it had not.
+        </p>
       </div>
     </aside>
   );

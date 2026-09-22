@@ -60,7 +60,7 @@ export function MintFlow() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   {QUARTERS.map((q) => {
                     const minted = Number(data.perQuarter[q.index] ?? 0n);
-                    const full = minted >= EDITION.quarterCap;
+                    const full = minted >= Number(data.quarterCap);
                     return (
                       <button
                         key={q.index}
@@ -93,7 +93,7 @@ export function MintFlow() {
                             )}
                           </span>
                           <span className="mt-2 block font-mono text-sm tabular-nums text-inkMuted">
-                            {minted} / {EDITION.quarterCap} claimed
+                            {minted} / {Number(data.quarterCap)} claimed
                           </span>
                           {full && (
                             <span className="mt-1.5 block text-xs text-inkMuted">

@@ -9,12 +9,12 @@ import {Stars} from "./SectionHead";
  * is not one more step along a gradient, it is the end of the ladder, and the row should
  * say so before the numbers under it are read.
  */
-const HEADER: Record<number, {bar: string; type: string}> = {
-  1: {bar: "bg-tint-mint", type: "text-ink"},
-  2: {bar: "bg-tint-sky", type: "text-ink"},
-  3: {bar: "bg-tint-sun", type: "text-ink"},
-  4: {bar: "bg-tint-peach", type: "text-ink"},
-  5: {bar: "bg-seal", type: "text-paperCard"},
+const HEADER: Record<number, {bar: string; type: string; field: string}> = {
+  1: {bar: "bg-tint-mint", type: "text-ink", field: "bg-tint-mint/35"},
+  2: {bar: "bg-tint-sky", type: "text-ink", field: "bg-tint-sky/35"},
+  3: {bar: "bg-tint-sun", type: "text-ink", field: "bg-tint-sun/35"},
+  4: {bar: "bg-tint-peach", type: "text-ink", field: "bg-tint-peach/35"},
+  5: {bar: "bg-seal", type: "text-paperCard", field: "bg-seal/10"},
 };
 
 /** The five forms as a row of cards, lifted off the page as one block. */
@@ -42,8 +42,8 @@ function LevelCard({level: l}: {level: LevelInfo}) {
         </span>
       </header>
 
-      <div className="flex grow flex-col items-center px-4 pb-4 pt-5">
-        <PieceArt level={l.level} className="h-24 w-24" />
+      <div className={`flex grow flex-col items-center px-4 pb-5 pt-5 ${head.field}`}>
+        <PieceArt level={l.level} className="h-32 w-32" />
         <Stars level={l.level} className="mt-4" />
       </div>
 

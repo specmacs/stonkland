@@ -57,13 +57,32 @@ export type CardState = {
 
 type PropertyTuple = {quarter: number; level: number; weight: number; burned: bigint};
 
-/** Claimed counts for the board, global and per quarter. */
-export function useBoardCounts(): ReadState<{total: bigint; perQuarter: bigint[]}> {
+export type BoardCounts = {
+  total: bigint;
+  perQuarter: bigint[];
+  /** The collection's own caps, so a denominator on screen is a reading like its numerator. */
+  cardSupply: bigint;
+  quarterCap: bigint;
+};
+
+/**
+ * Claimed counts for the board, global and per quarter, with the caps they are counted
+ * against.
+ *
+ * The caps are read rather than taken from config. They are immutable and mirrored in
+ * `brand.ts`, so reading them changes nothing while the two agree -- but "3 / 400" is one
+ * claim, not two, and half of it arriving from a build-time constant while the other half
+ * comes from chain is exactly the seam where a page starts quietly describing a system
+ * that is not the one deployed.
+ */
+export function useBoardCounts(): ReadState<BoardCounts> {
   const nft = addr("nft");
 
   const calls: Call[] = nft
     ? [
         {address: nft, abi: propertyNftAbi, functionName: "totalSupply"},
+        {address: nft, abi: propertyNftAbi, functionName: "MAX_SUPPLY"},
+        {address: nft, abi: propertyNftAbi, functionName: "QUARTER_CAP"},
         ...QUARTERS.map((q) => ({
           address: nft,
           abi: propertyNftAbi,
@@ -76,18 +95,28 @@ export function useBoardCounts(): ReadState<{total: bigint; perQuarter: bigint[]
   const batch = useBatch(calls, Boolean(nft));
 
   return useMemo(() => {
-    if (!nft) return unconfigured<{total: bigint; perQuarter: bigint[]}>(["NEXT_PUBLIC_NFT_ADDRESS"]);
+    if (!nft) return unconfigured<BoardCounts>(["NEXT_PUBLIC_NFT_ADDRESS"]);
     if (batch.isPending) return {status: "loading"};
     if (batch.error) return {status: "error", error: batch.error};
 
     const cursor = new Cursor(batch.results);
     const total = cursor.nextBigint();
+    const cardSupply = cursor.nextBigint();
+    const quarterCap = cursor.nextBigint();
     const perQuarter = QUARTERS.map(() => cursor.nextBigint());
 
-    if (total === undefined || perQuarter.some((v) => v === undefined)) {
+    if (
+      total === undefined ||
+      cardSupply === undefined ||
+      quarterCap === undefined ||
+      perQuarter.some((v) => v === undefined)
+    ) {
       return {status: "error", error: new Error("Card counts did not read back from the collection.")};
     }
-    return {status: "ready", data: {total, perQuarter: perQuarter as bigint[]}};
+    return {
+      status: "ready",
+      data: {total, perQuarter: perQuarter as bigint[], cardSupply, quarterCap},
+    };
   }, [nft, batch.isPending, batch.error, batch.results]);
 }
 
@@ -140,6 +169,71 @@ export function useQuarterCards(quarter: number, mintedCount: number): ReadState
     }
     return {status: "ready", data: cards};
   }, [nft, ids, batch.isPending, batch.error, batch.results]);
+}
+
+/**
+ * One card, by token id. `null` means the read succeeded and no such card exists.
+ *
+ * Separate from the quarter batch because a card page is reached directly -- from a
+ * marketplace, a link, a share -- with no board loaded around it.
+ *
+ * The distinction between "no card here" and "could not find out" is the whole point of
+ * the `null`. Both arrive as a missing value, and collapsing them would let the page tell
+ * somebody a card had never been minted at the exact moment it had no way of knowing.
+ * A token that does not exist reverts *both* calls; anything else missing is an anomaly
+ * and reports as a failure rather than as an answer.
+ */
+export function useCard(tokenId: bigint | undefined): ReadState<CardState | null> {
+  const nft = addr("nft");
+  const enabled = Boolean(nft) && tokenId !== undefined;
+
+  const calls: Call[] =
+    nft && tokenId !== undefined
+      ? [
+          {address: nft, abi: propertyNftAbi, functionName: "propertyOf", args: [tokenId]},
+          {address: nft, abi: propertyNftAbi, functionName: "ownerOf", args: [tokenId]},
+        ]
+      : [];
+
+  const batch = useBatch(calls, enabled);
+
+  return useMemo(() => {
+    if (!nft) return unconfigured<CardState | null>(["NEXT_PUBLIC_NFT_ADDRESS"]);
+    if (tokenId === undefined) {
+      return {status: "error", error: new Error("That is not a token id.")};
+    }
+    if (batch.isPending) return {status: "loading"};
+    // The batch itself failing is a read failure, never evidence about the token.
+    if (batch.error) return {status: "error", error: batch.error};
+
+    const cursor = new Cursor(batch.results);
+    const property = cursor.next<PropertyTuple>();
+    const owner = cursor.next<Address>();
+
+    // Both reverted: the id names nothing. This is an answer, not a failure.
+    if (!property && !owner) return {status: "ready", data: null};
+
+    // One of the two came back and the other did not. Nothing sensible can be said about
+    // a card that half exists, so this reports rather than guesses.
+    if (!property || !owner) {
+      return {
+        status: "error",
+        error: new Error("This card read back only partly, so it is not shown."),
+      };
+    }
+
+    return {
+      status: "ready",
+      data: {
+        tokenId,
+        quarter: property.quarter,
+        level: property.level,
+        weight: property.weight,
+        burned: property.burned,
+        owner,
+      },
+    };
+  }, [nft, tokenId, batch.isPending, batch.error, batch.results]);
 }
 
 export type MintState = {
@@ -232,7 +326,10 @@ export function useOwnedCards(): ReadState<OwnedCard[]> {
     query: {enabled: Boolean(nft && wallet)},
   });
 
-  const count = Number(balanceQuery.data ?? 0n);
+  // Undefined here means the balance has not arrived, which is not the same as a wallet
+  // holding nothing. Kept separate so the difference survives to the guard below.
+  const balance = balanceQuery.data as bigint | undefined;
+  const count = balance === undefined ? 0 : Number(balance);
 
   const idCalls: Call[] =
     nft && wallet
@@ -300,6 +397,9 @@ export function useOwnedCards(): ReadState<OwnedCard[]> {
 
     if (balanceQuery.isPending) return {status: "loading"};
     if (balanceQuery.error) return {status: "error", error: balanceQuery.error};
+    // Neither pending nor failed, but nothing came back. "No cards" is a claim this has
+    // not earned the right to make, so it keeps waiting rather than making it.
+    if (balance === undefined) return {status: "loading"};
     if (count === 0) return {status: "ready", data: []};
     if (idBatch.isPending || detailBatch.isPending) return {status: "loading"};
     if (idBatch.error) return {status: "error", error: idBatch.error};
@@ -338,6 +438,7 @@ export function useOwnedCards(): ReadState<OwnedCard[]> {
     nft,
     distributor,
     wallet,
+    balance,
     count,
     ids,
     properties,
@@ -389,15 +490,26 @@ export function useRewardAssets(): ReadState<(RewardAssetInfo | undefined)[]> {
   }, [configured, batch.isPending, batch.error, batch.results]);
 }
 
+/**
+ * One wallet's standing in one quarter.
+ *
+ * Every figure that comes from a call is `bigint | undefined`, and undefined means the
+ * call did not return -- never zero. Coalescing a failed read to zero would put a figure
+ * on screen the interface does not actually know, and worse, it would let the claim
+ * control report that there is nothing to claim on the strength of a read that failed.
+ *
+ * `walletWeight` is the exception: it is summed from cards already read, so it is known
+ * whenever the row exists at all.
+ */
 export type QuarterStanding = {
   quarter: number;
-  quarterWeight: bigint;
+  quarterWeight: bigint | undefined;
   walletWeight: bigint;
-  pendingOnCards: bigint;
-  creditedToWallet: bigint;
-  totalDeposited: bigint;
-  totalClaimed: bigint;
-  reserve: bigint;
+  pendingOnCards: bigint | undefined;
+  creditedToWallet: bigint | undefined;
+  totalDeposited: bigint | undefined;
+  totalClaimed: bigint | undefined;
+  reserve: bigint | undefined;
   /** True when any figure in this row failed to read, so the row is not shown as whole. */
   incomplete: boolean;
 };
@@ -448,23 +560,28 @@ export function useQuarterStandings(): ReadState<QuarterStanding[]> {
     for (const q of QUARTERS) {
       const quarterWeight = cursor.nextBigint();
       const hasAsset = Boolean(REWARD_ASSETS[q]);
-      const totalDeposited = hasAsset ? cursor.nextBigint() : 0n;
-      const totalClaimed = hasAsset ? cursor.nextBigint() : 0n;
-      const reserve = hasAsset ? cursor.nextBigint() : 0n;
-      const creditedToWallet = hasAsset && wallet ? cursor.nextBigint() : 0n;
+      // No configured asset means there is nothing to read and nothing to show. That is a
+      // different state from a read that failed, and both stay undefined rather than zero.
+      const totalDeposited = hasAsset ? cursor.nextBigint() : undefined;
+      const totalClaimed = hasAsset ? cursor.nextBigint() : undefined;
+      const reserve = hasAsset ? cursor.nextBigint() : undefined;
+      const creditedToWallet = hasAsset && wallet ? cursor.nextBigint() : undefined;
 
       const inQuarter = ownedCards.filter((c) => c.quarter === q);
+      // One card's pending failing makes the sum unknowable, not smaller.
       const pendingReadFailed = inQuarter.some((c) => c.pending === undefined);
 
       rows.push({
         quarter: q,
-        quarterWeight: quarterWeight ?? 0n,
+        quarterWeight,
         walletWeight: inQuarter.reduce((sum, c) => sum + BigInt(c.weight), 0n),
-        pendingOnCards: inQuarter.reduce((sum, c) => sum + (c.pending ?? 0n), 0n),
-        creditedToWallet: creditedToWallet ?? 0n,
-        totalDeposited: totalDeposited ?? 0n,
-        totalClaimed: totalClaimed ?? 0n,
-        reserve: reserve ?? 0n,
+        pendingOnCards: pendingReadFailed
+          ? undefined
+          : inQuarter.reduce((sum, c) => sum + (c.pending ?? 0n), 0n),
+        creditedToWallet,
+        totalDeposited,
+        totalClaimed,
+        reserve,
         incomplete:
           quarterWeight === undefined ||
           (hasAsset &&
@@ -484,8 +601,11 @@ export type ProtocolStats = {
   tokenSupply: bigint;
   tokenMaxSupply: bigint;
   cardsMinted: bigint;
-  perQuarterMinted: bigint[];
-  perQuarterWeight: bigint[];
+  /** Read, not assumed: the denominators on screen are readings like their numerators. */
+  cardSupply: bigint;
+  quarterCap: bigint;
+  perQuarterMinted: (bigint | undefined)[];
+  perQuarterWeight: (bigint | undefined)[];
   editionWeight: bigint;
   protocolWeight: bigint;
   feeRouterPending: bigint | undefined;
@@ -515,7 +635,11 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
     );
   }
   if (nft) {
-    calls.push({address: nft, abi: propertyNftAbi, functionName: "totalSupply"});
+    calls.push(
+      {address: nft, abi: propertyNftAbi, functionName: "totalSupply"},
+      {address: nft, abi: propertyNftAbi, functionName: "MAX_SUPPLY"},
+      {address: nft, abi: propertyNftAbi, functionName: "QUARTER_CAP"},
+    );
     for (const q of QUARTERS) {
       calls.push({address: nft, abi: propertyNftAbi, functionName: "mintedInQuarter", args: [q]});
     }
@@ -583,8 +707,12 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
     const tokenSupply = cursor.nextBigint();
     const tokenMaxSupply = cursor.nextBigint();
     const cardsMinted = cursor.nextBigint();
-    const perQuarterMinted = QUARTERS.map(() => cursor.nextBigint() ?? 0n);
-    const perQuarterWeight = QUARTERS.map(() => cursor.nextBigint() ?? 0n);
+    const cardSupply = cursor.nextBigint();
+    const quarterCap = cursor.nextBigint();
+    // Left undefined rather than zeroed: a quarter whose count did not read back is not
+    // a quarter with no cards in it, and the page must not say that it is.
+    const perQuarterMinted = QUARTERS.map(() => cursor.nextBigint());
+    const perQuarterWeight = QUARTERS.map(() => cursor.nextBigint());
     const editionWeight = cursor.nextBigint();
     const protocolWeight = cursor.nextBigint();
 
@@ -615,6 +743,8 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
       tokenSupply === undefined ||
       tokenMaxSupply === undefined ||
       cardsMinted === undefined ||
+      cardSupply === undefined ||
+      quarterCap === undefined ||
       editionWeight === undefined ||
       protocolWeight === undefined
     ) {
@@ -627,6 +757,8 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
         tokenSupply,
         tokenMaxSupply,
         cardsMinted,
+        cardSupply,
+        quarterCap,
         perQuarterMinted,
         perQuarterWeight,
         editionWeight,
@@ -644,21 +776,60 @@ export function useProtocolStats(): ReadState<ProtocolStats> {
   }, [token, nft, distributor, feeRouter, streamVault, revenueVault, batch.isPending, batch.error, batch.results]);
 }
 
-/** Whether building is currently possible. */
-export function useBuildPaused(): ReadState<boolean> {
+export type BuildState = {
+  paused: boolean;
+  /** Undefined when no wallet is connected; these two are per-wallet. */
+  walletBalance: bigint | undefined;
+  allowance: bigint | undefined;
+};
+
+/**
+ * Everything the build control has to know before it can be offered.
+ *
+ * The same three questions the mint asks, for the same reason: a build destroys up to two
+ * million tokens, and finding out in the wallet that the allowance was short is a worse
+ * experience than a button that says so beforehand. `paused` is load-bearing -- if it does
+ * not read back, building stays disabled rather than being offered on the assumption that
+ * it is probably fine.
+ */
+export function useBuildState(): ReadState<BuildState> {
+  const {address: wallet} = useAccount();
   const manager = addr("progressionManager");
-  const query = useReadContract({
-    address: manager,
-    abi: progressionManagerAbi,
-    functionName: "paused",
-    query: {enabled: Boolean(manager)},
-  });
+  const token = addr("token");
+
+  const calls: Call[] = [];
+  if (manager) {
+    calls.push({address: manager, abi: progressionManagerAbi, functionName: "paused"});
+    if (token && wallet) {
+      calls.push(
+        {address: token, abi: tokenAbi, functionName: "balanceOf", args: [wallet]},
+        {address: token, abi: tokenAbi, functionName: "allowance", args: [wallet, manager]},
+      );
+    }
+  }
+
+  const batch = useBatch(calls, Boolean(manager));
 
   return useMemo(() => {
-    if (!manager) return unconfigured<boolean>(["NEXT_PUBLIC_PROGRESSION_MANAGER_ADDRESS"]);
-    if (query.isPending) return {status: "loading"};
-    if (query.error) return {status: "error", error: query.error};
-    if (query.data === undefined) return {status: "loading"};
-    return {status: "ready", data: query.data as boolean};
-  }, [manager, query.isPending, query.error, query.data]);
+    const missing: string[] = [];
+    if (!manager) missing.push("NEXT_PUBLIC_PROGRESSION_MANAGER_ADDRESS");
+    if (!token) missing.push("NEXT_PUBLIC_TOKEN_ADDRESS");
+    if (missing.length > 0) return unconfigured<BuildState>(missing);
+    if (batch.isPending) return {status: "loading"};
+    if (batch.error) return {status: "error", error: batch.error};
+
+    const cursor = new Cursor(batch.results);
+    const paused = cursor.next<boolean>();
+    if (paused === undefined) {
+      return {
+        status: "error",
+        error: new Error("Pause state could not be verified onchain."),
+      };
+    }
+
+    const walletBalance = wallet ? cursor.nextBigint() : undefined;
+    const allowance = wallet ? cursor.nextBigint() : undefined;
+
+    return {status: "ready", data: {paused, walletBalance, allowance}};
+  }, [manager, token, wallet, batch.isPending, batch.error, batch.results]);
 }

@@ -28,17 +28,32 @@ export const BRAND = {
   strapline: "The property game that settles onchain",
 } as const;
 
-/** The founding edition's fixed parameters, mirrored from the contracts for copy only. */
+/**
+ * The founding edition's fixed parameters.
+ *
+ * Every value here is compiled into a contract and mirrored for copy. None of it is a
+ * reading: a parameter says what the system is configured to do, a reading says what it
+ * has actually done, and the interface never lets one stand in for the other. Anywhere a
+ * page shows what has happened -- supply destroyed, cards claimed, rewards deposited --
+ * the figure comes from a live call and is withheld when that call does not succeed.
+ *
+ * `scripts/check-parameters.mjs` parses the Solidity and fails if any of these drift from
+ * the constants they mirror, so a change to a contract cannot silently leave the copy
+ * describing the old system.
+ */
 export const EDITION = {
-  /** Cards in this edition, ever. */
+  /** Token.MAX_SUPPLY, in whole tokens. Minted once at deployment; nothing can add more. */
+  tokenMaxSupply: 1_000_000_000,
+  /** PropertyNFT.MAX_SUPPLY. Cards in this edition, ever. */
   cardSupply: 400,
+  /** PropertyNFT.QUARTER_COUNT. */
   quarterCount: 4,
-  /** Cards per quarter, laid out as a 10x10 grid. */
+  /** PropertyNFT.QUARTER_CAP. Cards per quarter, laid out as a 10x10 grid. */
   quarterCap: 100,
   gridSize: 10,
-  /** Primary mints per wallet. Not a cap on ownership. */
+  /** Minter.MINTS_PER_WALLET. Primary mints per wallet; not a cap on ownership. */
   mintsPerWallet: 3,
-  /** Tokens destroyed per mint, in whole tokens. */
+  /** Minter.MINT_BURN, in whole tokens. */
   mintBurn: 100_000,
   /**
    * The tax this launch sets, as a percentage of trade value.
@@ -93,6 +108,20 @@ export const LEVELS: readonly LevelInfo[] = [
 ] as const;
 
 export const MAX_LEVEL = 5;
+
+/**
+ * The span of the upgrade burns, as the rule card states it.
+ *
+ * Derived from the schedule rather than written out, so it cannot describe a ladder the
+ * contracts do not implement.
+ */
+export const BUILD_BURN_RANGE = (() => {
+  const upgrades = LEVELS.filter((l) => l.level > 1).map((l) => l.burnToReach);
+  const lo = Math.min(...upgrades);
+  const hi = Math.max(...upgrades);
+  const short = (n: number) => (n >= 1_000_000 ? `${n / 1_000_000}M` : `${n / 1_000}k`);
+  return `${short(lo)} \u2192 ${short(hi)}`;
+})();
 
 /**
  * What reaches this protocol from a trade, as a percentage of trade value.

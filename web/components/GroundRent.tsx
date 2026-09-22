@@ -100,7 +100,15 @@ function QuarterRow({
 }) {
   const quarter = QUARTERS[row.quarter];
   const nothingDeposited = row.totalDeposited === 0n;
-  const hasClaimable = row.pendingOnCards > 0n || row.creditedToWallet > 0n;
+
+  // Undefined is not zero. If either figure the claim depends on did not read back, the
+  // control is disabled because the answer is unknown -- not because the answer is no.
+  const {pendingOnCards, creditedToWallet} = row;
+  const claimableUnknown = pendingOnCards === undefined || creditedToWallet === undefined;
+  const hasClaimable =
+    pendingOnCards !== undefined &&
+    creditedToWallet !== undefined &&
+    (pendingOnCards > 0n || creditedToWallet > 0n);
 
   return (
     <section className="border-rule border-ink bg-paperCard shadow-card">
@@ -125,10 +133,11 @@ function QuarterRow({
               : `${cardsHeld} card${cardsHeld === 1 ? "" : "s"} held`}
             {" · "}
             <span className="font-mono">
-              {row.walletWeight.toString()} / {row.quarterWeight.toString()}
+              {row.walletWeight.toString()} /{" "}
+              {row.quarterWeight === undefined ? "—" : row.quarterWeight.toString()}
             </span>{" "}
             {BRAND.scoreTerm.toLowerCase()}
-            {row.quarterWeight > 0n && (
+            {row.quarterWeight !== undefined && row.quarterWeight > 0n && (
               <>
                 {" · "}
                 <span className="text-inkMuted">
@@ -163,14 +172,14 @@ function QuarterRow({
             <Figure
               cap="bg-tint-sun"
               label="Pending on cards"
-              value={formatAssetAmount(row.pendingOnCards, asset.decimals)}
+              value={amount(row.pendingOnCards, asset.decimals)}
               symbol={asset.symbol}
               note="Accruing on the cards themselves. Settles to you if you sell."
             />
             <Figure
               cap="bg-tint-mint"
               label="Credited to wallet"
-              value={formatAssetAmount(row.creditedToWallet, asset.decimals)}
+              value={amount(row.creditedToWallet, asset.decimals)}
               symbol={asset.symbol}
               note="Already yours. Stays with this wallet, whatever happens to the cards."
             />
@@ -178,7 +187,7 @@ function QuarterRow({
               cap="bg-tint-sky"
               label="Claimed to date"
               last
-              value={formatAssetAmount(row.totalClaimed, asset.decimals)}
+              value={amount(row.totalClaimed, asset.decimals)}
               symbol={asset.symbol}
               note={`Paid out of this ${BRAND.groupTerm.toLowerCase()} to all holders.`}
             />
@@ -186,8 +195,8 @@ function QuarterRow({
 
           <p className="mt-4 font-mono text-xs text-inkMuted">
             Deposited to this {BRAND.groupTerm.toLowerCase()}:{" "}
-            {formatAssetAmount(row.totalDeposited, asset.decimals)} {asset.symbol}
-            {row.reserve > 0n && (
+            {amount(row.totalDeposited, asset.decimals)} {asset.symbol}
+            {row.reserve !== undefined && row.reserve > 0n && (
               <>
                 {" · "}held in reserve: {formatAssetAmount(row.reserve, asset.decimals)}
               </>
@@ -205,7 +214,11 @@ function QuarterRow({
               label={`Claim ${quarter?.short ?? ""}`}
               pendingLabel="Claiming…"
               disabledReason={
-                hasClaimable ? undefined : `Nothing to claim in this ${BRAND.groupTerm.toLowerCase()} yet.`
+                claimableUnknown
+                  ? "What is claimable here could not be read, so this stays disabled."
+                  : hasClaimable
+                    ? undefined
+                    : `Nothing to claim in this ${BRAND.groupTerm.toLowerCase()} yet.`
               }
             />
           </div>
@@ -214,6 +227,11 @@ function QuarterRow({
       </div>
     </section>
   );
+}
+
+/** An amount, or an em dash. A dash means not read -- it never means zero. */
+function amount(value: bigint | undefined, decimals: number): string {
+  return value === undefined ? "—" : formatAssetAmount(value, decimals);
 }
 
 function Figure({

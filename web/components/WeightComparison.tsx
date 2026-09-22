@@ -81,7 +81,7 @@ function Side({
   return (
     <div className={`px-6 py-7 ${emphasis ? "bg-tint-sun" : "bg-tint-cream"}`}>
       <div className="flex items-center gap-4">
-        <PieceArt level={level} className="h-16 w-16 shrink-0" />
+        <PieceArt level={level} className="h-20 w-20 shrink-0" />
         <div>
           <p className="font-display text-xl font-bold text-ink">{form}</p>
           <p className="rule-label mt-1">
