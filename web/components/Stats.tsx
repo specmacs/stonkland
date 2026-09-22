@@ -421,7 +421,13 @@ function Figure({
         <span aria-hidden className={`h-2.5 w-2.5 border border-ink ${cap}`} />
         {label}
       </dt>
-      <dd className="figure mt-3">
+      {/* The full supply is thirteen characters and overflowed its third of the plate at
+          the display size. Long figures step down rather than running into the next one. */}
+      <dd
+        className={`mt-3 font-mono tabular-nums leading-none text-ink ${
+          value.length > 10 ? "text-2xl sm:text-3xl" : "figure"
+        }`}
+      >
         {value}
         {unit && <span className="ml-2 font-sans text-sm text-inkMuted">{unit}</span>}
       </dd>
@@ -450,7 +456,13 @@ function Tile({
       <div aria-hidden className={`tile-cap ${cap}`} />
       <div className="p-5">
         <p className="rule-label">{label}</p>
-        <p className="figure mt-3">{value}</p>
+        <p
+          className={`mt-3 font-mono tabular-nums leading-none text-ink ${
+            value.length > 10 ? "text-2xl sm:text-3xl" : "figure"
+          }`}
+        >
+          {value}
+        </p>
         {unit && <p className="mt-1.5 text-xs text-inkMuted">{unit}</p>}
       </div>
     </div>
